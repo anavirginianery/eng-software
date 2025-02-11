@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class AtualizarGlicemiaService implements IAtualizarGlicemiaService {
@@ -17,7 +18,7 @@ public class AtualizarGlicemiaService implements IAtualizarGlicemiaService {
     private GlicemiaRepository glicemiaRepository;
 
     @Override
-    public Glicemia executar(Long id, GlicemiaPostPutRequestDto dto) {
+    public Glicemia executar(UUID id, GlicemiaPostPutRequestDto dto) {
         Optional<Glicemia> glicemiaOptional = this.glicemiaRepository.findById(id);
 
         if (glicemiaOptional.isEmpty()) {
