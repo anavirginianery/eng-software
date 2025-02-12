@@ -11,4 +11,5 @@ public interface HorarioServiceInterface {
     HorarioObject readHorario(UUID uuid);
     ResponseEntity<?> updateHorario(UUID uuid, HorarioPostPutRequestDTO dto);
     ResponseEntity<?> disableHorario(UUID uuid);
+    ResponseEntity<?> listarHorarios();
 }

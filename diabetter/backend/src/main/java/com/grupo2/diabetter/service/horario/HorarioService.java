@@ -20,11 +20,10 @@ public class HorarioService implements HorarioServiceInterface{
     @Override
     public ResponseEntity<?> createHorario(HorarioPostPutRequestDTO dto) {
         Horario horario = new Horario();
-        horario.setUuid(UUID.randomUUID());
         horario.setValue(dto.getValue());
         horario.setDate(dto.getDate());
         horarioRepository.save(horario);
-        return ResponseEntity.ok("Horario created ssuccessfully");
+        return ResponseEntity.ok("Horario created successfully");
     }
 
     @Override
@@ -56,6 +55,11 @@ public class HorarioService implements HorarioServiceInterface{
         } else {
             return ResponseEntity.status(404).body("Horario not found");
         }
+    }
+
+    @Override
+    public ResponseEntity<?> listarHorarios() {
+        return ResponseEntity.ok(horarioRepository.findAll());
     }
 
 }

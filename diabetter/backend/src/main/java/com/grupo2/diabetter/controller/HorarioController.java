@@ -21,19 +21,24 @@ public class HorarioController {
         return horarioService.createHorario(dto);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{uuid}")
     public HorarioObject readHorario(@PathVariable UUID uuid) {
         return horarioService.readHorario(uuid);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{uuid}")
     public ResponseEntity<?> updateHorario(@PathVariable UUID uuid, @RequestBody HorarioPostPutRequestDTO dto){
         return horarioService.updateHorario(uuid, dto);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{uuid}")
     public ResponseEntity<?> disableHorario(@PathVariable UUID uuid) {
         return horarioService.disableHorario(uuid);
+    }
+
+    @GetMapping
+    public ResponseEntity<?> listarHorarios() {
+        return horarioService.listarHorarios();
     }
 
 }
