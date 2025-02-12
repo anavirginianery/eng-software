@@ -1,10 +1,10 @@
-package com.grupo2.diabetter.service.glicemia;
+package com.grupo2.diabetter.service.insulin;
 
 import com.grupo2.diabetter.dto.insulin.InsulinDeleteRequestDTO;
 import com.grupo2.diabetter.dto.insulin.InsulinPostPutRequestDTO;
 import com.grupo2.diabetter.model.Insulin;
 import com.grupo2.diabetter.repository.InsulinRepository;
-import com.grupo2.diabetter.service.glicemia.interfaces.InsulinServiceInterface;
+import com.grupo2.diabetter.service.insulin.interfaces.InsulinServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class InsulinService implements InsulinServiceInterface {
@@ -30,7 +31,7 @@ public class InsulinService implements InsulinServiceInterface {
     }
 
     @Override
-    public Insulin readInsulin(String id) {
+    public Insulin readInsulin(UUID id) {
         return insulinRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Insulin not found"));
     }
@@ -41,7 +42,7 @@ public class InsulinService implements InsulinServiceInterface {
     }
 
     @Override
-    public ResponseEntity<String> updateInsulin(String id, InsulinPostPutRequestDTO requestDTO) {
+    public ResponseEntity<String> updateInsulin(UUID id, InsulinPostPutRequestDTO requestDTO) {
         Optional<Insulin> optionalInsulin = insulinRepository.findById(id);
         if (optionalInsulin.isPresent()) {
             Insulin insulin = optionalInsulin.get();
@@ -56,7 +57,7 @@ public class InsulinService implements InsulinServiceInterface {
     }
 
     @Override
-    public ResponseEntity<String> disableInsulin(String id, InsulinDeleteRequestDTO requestDTO) {
+    public ResponseEntity<String> disableInsulin(UUID id, InsulinDeleteRequestDTO requestDTO) {
         if (insulinRepository.existsById(id)) {
             insulinRepository.deleteById(id);
             return new ResponseEntity<>("Insulin disabled successfully", HttpStatus.OK);
