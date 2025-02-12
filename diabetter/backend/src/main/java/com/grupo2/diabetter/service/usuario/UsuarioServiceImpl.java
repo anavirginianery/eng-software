@@ -7,6 +7,7 @@ import com.grupo2.diabetter.dto.usuario.UsuarioResponseDTO;
 import com.grupo2.diabetter.model.Usuario;
 import com.grupo2.diabetter.repository.UsuarioRepository;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
@@ -22,6 +23,8 @@ public class UsuarioServiceImpl implements UsuarioServiceInterface {
 
     @Override
     public ResponseEntity<?> criarUsuario(UsuarioPostPutRequestDTO dto) {
+        
+    
         Usuario usuario = Usuario.builder()
                 .nome(dto.getNome())
                 .dataNasc(dto.getDataNasc())

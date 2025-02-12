@@ -19,14 +19,15 @@ public class UsuarioController {
     private UsuarioServiceInterface usuarioService;
 
     @PostMapping
-    ResponseEntity<?> criarUsuario(
+    public ResponseEntity<?> criarUsuario(
             @Valid @RequestBody UsuarioPostPutRequestDTO dto
     ) {
         return this.usuarioService.criarUsuario(dto);
     }
 
     @GetMapping("{id}")
-    ResponseEntity<UsuarioResponseDTO> listarUsuario(
+    
+    public ResponseEntity<UsuarioResponseDTO> listarUsuario(
             @PathVariable("id") Long id
     ) {
         return ResponseEntity
@@ -35,7 +36,7 @@ public class UsuarioController {
     }
 
     @PutMapping("{id}")
-    ResponseEntity<?> atualizarUsuario(
+    public ResponseEntity<?> atualizarUsuario(
             @PathVariable("id") Long id,
             @Valid @RequestBody UsuarioPostPutRequestDTO dto
     ) {
@@ -43,7 +44,7 @@ public class UsuarioController {
     }
 
     @DeleteMapping("{id}")
-    ResponseEntity<?> desativarUsuario(
+    public ResponseEntity<?> desativarUsuario(
             @PathVariable("id") Long id,
             @Valid @RequestBody UsuarioDeleteRequestDTO dto
     ) {
