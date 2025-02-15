@@ -31,14 +31,14 @@ public class GlicemiaController {
 
 
     @GetMapping
-    ResponseEntity<List<Glicemia>> listarGlicemias() {
+    public ResponseEntity<List<Glicemia>> listarGlicemias() {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(this.listarGlicemiaService.executar());
     }
 
     @PutMapping("{id}")
-    ResponseEntity<Glicemia> atualizarGlicemia(
+    public ResponseEntity<Glicemia> atualizarGlicemia(
             @PathVariable("id") UUID id,
             @Valid @RequestBody GlicemiaPostPutRequestDto dto
     ) {
@@ -48,7 +48,7 @@ public class GlicemiaController {
     }
 
     @GetMapping("{id}")
-    ResponseEntity<Glicemia> recuperarGlicemia(
+    public ResponseEntity<Glicemia> recuperarGlicemia(
             @PathVariable("id") UUID id
     ) {
         return ResponseEntity
@@ -57,7 +57,7 @@ public class GlicemiaController {
     }
 
     @PostMapping
-    ResponseEntity<Glicemia> criarGlicemia(
+    public ResponseEntity<Glicemia> criarGlicemia(
             @Valid @RequestBody GlicemiaPostPutRequestDto dto
     ) {
         return ResponseEntity
@@ -66,7 +66,7 @@ public class GlicemiaController {
     }
 
     @DeleteMapping("{id}")
-    ResponseEntity<?> removerGlicemia(
+    public ResponseEntity<?> removerGlicemia(
             @PathVariable("id") UUID id
             ) {
         this.deletarGlicemiaService.executar(id);
