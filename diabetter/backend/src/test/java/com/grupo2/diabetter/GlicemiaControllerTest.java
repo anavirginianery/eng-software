@@ -78,6 +78,8 @@ class GlicemiaControllerTest {
 @Nested
 @DisplayName("Conjunto de casos de criar glicemia")
     class UsuarioCriacao {
+      
+
     @Test
 	void testCreateBloodSugarWithValidData() throws Exception{
         GlicemiaPostPutRequestDto dto = new GlicemiaPostPutRequestDto();
@@ -98,6 +100,24 @@ class GlicemiaControllerTest {
     assertEquals(glicemia.getId(), response.getBody().getId());
     assertEquals(glicemia.getMeasurement(), response.getBody().getMeasurement(), 0.001);
 }
+    @Test
+    @DisplayName("Tenta criar uma glicemia e ocorre um erro interno")
+    void testCreateBloodSugarWithInternalError() {
+  
+        GlicemiaPostPutRequestDto dto = new GlicemiaPostPutRequestDto();
+        dto.setMeasurement(120.0f);
+    
+        when(criarGlicemiaService.executar(any(GlicemiaPostPutRequestDto.class)))
+            .thenThrow(new RuntimeException("Erro interno ao criar glicemia"));
+    
+      
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            glicemiaController.criarGlicemia(dto);
+        });
+    
+        assertEquals("Erro interno ao criar glicemia", exception.getMessage());
+        verify(criarGlicemiaService, times(1)).executar(any(GlicemiaPostPutRequestDto.class));
+    }
      @Test
     @DisplayName("Tenta criar uma glicemia com dados inválidos")
     void testCreateBloodSugarWithInvalidData() throws Exception {
@@ -131,7 +151,24 @@ class  leituraGlicemia {
         assertEquals(validId, response.getBody().getId());
         assertEquals(120.0f, response.getBody().getMeasurement(), 0.001);
     }
-
+    @Test
+    @DisplayName("Tenta recuperar uma glicemia e ocorre um erro interno")
+    void testReadBloodSugarWithInternalError() {
+ 
+        UUID validId = UUID.randomUUID();
+    
+        when(recuperarGlicemiaService.executar(validId))
+            .thenThrow(new RuntimeException("Erro interno ao recuperar glicemia"));
+    
+    
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            glicemiaController.recuperarGlicemia(validId);
+        });
+    
+        assertEquals("Erro interno ao recuperar glicemia", exception.getMessage());
+        verify(recuperarGlicemiaService, times(1)).executar(validId);
+    }
+    
     @Test
     @DisplayName("Tenta recuperar uma glicemia com ID inválido")
     void testReadBloodSugarWithInvalidId() {
@@ -194,6 +231,25 @@ class GlicemiaUpdate {
         assertEquals("Glicemia não encontrada", exception.getMessage());
     }
 
+    @Test
+    @DisplayName("Tenta atualizar uma glicemia e ocorre um erro interno")
+    void testUpdateBloodSugarWithInternalError() {
+
+        UUID validId = UUID.randomUUID();
+        GlicemiaPostPutRequestDto dto = new GlicemiaPostPutRequestDto();
+        dto.setMeasurement(130.0f);
+    
+        when(atualizarGlicemiaService.executar(validId, dto))
+            .thenThrow(new RuntimeException("Erro interno ao atualizar glicemia"));
+    
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            glicemiaController.atualizarGlicemia(validId, dto);
+        });
+    
+        assertEquals("Erro interno ao atualizar glicemia", exception.getMessage());
+        verify(atualizarGlicemiaService, times(1)).executar(validId, dto);
+    }
+
 
     @Test
     @DisplayName("Atualiza uma glicemia sem alterar o valor da medição")
@@ -254,6 +310,23 @@ class DeletarGlicemia {
     
         assertEquals("Glicemia não encontrada", exception.getMessage()); 
         verify(deletarGlicemiaService, times(1)).executar(invalidId); 
+    }
+
+    @Test
+    @DisplayName("Tenta desativar uma glicemia e ocorre um erro interno")
+    void testDisableBloodSugarWithInternalError() {
+
+        UUID validId = UUID.randomUUID();
+    
+        doThrow(new RuntimeException("Erro interno ao desativar glicemia"))
+            .when(deletarGlicemiaService).executar(validId);
+    
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            glicemiaController.removerGlicemia(validId);
+        });
+    
+        assertEquals("Erro interno ao desativar glicemia", exception.getMessage());
+        verify(deletarGlicemiaService, times(1)).executar(validId);
     }
 
     @Test

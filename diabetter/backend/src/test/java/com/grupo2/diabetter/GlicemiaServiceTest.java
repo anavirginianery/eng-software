@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -96,6 +97,24 @@ class UsuarioCriacao {
     
         assertEquals("Medição de glicemia inválida", exception.getMessage()); 
     }
+    @Test
+    @DisplayName("Tenta criar uma glicemia e ocorre um erro interno")
+    void testCreateBloodSugarWithInternalError() {
+ 
+        GlicemiaPostPutRequestDto dto = new GlicemiaPostPutRequestDto();
+        dto.setMeasurement(120.0f);
+    
+        when(glicemiaRepository.save(any(Glicemia.class)))
+            .thenThrow(new RuntimeException("Erro interno ao criar glicemia"));
+    
+    
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            criarGlicemiaService.executar(dto);
+        });
+    
+        assertEquals("Erro interno ao criar glicemia", exception.getMessage());
+        verify(glicemiaRepository, times(1)).save(any(Glicemia.class));
+    }
 
 }
 
@@ -139,6 +158,24 @@ class  leituraGlicemia{
 
         assertNotNull(resultado); 
         assertTrue(resultado.isEmpty()); 
+    }
+
+    @Test
+    @DisplayName("Tenta recuperar uma glicemia e ocorre um erro interno")
+    void testReadBloodSugarWithInternalError() {
+
+        UUID validId = UUID.randomUUID();
+    
+        when(glicemiaRepository.findById(validId))
+            .thenThrow(new RuntimeException("Erro interno ao recuperar glicemia"));
+    
+    
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            recuperarGlicemiaService.executar(validId);
+        });
+    
+        assertEquals("Erro interno ao recuperar glicemia", exception.getMessage());
+        verify(glicemiaRepository, times(1)).findById(validId);
     }
 }
 
@@ -217,6 +254,26 @@ class GlicemiaUpdate {
         assertEquals(dto.getMeasurement(), resultado.getMeasurement(), 0.001); 
     }
 
+    @Test
+    @DisplayName("Tenta atualizar uma glicemia e ocorre um erro interno")
+    void testUpdateBloodSugarWithInternalError() {
+ 
+        UUID validId = UUID.randomUUID();
+        GlicemiaPostPutRequestDto dto = new GlicemiaPostPutRequestDto();
+        dto.setMeasurement(130.0f);
+    
+        when(glicemiaRepository.findById(validId)).thenReturn(Optional.of(new Glicemia()));
+        when(glicemiaRepository.save(any(Glicemia.class)))
+            .thenThrow(new RuntimeException("Erro interno ao atualizar glicemia"));
+    
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            atualizarGlicemiaService.executar(validId, dto);
+        });
+    
+        assertEquals("Erro interno ao atualizar glicemia", exception.getMessage());
+        verify(glicemiaRepository, times(1)).save(any(Glicemia.class));
+    }
+
 
 }
 
@@ -281,6 +338,25 @@ class DeletarGlicemia {
         });
 
         assertEquals("Glicemia não encontrada", exception.getMessage()); 
+    }
+
+    @Test
+    @DisplayName("Tenta desativar uma glicemia e ocorre um erro interno")
+    void testDisableBloodSugarWithInternalError() {
+
+        UUID validId = UUID.randomUUID();
+    
+        when(glicemiaRepository.findById(validId)).thenReturn(Optional.of(new Glicemia()));
+        doThrow(new RuntimeException("Erro interno ao desativar glicemia"))
+            .when(glicemiaRepository).deleteById(validId);
+    
+    
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            deletarGlicemiaService.executar(validId);
+        });
+    
+        assertEquals("Erro interno ao desativar glicemia", exception.getMessage());
+        verify(glicemiaRepository, times(1)).deleteById(validId);
     }
 }
 
