@@ -24,6 +24,14 @@ public class AlterarSenhaService implements IAlterarSenhaService {
                 .orElseThrow(() -> new NotFoundException("Usuário não encontrado"));
         
         //espaço reservado para a lógica de construção de um password válido, ou criptografia/encoding de um novo password.
+        if (!usuario.getPassword().equals(dto.getSenhaAtual())) {
+            throw new InvalidPasswordException("Senha atual inválida");
+        }
+    
+       
+        usuario.setPassword(dto.getNovaSenha());
+    
+       
     
         usuarioRepository.save(usuario);
     }

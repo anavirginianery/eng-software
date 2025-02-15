@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.bind.Nested;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +25,7 @@ public class AtualizarUsuarioService implements IAtualizarUsuarioService{
         Optional<Usuario> usuarioOptional = usuarioRepository.findById(id);
         
         if (usuarioOptional.isEmpty()) {
-            throw new NotFoundException()(message: "Usuário não encontrado");
+            throw new NotFoundException("Usuário não encontrado"); // Correção aqui
         }
 
         Usuario usuario = usuarioOptional.get();
@@ -37,5 +38,5 @@ public class AtualizarUsuarioService implements IAtualizarUsuarioService{
         return this.usuarioRepository.save(usuario);
         
     }
-
 }
+

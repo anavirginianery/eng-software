@@ -7,6 +7,7 @@ import com.grupo2.diabetter.dto.usuario.UsuarioResponseDTO;
 import com.grupo2.diabetter.exception.InvalidPasswordException;
 import com.grupo2.diabetter.exception.NotFoundException;
 import com.grupo2.diabetter.model.Usuario;
+import com.grupo2.diabetter.service.usuario.CriarUsuarioService;
 import com.grupo2.diabetter.service.usuario.interfaces.IAlterarSenhaService;
 import com.grupo2.diabetter.service.usuario.interfaces.IAtualizarUsuarioService;
 import com.grupo2.diabetter.service.usuario.interfaces.ICriarUsuarioService;
@@ -38,7 +39,9 @@ public class UsuarioController {
     @Autowired
     private IListarUsuarioService listarUsuarioService;
 
+   
 
+    
     @PostMapping
     public Usuario criarUsuario(
             @Valid @RequestBody UsuarioPostPutRequestDTO dto

@@ -1,5 +1,7 @@
 package com.grupo2.diabetter.dto.usuario;
 
+import java.util.UUID;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grupo2.diabetter.model.Usuario;
 import lombok.AllArgsConstructor;
@@ -14,7 +16,7 @@ import lombok.NoArgsConstructor;
 public class UsuarioResponseDTO {
 
     @JsonProperty("id_usuario")
-    private Long id;
+    private UUID id;
 
     private String nome;
 
