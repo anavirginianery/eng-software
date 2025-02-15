@@ -1,6 +1,6 @@
 package com.grupo2.diabetter.dto.usuario;
 
-import com.grupo2.diabetter.model.Genero;  
+import com.grupo2.diabetter.enuns.Genero;
 
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
