@@ -1,4 +1,4 @@
-package com.grupo2.diabetter.dto.glicemia;
+package com.grupo2.diabetter.dto.horario;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,5 +13,6 @@ public class HorarioPostPutRequestDTO {
 
     private String value;
     private String date;
+    private Long userId;
 
 }

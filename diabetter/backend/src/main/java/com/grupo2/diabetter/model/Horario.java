@@ -27,4 +27,7 @@ public class Horario {
     @Column(name = "date", nullable = false)
     @JsonProperty
     private String date;
+    @Column(name = "userId", nullable = false)
+    @JsonProperty
+    private Long userId;
 }

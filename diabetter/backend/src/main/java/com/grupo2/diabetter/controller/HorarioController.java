@@ -1,8 +1,8 @@
 package com.grupo2.diabetter.controller;
 
-import com.grupo2.diabetter.dto.glicemia.HorarioObject;
-import com.grupo2.diabetter.dto.glicemia.HorarioPostPutRequestDTO;
-import com.grupo2.diabetter.service.horario.HorarioService;
+import com.grupo2.diabetter.dto.horario.HorarioObject;
+import com.grupo2.diabetter.dto.horario.HorarioPostPutRequestDTO;
+import com.grupo2.diabetter.service.horario.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,32 +13,41 @@ import java.util.UUID;
 @RequestMapping("/horario")
 public class HorarioController {
 
+
     @Autowired
-    private HorarioService horarioService;
+    private CriarHorarioService criarHorarioService;
+    @Autowired
+    private AtualizarHorarioService atualizarHorarioService;
+    @Autowired
+    private DeletarHorarioService deletarHorarioService;
+    @Autowired
+    private ListarHorarioService listarHorarioService;
+    @Autowired
+    private RecuperarHorarioService recuperarHorarioService;
 
     @PostMapping
     public ResponseEntity<?> createHorario(@RequestBody HorarioPostPutRequestDTO dto){
-        return horarioService.createHorario(dto);
+        return criarHorarioService.createHorario(dto);
     }
 
     @GetMapping("/{uuid}")
-    public HorarioObject readHorario(@PathVariable UUID uuid) {
-        return horarioService.readHorario(uuid);
+    public ResponseEntity<?> readHorario(@PathVariable UUID uuid) {
+        return recuperarHorarioService.recuperarHorario(uuid);
     }
 
     @PutMapping("/{uuid}")
     public ResponseEntity<?> updateHorario(@PathVariable UUID uuid, @RequestBody HorarioPostPutRequestDTO dto){
-        return horarioService.updateHorario(uuid, dto);
+        return atualizarHorarioService.updateHorario(uuid, dto);
     }
 
     @DeleteMapping("/{uuid}")
     public ResponseEntity<?> disableHorario(@PathVariable UUID uuid) {
-        return horarioService.disableHorario(uuid);
+        return deletarHorarioService.deletarHorario(uuid);
     }
 
-    @GetMapping
-    public ResponseEntity<?> listarHorarios() {
-        return horarioService.listarHorarios();
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<?> listarHorarios(@PathVariable Long userId) {
+        return listarHorarioService.listarHorario(userId);
     }
 
 }
