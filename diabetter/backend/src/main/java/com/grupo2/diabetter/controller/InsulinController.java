@@ -66,6 +66,7 @@ public class InsulinController {
             @RequestBody InsulinPostPutRequestDTO requestDTO) {
         InsulinResponseDTO response = atualizarInsulinService.atualizarInsulin(id, requestDTO);
         return ResponseEntity.ok(response);
+           
     }
 
     @DeleteMapping("/{id}")

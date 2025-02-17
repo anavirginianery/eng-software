@@ -25,4 +25,5 @@ public class DeletarInsulinService implements IDeletarInsulinService {
                 .mensagem("Insulin deletada com sucesso")
                 .build();
     }
+    
 }
