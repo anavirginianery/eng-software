@@ -71,6 +71,9 @@ public class InsulinController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<InsulinDeleteResponseDTO> deleteInsulin(@PathVariable UUID id) {
+        if (id == null) {
+            throw new IllegalArgumentException("ID não pode ser nulo");
+        }
         InsulinDeleteResponseDTO response = deletarInsulinService.deletarInsulin(id);
         return ResponseEntity.ok(response);
     }

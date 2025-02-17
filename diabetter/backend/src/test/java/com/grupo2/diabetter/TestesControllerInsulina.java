@@ -22,6 +22,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -63,8 +64,7 @@ public class TestesControllerInsulina {
     @Mock
     private RecuperarInsulinService recuperarInsulinService;
 
-    @Mock
-    private InsulinRepository insulinRepository;
+   
 
     @InjectMocks
     private InsulinController insulinController;
@@ -133,7 +133,7 @@ class CriarInsulina{
 
         InsulinPostPutRequestDTO dto = InsulinPostPutRequestDTO.builder()
                 .type("Novorapido")
-                .units(-5) // Unidades inválidas (negativas)
+                .units(-5)
                 .horarioId(horarioId)
                 .build();
 
@@ -352,78 +352,242 @@ class updateInsulin{
         assertEquals(horarioId, response.getBody().getHorarioId());
 
     }
-    
+
+    @Test
+    @DisplayName("Atualizaão de insulina com valor invalido")
+    void testUpdateInsulinWithInvalidID(){
+    UUID invalidId = UUID.randomUUID();
+        InsulinPostPutRequestDTO dto = InsulinPostPutRequestDTO.builder()
+                .type("Rapida")
+                .units(15)
+                .horarioId(UUID.randomUUID())
+                .build();
+
+        when(atualizarInsulinService.atualizarInsulin(invalidId, dto))
+                .thenThrow(new RuntimeException("Insulin não encontrada"));
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            insulinController.updateInsulin(invalidId, dto);
+        });
+
+        assertEquals("Insulin não encontrada", exception.getMessage());
+        verify(atualizarInsulinService, times(1)).atualizarInsulin(invalidId, dto);
+    }
+
+    @Test
+    @DisplayName("Teste de atualizar insulina com tipo inválido")
+    void testUpdateInsulinWithInvalidType(){
+        UUID insulinId = UUID.randomUUID();
+        InsulinPostPutRequestDTO dto = InsulinPostPutRequestDTO.builder()
+                .type(" ")
+                .units(15)
+                .horarioId(UUID.randomUUID())
+                .build();
+            
+                when(atualizarInsulinService.atualizarInsulin(insulinId, dto))
+                .thenThrow(new CommerceException("Tipo de insulina inválido"));
+
+        CommerceException exception = assertThrows(CommerceException.class, () -> {
+            insulinController.updateInsulin(insulinId, dto);
+        });
+
+        assertEquals("Tipo de insulina inválido", exception.getMessage());
+
+        verify(atualizarInsulinService, times(1)).atualizarInsulin(insulinId, dto);
+    }
+
+    @Test
+    @DisplayName("Atualização de insulina com unidades inválidas")
+    void testUpdateInsulinWithInvalidUnits() {
+        UUID insulinId = UUID.randomUUID();
+        InsulinPostPutRequestDTO dto = InsulinPostPutRequestDTO.builder()
+                .type("Rapida")
+                .units(-5) // Unidades inválidas (negativas)
+                .horarioId(UUID.randomUUID())
+                .build();
+
+        when(atualizarInsulinService.atualizarInsulin(insulinId, dto))
+                .thenThrow(new CommerceException("Unidades de insulina inválidas"));
+
+        CommerceException exception = assertThrows(CommerceException.class, () -> {
+            insulinController.updateInsulin(insulinId, dto);
+        });
+
+        assertEquals("Unidades de insulina inválidas", exception.getMessage());
+
+        verify(atualizarInsulinService, times(1)).atualizarInsulin(insulinId, dto);
+    }
+
+    @Test
+    @DisplayName("Atualização de insulina com horário inválido")
+    void testUpdateInsulinWithInvalidSchedule() {
+        UUID insulinId = UUID.randomUUID();
+        InsulinPostPutRequestDTO dto = InsulinPostPutRequestDTO.builder()
+                .type("Rapida")
+                .units(15)
+                .horarioId(null) // Horário inválido (nulo)
+                .build();
+
+        when(atualizarInsulinService.atualizarInsulin(insulinId, dto))
+                .thenThrow(new CommerceException("Horário de insulina inválido"));
+
+        CommerceException exception = assertThrows(CommerceException.class, () -> {
+            insulinController.updateInsulin(insulinId, dto);
+        });
+
+        assertEquals("Horário de insulina inválido", exception.getMessage());
+
+        verify(atualizarInsulinService, times(1)).atualizarInsulin(insulinId, dto);
+    }
+
+    @Test
+    @DisplayName("Atualização de insulina sem alterações")
+    void testUpdateInsulinWithoutChanges() {
+        UUID insulinId = UUID.randomUUID();
+        UUID horarioId = UUID.randomUUID();
+
+        InsulinPostPutRequestDTO dto = InsulinPostPutRequestDTO.builder()
+                .type("Rapida")
+                .units(15)
+                .horarioId(horarioId)
+                .build();
+
+        InsulinResponseDTO responseDTO = InsulinResponseDTO.builder()
+                .uuid(insulinId)
+                .type("Rapida")
+                .units(15)
+                .horarioId(horarioId)
+                .build();
+
+        when(atualizarInsulinService.atualizarInsulin(insulinId, dto)).thenReturn(responseDTO);
+
+        ResponseEntity<InsulinResponseDTO> response = insulinController.updateInsulin(insulinId, dto);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(insulinId, response.getBody().getUuid());
+        assertEquals("Rapida", response.getBody().getType());
+        assertEquals(15, response.getBody().getUnits(), 0.001);
+        assertEquals(horarioId, response.getBody().getHorarioId());
+
+        verify(atualizarInsulinService, times(1)).atualizarInsulin(insulinId, dto);
+    }
+
+    @Test
+    @DisplayName("Atualização de insulina com erro interno")
+    void testUpdateInsulinWithInternalError() {
+        UUID insulinId = UUID.randomUUID();
+        InsulinPostPutRequestDTO dto = InsulinPostPutRequestDTO.builder()
+                .type("Rapida")
+                .units(15)
+                .horarioId(UUID.randomUUID())
+                .build();
+
+        when(atualizarInsulinService.atualizarInsulin(insulinId, dto))
+                .thenThrow(new RuntimeException("Erro interno no servidor"));
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            insulinController.updateInsulin(insulinId, dto);
+        });
+
+        assertEquals("Erro interno no servidor", exception.getMessage());
+
+        verify(atualizarInsulinService, times(1)).atualizarInsulin(insulinId, dto);
+    }
+
+
+
     
 }
 @Nested
 @DisplayName("Casos de teste de deletar a insulina")
 class DeletarInsulina{
+    
     @Test
+    @DisplayName("Desativa insulina com sucesso")
     void testDisableInsulinWithSuccess() {
-        UUID id = UUID.randomUUID();
-        Insulin insulin = new Insulin();
-        insulin.setUuid(id);
+        UUID insulinId = UUID.randomUUID();
 
-        when(insulinRepository.existsById(id)).thenReturn(true);
-        doNothing().when(insulinRepository).deleteById(id);
+        InsulinDeleteResponseDTO responseDTO = InsulinDeleteResponseDTO.builder()
+                .mensagem("Insulin deletada com sucesso")
+                .build();
 
-        InsulinDeleteResponseDTO response = deletarInsulinService.deletarInsulin(id);
+        when(deletarInsulinService.deletarInsulin(insulinId)).thenReturn(responseDTO);
 
-        assertNotNull(response);
-        assertEquals("Insulin deletada com sucesso", response.getMensagem());
-        verify(insulinRepository, times(1)).deleteById(id);
+        ResponseEntity<InsulinDeleteResponseDTO> response = insulinController.deleteInsulin(insulinId);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Insulin deletada com sucesso", response.getBody().getMensagem());
+
+        verify(deletarInsulinService, times(1)).deletarInsulin(insulinId);
     }
 
     @Test
+    @DisplayName("Desativa insulina com ID inválido")
     void testDisableInsulinWithInvalidId() {
-        UUID id = UUID.randomUUID();
+        UUID invalidId = UUID.randomUUID();
 
-        when(insulinRepository.existsById(id)).thenReturn(false);
+        when(deletarInsulinService.deletarInsulin(invalidId))
+                .thenThrow(new RuntimeException("Insulin não encontrada"));
 
-        assertThrows(RuntimeException.class, () -> {
-            deletarInsulinService.deletarInsulin(id);
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            insulinController.deleteInsulin(invalidId);
         });
 
-        verify(insulinRepository, never()).deleteById(id);
+        assertEquals("Insulin não encontrada", exception.getMessage());
+
+        verify(deletarInsulinService, times(1)).deletarInsulin(invalidId);
     }
 
     @Test
+    @DisplayName("Desativa insulina com dados inválidos")
     void testDisableInsulinWithInvalidData() {
-        UUID id = null;
+        UUID insulinId = null; // ID inválido (nulo)
 
-        assertThrows(IllegalArgumentException.class, () -> {
-            deletarInsulinService.deletarInsulin(id);
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            insulinController.deleteInsulin(insulinId);
         });
 
-        verify(insulinRepository, never()).deleteById(any());
+        assertEquals("ID não pode ser nulo", exception.getMessage());
+
+        verify(deletarInsulinService, never()).deletarInsulin(any());
     }
 
     @Test
+    @DisplayName("Desativa insulina já desativada")
     void testDisableInsulinAlreadyDisabled() {
-        UUID id = UUID.randomUUID();
+        UUID insulinId = UUID.randomUUID();
 
-        when(insulinRepository.existsById(id)).thenReturn(false);
+        when(deletarInsulinService.deletarInsulin(insulinId))
+                .thenThrow(new RuntimeException("Insulin já desativada"));
 
-        assertThrows(RuntimeException.class, () -> {
-            deletarInsulinService.deletarInsulin(id);
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            insulinController.deleteInsulin(insulinId);
         });
 
-        verify(insulinRepository, never()).deleteById(id);
+        assertEquals("Insulin já desativada", exception.getMessage());
+
+        verify(deletarInsulinService, times(1)).deletarInsulin(insulinId);
     }
 
     @Test
+    @DisplayName("Desativa insulina com erro interno")
     void testDisableInsulinWithInternalError() {
-        UUID id = UUID.randomUUID();
+        UUID insulinId = UUID.randomUUID();
 
-        when(insulinRepository.existsById(id)).thenReturn(true);
-        doThrow(new EmptyResultDataAccessException(1)).when(insulinRepository).deleteById(id);
+        when(deletarInsulinService.deletarInsulin(insulinId))
+                .thenThrow(new RuntimeException("Erro interno no servidor"));
 
-        assertThrows(RuntimeException.class, () -> {
-            deletarInsulinService.deletarInsulin(id);
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            insulinController.deleteInsulin(insulinId);
         });
 
-        verify(insulinRepository, times(1)).deleteById(id);
+        assertEquals("Erro interno no servidor", exception.getMessage());
+
+        verify(deletarInsulinService, times(1)).deletarInsulin(insulinId);
     }
+
 }
 }
 

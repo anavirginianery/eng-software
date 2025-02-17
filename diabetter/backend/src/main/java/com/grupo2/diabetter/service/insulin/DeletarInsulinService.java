@@ -1,6 +1,7 @@
 package com.grupo2.diabetter.service.insulin;
 
 import com.grupo2.diabetter.dto.insulin.InsulinDeleteResponseDTO;
+import com.grupo2.diabetter.exception.CommerceException;
 import com.grupo2.diabetter.repository.InsulinRepository;
 import com.grupo2.diabetter.service.insulin.interfaces.IDeletarInsulinService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,10 @@ public class DeletarInsulinService implements IDeletarInsulinService {
 
     @Override
     public InsulinDeleteResponseDTO deletarInsulin(UUID id) {
+        if (id == null) {
+            throw new IllegalArgumentException("ID não pode ser nulo");
+        }
+       
         if (!insulinRepository.existsById(id)) {
             throw new RuntimeException("Insulin não encontrada");
         }
