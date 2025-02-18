@@ -1,9 +1,9 @@
 package com.grupo2.diabetter.controller;
 
-import com.grupo2.diabetter.dto.horario.HorarioObject;
 import com.grupo2.diabetter.dto.horario.HorarioPostPutRequestDTO;
 import com.grupo2.diabetter.service.horario.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,27 +27,28 @@ public class HorarioController {
 
     @PostMapping
     public ResponseEntity<?> createHorario(@RequestBody HorarioPostPutRequestDTO dto){
-        return criarHorarioService.createHorario(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(criarHorarioService.createHorario(dto));
     }
 
     @GetMapping("/{uuid}")
     public ResponseEntity<?> readHorario(@PathVariable UUID uuid) {
-        return recuperarHorarioService.recuperarHorario(uuid);
+        return ResponseEntity.status(HttpStatus.OK).body(recuperarHorarioService.recuperarHorario(uuid));
     }
 
     @PutMapping("/{uuid}")
-    public ResponseEntity<?> updateHorario(@PathVariable UUID uuid, @RequestBody HorarioPostPutRequestDTO dto){
-        return atualizarHorarioService.updateHorario(uuid, dto);
+    public ResponseEntity<?> updateHorario(@PathVariable UUID uuid, @RequestBody HorarioPostPutRequestDTO dto) {
+        return ResponseEntity.status(HttpStatus.OK).body(atualizarHorarioService.updateHorario(uuid, dto));
     }
 
     @DeleteMapping("/{uuid}")
     public ResponseEntity<?> disableHorario(@PathVariable UUID uuid) {
-        return deletarHorarioService.deletarHorario(uuid);
+        this.deletarHorarioService.deletarHorario(uuid);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<?> listarHorarios(@PathVariable Long userId) {
-        return listarHorarioService.listarHorario(userId);
+        return ResponseEntity.status(HttpStatus.OK).body(listarHorarioService.listarHorario(userId));
     }
 
 }

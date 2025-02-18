@@ -1,7 +1,9 @@
 package com.grupo2.diabetter.service.horario.interfaces;
 
-import org.springframework.http.ResponseEntity;
+import com.grupo2.diabetter.model.Horario;
+
+import java.util.List;
 
 public interface IListarHorarioService {
-    ResponseEntity<?> listarHorario(Long userId);
+    List<Horario> listarHorario(Long userId);
 }

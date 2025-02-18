@@ -9,7 +9,7 @@ import java.util.UUID;
 @Getter
 @AllArgsConstructor
 @Builder
-public class HorarioObject {
+public class HorarioResponseDTO {
 
     private UUID uuid;
     private String value;
