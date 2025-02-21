@@ -18,13 +18,16 @@ public class RecuperarHorarioService implements IRecuperarHorarioService {
 
     @Override
     public HorarioResponseDTO recuperarHorario(UUID uuid) {
-        Horario horario = horarioRepository.findById(uuid).orElse(null);
-        if (horario == null) {
-            throw new NotFoundException("Horario not found");
-        } else {
-            HorarioResponseDTO horarioResponseDTO = HorarioResponseDTO.builder().userId(horario.getUserId())
-                    .value(horario.getValue()).date(horario.getDate()).uuid(horario.getUuid()).build();
-            return horarioResponseDTO;
-        }
+        Horario horario = horarioRepository.findById(uuid).orElseThrow(() -> new NotFoundException("Horario not found"));
+
+        HorarioResponseDTO horarioResponseDTO = HorarioResponseDTO.builder()
+            .userId(horario.getUserId())
+            .value(horario.getValue())
+            .date(horario.getDate())
+            .uuid(horario.getUuid())
+            .build();
+        
+        return horarioResponseDTO;
+        
     }
 }

@@ -9,7 +9,6 @@ import com.grupo2.diabetter.service.horario.interfaces.IAtualizarHorarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -20,19 +19,21 @@ public class AtualizarHorarioService implements IAtualizarHorarioService {
 
     @Override
     public HorarioResponseDTO updateHorario(UUID uuid, HorarioPostPutRequestDTO dto){
-        Optional<Horario> optionalHorario = horarioRepository.findById(uuid);
-        if(optionalHorario.isPresent()){
-            Horario horario = optionalHorario.get();
-            horario.setValue(dto.getValue());
-            horario.setUserId(dto.getUserId());
-            horario.setDate(dto.getDate());
-            horarioRepository.save(horario);
-            HorarioResponseDTO horarioResponseDTO = HorarioResponseDTO.builder().value(dto.getValue())
-                    .date(dto.getDate()).userId(dto.getUserId()).uuid(horario.getUuid()).build();
+        Horario horario = horarioRepository.findById(uuid).orElseThrow(() -> new NotFoundException("Horario not found"));
+
+        horario.setValue(dto.getValue());
+        horario.setUserId(dto.getUserId());
+        horario.setDate(dto.getDate());
+
+        horarioRepository.save(horario);
+
+        HorarioResponseDTO horarioResponseDTO = HorarioResponseDTO.builder()
+                .value(dto.getValue())
+                .date(dto.getDate())
+                .userId(dto.getUserId())
+                .uuid(horario.getUuid())
+                .build();
             return horarioResponseDTO;
-        } else {
-            throw new NotFoundException("Horario not found");
-        }
     }
 
 }
