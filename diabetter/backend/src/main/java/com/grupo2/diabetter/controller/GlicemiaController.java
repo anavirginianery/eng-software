@@ -11,64 +11,65 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/glicemia")
 public class GlicemiaController {
 
     @Autowired
-    private ICriarGlicemiaService criarClienteService;
+    private ICriarGlicemiaService criarGlicemiaService;
     @Autowired
-    private IListarGlicemiasService listarClientesService;
+    private IListarGlicemiasService listarGlicemiaService;
     @Autowired
-    private IAtualizarGlicemiaService atualizarClienteService;
+    private IAtualizarGlicemiaService atualizarGlicemiaService;
     @Autowired
-    private IRecuperarGlicemiaService recuperarClienteService;
+    private IRecuperarGlicemiaService recuperarGlicemiaService;
     @Autowired
-    private IDeletarGlicemiaService deletarClienteService;
+    private IDeletarGlicemiaService deletarGlicemiaService;
     @Autowired
 
 
     @GetMapping
-    ResponseEntity<List<Glicemia>> listarClientes() {
+    public ResponseEntity<List<Glicemia>> listarGlicemias() {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(this.listarClientesService.executar());
+                .body(this.listarGlicemiaService.executar());
     }
 
     @PutMapping("{id}")
-    ResponseEntity<Glicemia> atualizarCliente(
-            @PathVariable("id") Long id,
+    public ResponseEntity<Glicemia> atualizarGlicemia(
+            @PathVariable("id") UUID id,
             @Valid @RequestBody GlicemiaPostPutRequestDto dto
     ) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(this.atualizarClienteService.executar(id, dto));
+                .body(this.atualizarGlicemiaService.executar(id, dto));
     }
 
     @GetMapping("{id}")
-    ResponseEntity<Glicemia> recuperarCliente(
-            @PathVariable("id") Long id
+    public ResponseEntity<Glicemia> recuperarGlicemia(
+            @PathVariable("id") UUID id
     ) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(this.recuperarClienteService.executar(id));
+                .body(this.recuperarGlicemiaService.executar(id));
     }
 
     @PostMapping
-    ResponseEntity<Glicemia> criarCliente(
+    public ResponseEntity<Glicemia> criarGlicemia(
             @Valid @RequestBody GlicemiaPostPutRequestDto dto
     ) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(this.criarClienteService.executar(dto));
+                .body(this.criarGlicemiaService.executar(dto));
     }
 
     @DeleteMapping("{id}")
-    ResponseEntity<?> removerCliente(
-            @PathVariable("id") Long id
+    public ResponseEntity<?> removerGlicemia(
+            @PathVariable("id") UUID id
             ) {
-        this.deletarClienteService.executar(id);
+        this.deletarGlicemiaService.executar(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 

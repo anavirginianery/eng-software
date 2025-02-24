@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class RecuperarGlicemiaService implements IRecuperarGlicemiaService {
@@ -15,7 +16,7 @@ public class RecuperarGlicemiaService implements IRecuperarGlicemiaService {
     private GlicemiaRepository glicemiaRepository;
 
     @Override
-    public Glicemia executar(Long id) {
+    public Glicemia executar(UUID id) {
         Optional<Glicemia> glicemia = this.glicemiaRepository.findById(id);
         if (glicemia.isEmpty()) {
             throw new NotFoundException("Glicemia não encontrada");

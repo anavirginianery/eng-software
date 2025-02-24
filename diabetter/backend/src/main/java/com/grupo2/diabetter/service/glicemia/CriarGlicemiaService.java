@@ -12,9 +12,13 @@ public class CriarGlicemiaService implements ICriarGlicemiaService {
 
     @Autowired
     private GlicemiaRepository glicemiaRepository;
+    
 
     @Override
     public Glicemia executar(GlicemiaPostPutRequestDto dto) {
+        if (dto.getMeasurement() < 0) {
+            throw new IllegalArgumentException("Medição de glicemia inválida");
+        }
         Glicemia glicemia = Glicemia.builder()
                 .measurement(dto.getMeasurement())
                 .build();
