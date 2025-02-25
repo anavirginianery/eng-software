@@ -5,6 +5,9 @@ import com.grupo2.diabetter.dto.horario.HorarioPostPutRequestDTO;
 import com.grupo2.diabetter.dto.horario.HorarioResponseDTO;
 import com.grupo2.diabetter.exception.NotFoundException;
 import com.grupo2.diabetter.service.horario.*;
+
+import jakarta.validation.ConstraintViolationException;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -12,13 +15,17 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,6 +35,7 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest
 class HorarioControllerTests {
+   
 
     @Mock
     private CriarHorarioService criarHorarioService;
@@ -68,18 +76,51 @@ class HorarioControllerTests {
             assertEquals(HttpStatus.CREATED, response.getStatusCode());
             assertEquals(horarioSalvo, response.getBody());
         }
-
+        
+        
         @Test
-        void testCriarHorarioComDadosInvalidos() {
+        void testCriarHorarioComDataInvalida() {
+            HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO("08:00", "data-invalida", 1L);
+
             when(criarHorarioService.createHorario(any(HorarioPostPutRequestDTO.class)))
-                    .thenThrow(new IllegalArgumentException("Dados inválidos"));
+                    .thenThrow(new IllegalArgumentException("Data inválida"));
 
             IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-                horarioController.createHorario(null);
+                horarioController.createHorario(dto);
             });
 
-            assertEquals("Dados inválidos", exception.getMessage());
+            assertEquals("Data inválida", exception.getMessage());
         }
+
+    @Test
+    void testCriarHorarioComErroInterno() {
+        HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO("08:00", "2025-02-20", 1L);
+
+        when(criarHorarioService.createHorario(any(HorarioPostPutRequestDTO.class)))
+                .thenThrow(new RuntimeException("Erro interno"));
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            horarioController.createHorario(dto);
+        });
+
+        assertEquals("Erro interno", exception.getMessage());
+    }
+    @Test
+    void testCriarHorarioComDadosInvalidos() {
+       
+        HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO(null, "2025-02-20", 1L);
+
+        when(criarHorarioService.createHorario(any(HorarioPostPutRequestDTO.class)))
+                .thenThrow(new ConstraintViolationException("Dados inválidos", Set.of()));
+
+  
+        ConstraintViolationException exception = assertThrows(ConstraintViolationException.class, () -> {
+            horarioController.createHorario(dto);
+        });
+
+    
+        assertEquals("Dados inválidos", exception.getMessage());
+    }
     }
 
     @Nested
@@ -110,6 +151,20 @@ class HorarioControllerTests {
 
             assertEquals("Horario not found", exception.getMessage());
         }
+
+        @Test
+        void testReadHorarioComErroInterno() {
+            UUID id = UUID.randomUUID();
+
+            when(recuperarHorarioService.recuperarHorario(id))
+                    .thenThrow(new RuntimeException("Erro interno"));
+
+            RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+                horarioController.readHorario(id);
+            });
+
+            assertEquals("Erro interno", exception.getMessage());
+    }
     }
 
     @Nested
@@ -143,6 +198,50 @@ class HorarioControllerTests {
 
             assertEquals("Horario not found", exception.getMessage());
         }
+
+        @Test
+        void testAtualizarHorarioComValorInvalido() {
+            UUID id = UUID.randomUUID();
+            HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO("valor-invalido", "2025-02-21", 1L);
+
+            when(atualizarHorarioService.updateHorario(eq(id), any(HorarioPostPutRequestDTO.class)))
+                    .thenThrow(new IllegalArgumentException("Valor inválido"));
+
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+                horarioController.updateHorario(id, dto);
+            });
+
+            assertEquals("Valor inválido", exception.getMessage());
+        }
+
+        @Test
+        void testAtualizarHorarioSemMudanca() {
+            UUID id = UUID.randomUUID();
+            HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO("08:00", "2025-02-21", 1L);
+            HorarioResponseDTO horarioAtualizado = new HorarioResponseDTO(id, dto.getValue(), dto.getDate(), dto.getUserId());
+
+            when(atualizarHorarioService.updateHorario(eq(id), any(HorarioPostPutRequestDTO.class))).thenReturn(horarioAtualizado);
+
+            ResponseEntity<?> response = horarioController.updateHorario(id, dto);
+
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+            assertEquals(horarioAtualizado, response.getBody());
+        }
+
+        @Test
+        void testAtualizarHorarioComErroInterno() {
+            UUID id = UUID.randomUUID();
+            HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO("10:00", "2025-02-21", 1L);
+
+            when(atualizarHorarioService.updateHorario(eq(id), any(HorarioPostPutRequestDTO.class)))
+                    .thenThrow(new RuntimeException("Erro interno"));
+
+            RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+                horarioController.updateHorario(id, dto);
+            });
+
+            assertEquals("Erro interno", exception.getMessage());
+        }
     }
 
     @Nested
@@ -168,6 +267,32 @@ class HorarioControllerTests {
             });
 
             assertEquals("Horario not found", exception.getMessage());
+        }
+
+        @Test
+        void testDeletarHorarioJaDesativado() {
+            UUID id = UUID.randomUUID();
+
+            doThrow(new IllegalStateException("Horário já desativado")).when(deletarHorarioService).deletarHorario(id);
+
+            IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
+                horarioController.disableHorario(id);
+            });
+
+            assertEquals("Horário já desativado", exception.getMessage());
+        }
+
+        @Test
+        void testDeletarHorarioComErroInterno() {
+            UUID id = UUID.randomUUID();
+
+            doThrow(new RuntimeException("Erro interno")).when(deletarHorarioService).deletarHorario(id);
+
+            RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+                horarioController.disableHorario(id);
+            });
+
+            assertEquals("Erro interno", exception.getMessage());
         }
     }
 
