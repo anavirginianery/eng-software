@@ -6,6 +6,8 @@ import "primereact/resources/themes/lara-light-blue/theme.css";
 import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
 import "./globals.css";
+import Header from "./components/header/Header";
+import { Footer } from "./components/footer/Footer";
 
 
 const geistSans = Geist({
@@ -33,8 +35,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Navbar />
+        <Header />
         <main className="p-4">{children}</main>
+        <Footer/>
       </body>
     </html>
   );

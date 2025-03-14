@@ -1,9 +1,10 @@
 import React from 'react'
+import KeyFilter from '@/app/components/form/KeyFilter'
 
 export default function Form() {
   return (
     <main>
-      <h1>Form</h1>
+      <KeyFilter/>
     </main>
   )
 }
