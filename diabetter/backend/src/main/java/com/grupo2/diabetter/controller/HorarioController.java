@@ -1,7 +1,7 @@
 package com.grupo2.diabetter.controller;
 
 import com.grupo2.diabetter.dto.horario.HorarioPostPutRequestDTO;
-import com.grupo2.diabetter.service.horario.*;
+import com.grupo2.diabetter.service.horario.interfaces.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,15 +15,15 @@ public class HorarioController {
 
 
     @Autowired
-    private CriarHorarioService criarHorarioService;
+    private ICriarHorarioService criarHorarioService;
     @Autowired
-    private AtualizarHorarioService atualizarHorarioService;
+    private IAtualizarHorarioService atualizarHorarioService;
     @Autowired
-    private DeletarHorarioService deletarHorarioService;
+    private IDeletarHorarioService deletarHorarioService;
     @Autowired
-    private ListarHorarioService listarHorarioService;
+    private IListarHorarioService listarHorarioService;
     @Autowired
-    private RecuperarHorarioService recuperarHorarioService;
+    private IRecuperarHorarioService recuperarHorarioService;
 
     @PostMapping
     public ResponseEntity<?> createHorario(@RequestBody HorarioPostPutRequestDTO dto){
