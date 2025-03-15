@@ -80,7 +80,7 @@ public class UsuarioController {
         return this.desativarUsuarioService.desativarUsuario(id, dto);
     }
 
-        @PutMapping("{id}/alterar-senha")
+    @PutMapping("{id}/alterar-senha")
     public ResponseEntity<?> alterarSenha(
             @PathVariable("id") UUID id,
             @Valid @RequestBody UsuarioChangePasswordDTO dto
