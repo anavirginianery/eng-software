@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.grupo2.diabetter.dto.glicemia.GlicemiaResponseDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -139,7 +140,7 @@ class  leituraGlicemia{
 
         when(glicemiaRepository.findAll()).thenReturn(glicemias);
 
-        List<Glicemia> resultado = listarGlicemiasService.executar();
+        List<GlicemiaResponseDTO> resultado = listarGlicemiasService.executar();
 
  
         assertNotNull(resultado); 
@@ -154,7 +155,7 @@ class  leituraGlicemia{
 
         when(glicemiaRepository.findAll()).thenReturn(List.of()); 
 
-        List<Glicemia> resultado = listarGlicemiasService.executar();
+        List<GlicemiaResponseDTO> resultado = listarGlicemiasService.executar();
 
         assertNotNull(resultado); 
         assertTrue(resultado.isEmpty()); 
@@ -205,7 +206,7 @@ class GlicemiaUpdate {
         when(glicemiaRepository.save(any(Glicemia.class))).thenReturn(glicemiaAtualizada);
 
 
-        Glicemia resultado = atualizarGlicemiaService.executar(id, dto);
+        GlicemiaResponseDTO resultado = atualizarGlicemiaService.executar(id, dto);
 
   
         assertNotNull(resultado); 
@@ -247,7 +248,7 @@ class GlicemiaUpdate {
         when(glicemiaRepository.findById(id)).thenReturn(Optional.of(glicemiaExistente));
         when(glicemiaRepository.save(any(Glicemia.class))).thenReturn(glicemiaExistente);
 
-        Glicemia resultado = atualizarGlicemiaService.executar(id, dto);
+        GlicemiaResponseDTO resultado = atualizarGlicemiaService.executar(id, dto);
 
         assertNotNull(resultado); 
         assertEquals(id, resultado.getId()); 

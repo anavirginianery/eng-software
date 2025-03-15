@@ -1,6 +1,7 @@
 package com.grupo2.diabetter.controller;
 
 import com.grupo2.diabetter.dto.glicemia.GlicemiaPostPutRequestDto;
+import com.grupo2.diabetter.dto.glicemia.GlicemiaResponseDTO;
 import com.grupo2.diabetter.model.Glicemia;
 import com.grupo2.diabetter.service.glicemia.interfaces.*;
 
@@ -27,50 +28,49 @@ public class GlicemiaController {
     private IRecuperarGlicemiaService recuperarGlicemiaService;
     @Autowired
     private IDeletarGlicemiaService deletarGlicemiaService;
-    @Autowired
-
 
     @GetMapping
-    public ResponseEntity<List<Glicemia>> listarGlicemias() {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(this.listarGlicemiaService.executar());
+    public ResponseEntity<List<GlicemiaResponseDTO>> listarGlicemias() {
+        List<GlicemiaResponseDTO> glicemias = listarGlicemiaService.executar();
+        return ResponseEntity.status(HttpStatus.OK).body(glicemias);
     }
 
-    @PutMapping("{id}")
-    public ResponseEntity<Glicemia> atualizarGlicemia(
-            @PathVariable("id") UUID id,
-            @Valid @RequestBody GlicemiaPostPutRequestDto dto
-    ) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(this.atualizarGlicemiaService.executar(id, dto));
-    }
-
-    @GetMapping("{id}")
-    public ResponseEntity<Glicemia> recuperarGlicemia(
-            @PathVariable("id") UUID id
-    ) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(this.recuperarGlicemiaService.executar(id));
+    @GetMapping("/by-horario/{horarioId}")
+    public ResponseEntity<List<GlicemiaResponseDTO>> listarGlicemiaByHorario(@PathVariable UUID horarioId) {
+        List<GlicemiaResponseDTO> glicemias = listarGlicemiaService.listarGlicemiaByHorario(horarioId);
+        return ResponseEntity.status(HttpStatus.OK).body(glicemias);
     }
 
     @PostMapping
     public ResponseEntity<Glicemia> criarGlicemia(
             @Valid @RequestBody GlicemiaPostPutRequestDto dto
     ) {
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(this.criarGlicemiaService.executar(dto));
+        Glicemia createdGlicemia = criarGlicemiaService.executar(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdGlicemia);
     }
 
-    @DeleteMapping("{id}")
+    @PutMapping("/{id}")
+    public ResponseEntity<GlicemiaResponseDTO> atualizarGlicemia(
+            @PathVariable UUID id,
+            @Valid @RequestBody GlicemiaPostPutRequestDto dto
+    ) {
+        GlicemiaResponseDTO updatedGlicemia = atualizarGlicemiaService.executar(id, dto);
+        return ResponseEntity.status(HttpStatus.OK).body(updatedGlicemia);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<GlicemiaResponseDTO> recuperarGlicemia(
+            @PathVariable UUID id
+    ) {
+        GlicemiaResponseDTO glicemia = recuperarGlicemiaService.executar(id);
+        return ResponseEntity.status(HttpStatus.OK).body(glicemia);
+    }
+
+    @DeleteMapping("/{id}")
     public ResponseEntity<?> removerGlicemia(
-            @PathVariable("id") UUID id
-            ) {
-        this.deletarGlicemiaService.executar(id);
+            @PathVariable UUID id
+    ) {
+        deletarGlicemiaService.executar(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
-
 }

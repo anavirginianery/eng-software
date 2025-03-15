@@ -1,5 +1,6 @@
 package com.grupo2.diabetter.service.glicemia;
 
+import com.grupo2.diabetter.dto.glicemia.GlicemiaResponseDTO;
 import com.grupo2.diabetter.dto.glicemia.GlicemiaPostPutRequestDto;
 import com.grupo2.diabetter.exception.NotFoundException;
 import com.grupo2.diabetter.model.Glicemia;
@@ -8,7 +9,6 @@ import com.grupo2.diabetter.service.glicemia.interfaces.IAtualizarGlicemiaServic
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -18,20 +18,25 @@ public class AtualizarGlicemiaService implements IAtualizarGlicemiaService {
     private GlicemiaRepository glicemiaRepository;
 
     @Override
-    public Glicemia executar(UUID id, GlicemiaPostPutRequestDto dto) {
-        Optional<Glicemia> glicemiaOptional = this.glicemiaRepository.findById(id);
+    public GlicemiaResponseDTO executar(UUID id, GlicemiaPostPutRequestDto dto) {
+        Glicemia glicemia = glicemiaRepository.findById(id).orElseThrow(() ->
+                new NotFoundException("Glicemia não encontrada"));
 
-        if (glicemiaOptional.isEmpty()) {
-            throw new NotFoundException("Glicemia não encontrada");
+        glicemia.setMeasurement(dto.getMeasurement());
+
+        if (dto.getHorarioId() != null) {
+            glicemia.setHorarioId(dto.getHorarioId());
         }
 
-        Glicemia glicemia = glicemiaOptional.get();
+        Glicemia updatedGlicemia = glicemiaRepository.save(glicemia);
 
-        Glicemia glicemiaAtualizado = Glicemia.builder()
-                .id(id)
-                .measurement(dto.getMeasurement())
+        return convertToDto(updatedGlicemia);
+    }
+
+    private GlicemiaResponseDTO convertToDto(Glicemia glicemia) {
+        return GlicemiaResponseDTO.builder()
+                .id(glicemia.getId())
+                .measurement(glicemia.getMeasurement())
                 .build();
-
-        return this.glicemiaRepository.save(glicemiaAtualizado);
     }
 }

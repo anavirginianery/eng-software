@@ -20,10 +20,13 @@ public class GlicemiaResponseDTO {
     private UUID id;
     @JsonProperty("measurement")
     private Float measurement;
+    @JsonProperty("measurement")
+    private UUID horarioId;
 
 
     public GlicemiaResponseDTO(Glicemia glicemia){
         this.id = glicemia.getId();
         this.measurement = glicemia.getMeasurement();
+        this.horarioId = glicemia.getHorarioId();
     }
 }
