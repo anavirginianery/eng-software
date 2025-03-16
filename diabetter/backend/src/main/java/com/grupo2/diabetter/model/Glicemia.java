@@ -6,9 +6,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
+
+import org.hibernate.annotations.CreationTimestamp;
 
 @Data
 @Builder
@@ -17,17 +19,25 @@ import java.util.UUID;
 @AllArgsConstructor
 public class Glicemia {
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(updatable = false, nullable = false)
     @JsonProperty
     private UUID id;
 
-    @Column(name = "measurement", nullable = false)
+    @Column(name = "valorGlicemia", nullable = false)
     @JsonProperty
-    private float measurement;
+    private float valorGlicemia;
 
-    @Column(name = "horario_id")
-    @JsonProperty
-    private UUID horarioId;
+    @ManyToOne
+    @JoinColumn(name = "horario_id", nullable = false)
+    private Horario horario;
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+    @OneToOne(mappedBy = "glicemia", cascade = CascadeType.ALL, orphanRemoval = true, optional = true)
+    private Insulina insulina;
+
+    @Column(name = "comentario", columnDefinition = "TEXT", nullable = true)
+    private String comentario;
 }

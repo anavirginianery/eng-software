@@ -36,7 +36,7 @@ import com.grupo2.diabetter.dto.insulin.InsulinResponseDTO;
 import com.grupo2.diabetter.exception.CommerceException;
 import com.grupo2.diabetter.exception.NotFoundException;
 import com.grupo2.diabetter.model.Glicemia;
-import com.grupo2.diabetter.model.Insulin;
+import com.grupo2.diabetter.model.Insulina;
 import com.grupo2.diabetter.repository.InsulinRepository;
 import com.grupo2.diabetter.service.insulin.AtualizarInsulinService;
 import com.grupo2.diabetter.service.insulin.CriarInsulinService;

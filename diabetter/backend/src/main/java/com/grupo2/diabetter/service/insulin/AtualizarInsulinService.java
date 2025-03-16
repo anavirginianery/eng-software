@@ -2,7 +2,7 @@ package com.grupo2.diabetter.service.insulin;
 import com.grupo2.diabetter.dto.insulin.InsulinPostPutRequestDTO;
 import com.grupo2.diabetter.dto.insulin.InsulinResponseDTO;
 import com.grupo2.diabetter.exception.CommerceException;
-import com.grupo2.diabetter.model.Insulin;
+import com.grupo2.diabetter.model.Insulina;
 import com.grupo2.diabetter.repository.InsulinRepository;
 import com.grupo2.diabetter.service.insulin.interfaces.IAtualizarInsulinService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ public class AtualizarInsulinService implements IAtualizarInsulinService {
             throw new CommerceException("Tipo de insulina inválido");
         }
         
-            Insulin insulin = insulinRepository.findById(id)
+            Insulina insulin = insulinRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Insulin não encontrada"));
     
             // Atualiza os campos com os dados do request
@@ -30,7 +30,7 @@ public class AtualizarInsulinService implements IAtualizarInsulinService {
             insulin.setHorario(requestDTO.getHorarioId());
     
             // Salva a insulina atualizada
-            Insulin insulinAtualizada = insulinRepository.save(insulin);
+            Insulina insulinAtualizada = insulinRepository.save(insulin);
     
             // Converte para o DTO de resposta
             return InsulinResponseDTO.builder()

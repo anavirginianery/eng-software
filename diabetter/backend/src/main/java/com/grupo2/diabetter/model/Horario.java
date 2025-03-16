@@ -2,6 +2,7 @@ package com.grupo2.diabetter.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,13 +22,20 @@ public class Horario {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @JsonProperty
     private UUID uuid;
-    @Column(name = "value", nullable = false)
+
+    @Column(name = "usuario", nullable = false)
+    @ManyToOne
     @JsonProperty
-    private String value;
-    @Column(name = "date", nullable = false)
+    private Usuario usuario;
+
+    @Column(name = "horario", nullable = false)
+    @Pattern(regexp = "^([01]\\d|2[0-3]):[0-5]\\d$", message = "O horário deve estar no formato HH:mm")
     @JsonProperty
-    private String date;
-    @Column(name = "userId", nullable = false)
+    private String horario;
+
+    @Column(name = "data_criacao", nullable = false)
     @JsonProperty
-    private Long userId;
+    private String data_criacao;
+
+
 }

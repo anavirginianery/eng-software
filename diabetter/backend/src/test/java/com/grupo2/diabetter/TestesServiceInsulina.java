@@ -30,7 +30,7 @@ import com.grupo2.diabetter.dto.insulin.InsulinDeleteResponseDTO;
 import com.grupo2.diabetter.dto.insulin.InsulinPostPutRequestDTO;
 import com.grupo2.diabetter.dto.insulin.InsulinResponseDTO;
 import com.grupo2.diabetter.exception.CommerceException;
-import com.grupo2.diabetter.model.Insulin;
+import com.grupo2.diabetter.model.Insulina;
 import com.grupo2.diabetter.repository.InsulinRepository;
 import com.grupo2.diabetter.service.insulin.AtualizarInsulinService;
 import com.grupo2.diabetter.service.insulin.CriarInsulinService;
@@ -85,14 +85,14 @@ class createInsulin{
                 .horarioId(horarioId)
                 .build();
 
-        Insulin insulinSalva = Insulin.builder()
+        Insulina insulinSalva = Insulina.builder()
                 .uuid(UUID.randomUUID())
                 .type(requestDTO.getType())
                 .units(requestDTO.getUnits())
                 .horario(requestDTO.getHorarioId())
                 .build();
 
-        when(insulinRepository.save(any(Insulin.class))).thenReturn(insulinSalva);
+        when(insulinRepository.save(any(Insulina.class))).thenReturn(insulinSalva);
 
         InsulinResponseDTO responseDTO = criarInsulinService.criarInsulin(requestDTO);
 
@@ -151,7 +151,7 @@ class createInsulin{
                 .horarioId(horarioId)
                 .build();
 
-        when(insulinRepository.save(any(Insulin.class)))
+        when(insulinRepository.save(any(Insulina.class)))
                 .thenThrow(new RuntimeException("Erro interno no servidor"));
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
@@ -171,7 +171,7 @@ class readInsulin{
             UUID horarioId = UUID.randomUUID();
             UUID validId = UUID.randomUUID();
 
-            Insulin insulin = new Insulin();
+            Insulina insulin = new Insulina();
             insulin.setUuid(validId);
             insulin.setType("Novorapido");
             insulin.setUnits(10);
@@ -221,19 +221,19 @@ class ListarInsulina {
             UUID horarioId1 = UUID.randomUUID();
             UUID horarioId2 = UUID.randomUUID();
 
-            Insulin insulin1 = new Insulin();
+            Insulina insulin1 = new Insulina();
             insulin1.setUuid(UUID.randomUUID());
             insulin1.setType("Novorapido");
             insulin1.setUnits(10);
             insulin1.setHorario(horarioId1);
 
-            Insulin insulin2 = new Insulin();
+            Insulina insulin2 = new Insulina();
             insulin2.setUuid(UUID.randomUUID());
             insulin2.setType("Lantus");
             insulin2.setUnits(20);
             insulin2.setHorario(horarioId2);
 
-            List<Insulin> insulinas = List.of(insulin1, insulin2);
+            List<Insulina> insulinas = List.of(insulin1, insulin2);
 
             when(insulinRepository.findAll()).thenReturn(insulinas);
 
