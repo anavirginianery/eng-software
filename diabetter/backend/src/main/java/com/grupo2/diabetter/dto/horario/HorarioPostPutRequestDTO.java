@@ -1,5 +1,9 @@
 package com.grupo2.diabetter.dto.horario;
 
+import java.util.UUID;
+
+import com.grupo2.diabetter.model.Usuario;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,8 +15,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class HorarioPostPutRequestDTO {
 
-    private String value;
-    private String date;
-    private Long userId;
+    private UUID id;
+
+    private Usuario usuario;
+
+    private String horario;
+
+    private String data_criacao;
+
 
 }

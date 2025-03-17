@@ -30,25 +30,25 @@ public class HorarioController {
         return ResponseEntity.status(HttpStatus.CREATED).body(criarHorarioService.createHorario(dto));
     }
 
-    @GetMapping("/{uuid}")
-    public ResponseEntity<?> readHorario(@PathVariable UUID uuid) {
-        return ResponseEntity.status(HttpStatus.OK).body(recuperarHorarioService.recuperarHorario(uuid));
+    @GetMapping("/{id}")
+    public ResponseEntity<?> readHorario(@PathVariable UUID id) {
+        return ResponseEntity.status(HttpStatus.OK).body(recuperarHorarioService.recuperarHorario(id));
     }
 
-    @PutMapping("/{uuid}")
-    public ResponseEntity<?> updateHorario(@PathVariable UUID uuid, @RequestBody HorarioPostPutRequestDTO dto) {
-        return ResponseEntity.status(HttpStatus.OK).body(atualizarHorarioService.updateHorario(uuid, dto));
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateHorario(@PathVariable UUID id, @RequestBody HorarioPostPutRequestDTO dto) {
+        return ResponseEntity.status(HttpStatus.OK).body(atualizarHorarioService.updateHorario(id, dto));
     }
 
-    @DeleteMapping("/{uuid}")
-    public ResponseEntity<?> disableHorario(@PathVariable UUID uuid) {
-        this.deletarHorarioService.deletarHorario(uuid);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> disableHorario(@PathVariable UUID id) {
+        this.deletarHorarioService.deletarHorario(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<?> listarHorarios(@PathVariable Long userId) {
-        return ResponseEntity.status(HttpStatus.OK).body(listarHorarioService.listarHorario(userId));
+    @GetMapping("/user/{id}")
+    public ResponseEntity<?> listarHorarios(@PathVariable Long id) {
+        return ResponseEntity.status(HttpStatus.OK).body(listarHorarioService.listarHorario(id));
     }
 
 }

@@ -1,5 +1,7 @@
 package com.grupo2.diabetter.dto.usuario;
 
+import java.util.List;
+
 import com.grupo2.diabetter.enuns.Genero;
 
 import jakarta.validation.constraints.*;
@@ -25,9 +27,9 @@ public class UsuarioPostPutRequestDTO {
     @NotNull(message = "O gênero não pode ser nulo")
     private Genero genero; 
 
-    @NotBlank(message = "O telefone não pode estar em branco")
-    @Size(min = 10, max = 15, message = "O telefone deve ter entre 10 e 15 caracteres")
-    private String telefone;
+    // @NotBlank(message = "O telefone não pode estar em branco")
+    // @Size(min = 10, max = 15, message = "O telefone deve ter entre 10 e 15 caracteres")
+    // private String telefone;
 
     @NotBlank(message = "O email não pode estar em branco")
     @Email(message = "O email deve ser válido")
@@ -36,4 +38,18 @@ public class UsuarioPostPutRequestDTO {
     @NotBlank(message = "A senha não pode estar em branco")
     @Size(min = 6, max = 20, message = "A senha deve ter entre 6 e 20 caracteres")
     private String password;
+
+    private float altura;
+
+    private float peso;
+
+    private TipoDiabetes tipoDiabetes;
+
+    private TipoInsulina tipoInsulina;
+
+    private List<String> comorbidades;
+
+    private List<Horario> horarios_afericao;
+
+
 }

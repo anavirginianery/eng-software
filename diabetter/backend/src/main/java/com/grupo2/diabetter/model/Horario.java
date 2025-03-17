@@ -21,7 +21,7 @@ public class Horario {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @JsonProperty
-    private UUID uuid;
+    private UUID id;
 
     @Column(name = "usuario", nullable = false)
     @ManyToOne

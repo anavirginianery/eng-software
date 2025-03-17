@@ -16,13 +16,14 @@ public class CriarInsulinService implements ICriarInsulinService {
     private InsulinRepository insulinRepository;
 
     @Override
-    public InsulinResponseDTO criarInsulin(InsulinPostPutRequestDTO requestDTO) {
+    public InsulinResponseDTO criarInsulina(InsulinPostPutRequestDTO requestDTO) {
+
+        // Essas coisas não são verificadas dentro do DTO?
 
          if (requestDTO.getType() == null || requestDTO.getType().trim().isEmpty()) {
             throw new CommerceException("Tipo de insulina inválido");
         }
 
-        
         if (requestDTO.getUnits() <= 0) {
             throw new CommerceException("Unidades de insulina inválidas");
         }

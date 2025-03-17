@@ -16,7 +16,7 @@ public class RecuperarInsulinService implements IRecuperarInsulinService {
     private InsulinRepository insulinRepository;
 
     @Override
-    public InsulinResponseDTO recuperarInsulin(UUID id) {
+    public InsulinResponseDTO recuperarInsulina(UUID id) {
         Insulina insulin = insulinRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Insulin não encontrada"));
 

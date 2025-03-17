@@ -4,6 +4,6 @@ import com.grupo2.diabetter.dto.insulin.InsulinDeleteResponseDTO;
 
 import java.util.UUID;
 
-public interface IDeletarInsulinService {
-    InsulinDeleteResponseDTO deletarInsulin(UUID id);
+public interface IDeletarInsulinaService {
+    InsulinDeleteResponseDTO deletarInsulina(UUID id);
 }

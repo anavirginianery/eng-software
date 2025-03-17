@@ -41,6 +41,8 @@ public class GlicemiaController {
         return ResponseEntity.status(HttpStatus.OK).body(glicemias);
     }
 
+
+    // Não deveria retornar um DTO?
     @PostMapping
     public ResponseEntity<Glicemia> criarGlicemia(
             @Valid @RequestBody GlicemiaPostPutRequestDto dto
