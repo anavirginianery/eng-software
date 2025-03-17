@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.4.1'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'jacoco'
 }
 
 group = 'com.grupo2'
@@ -11,6 +12,24 @@ java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(17)
 	}
+}
+
+jacoco {
+    toolVersion = "0.8.10" // Versão do JaCoCo
+}
+
+jacocoTestReport {
+    dependsOn test // Garante que os testes sejam executados antes do relatório
+    reports {
+        xml.required = true // Gera o arquivo XML para o Coverage Gutters
+        csv.required = false
+        html.required = true
+    }
+}
+
+test {
+    finalizedBy jacocoTestReport // Gera o relatório após os testes
+    useJUnitPlatform()
 }
 
 repositories {
