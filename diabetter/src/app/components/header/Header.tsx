@@ -20,7 +20,7 @@ export default function Header() {
               <Link href="/pages/login">Login</Link>
             </li>
             <li>
-              <Link href="/pages/logout">Sair</Link>
+              <Link href="/pages/inserirDados">Inserir Dados</Link>
             </li>
           </ul>
         </nav>
