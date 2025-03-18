@@ -23,7 +23,11 @@ public class ListarGlicemiasService implements IListarGlicemiasService {
         return glicemias.stream().map(glicemia ->
                 GlicemiaResponseDTO.builder()
                         .id(glicemia.getId())
-                        .measurement(glicemia.getMeasurement())
+                        .valorGlicemia(glicemia.getValorGlicemia())
+                        .horario(glicemia.getHorario())
+                        .insulina(glicemia.getInsulina())
+                        .comentario(glicemia.getComentario())
+                        .createdAt(glicemia.getCreatedAt())
                         .build()
         ).collect(Collectors.toList());
     }
@@ -34,9 +38,12 @@ public class ListarGlicemiasService implements IListarGlicemiasService {
         return glicemias.stream().map(glicemia ->
                 GlicemiaResponseDTO.builder()
                         .id(glicemia.getId())
-                        .measurement(glicemia.getMeasurement())
+                        .valorGlicemia(glicemia.getValorGlicemia())
+                        .horario(glicemia.getHorario())
+                        .insulina(glicemia.getInsulina())
+                        .comentario(glicemia.getComentario())
+                        .createdAt(glicemia.getCreatedAt())
                         .build()
         ).collect(Collectors.toList());
     }
-
 }

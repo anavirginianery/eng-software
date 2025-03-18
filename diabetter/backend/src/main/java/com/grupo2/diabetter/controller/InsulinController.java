@@ -1,14 +1,13 @@
 package com.grupo2.diabetter.controller;
 
-import com.grupo2.diabetter.dto.insulin.InsulinDeleteResponseDTO;
-import com.grupo2.diabetter.dto.insulin.InsulinPostPutRequestDTO;
-import com.grupo2.diabetter.dto.insulin.InsulinResponseDTO;
-import com.grupo2.diabetter.service.insulin.interfaces.ICriarInsulinService;
-import com.grupo2.diabetter.service.insulin.interfaces.IRecuperarInsulinService;
-import com.grupo2.diabetter.service.insulin.interfaces.IListarInsulinService;
-import com.grupo2.diabetter.service.insulin.interfaces.IAtualizarInsulinService;
-import com.grupo2.diabetter.service.insulin.interfaces.IDeletarInsulinService;
-import com.grupo2.diabetter.service.insulin.interfaces.IListarInsulinService;
+import com.grupo2.diabetter.dto.insulina.InsulinDeleteResponseDTO;
+import com.grupo2.diabetter.dto.insulina.InsulinPostPutRequestDTO;
+import com.grupo2.diabetter.dto.insulina.InsulinResponseDTO;
+import com.grupo2.diabetter.service.insulina.interfaces.ICriarInsulinaService;
+import com.grupo2.diabetter.service.insulina.interfaces.IRecuperarInsulinaService;
+import com.grupo2.diabetter.service.insulina.interfaces.IListarInsulinaService;
+import com.grupo2.diabetter.service.insulina.interfaces.IAtualizarInsulinaService;
+import com.grupo2.diabetter.service.insulina.interfaces.IDeletarInsulinaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,19 +21,19 @@ import java.util.UUID;
 public class InsulinController {
 
     @Autowired
-    private ICriarInsulinService criarInsulinService;
+    private ICriarInsulinaService criarInsulinService;
 
     @Autowired
-    private IRecuperarInsulinService recuperarInsulinService;
+    private IRecuperarInsulinaService recuperarInsulinService;
 
     @Autowired
-    private IListarInsulinService listarInsulinService;
+    private IListarInsulinaService listarInsulinService;
 
     @Autowired
-    private IAtualizarInsulinService atualizarInsulinService;
+    private IAtualizarInsulinaService atualizarInsulinService;
 
     @Autowired
-    private IDeletarInsulinService deletarInsulinService;
+    private IDeletarInsulinaService deletarInsulinService;
 
     @PostMapping
     public ResponseEntity<InsulinResponseDTO> criarInsulina(@RequestBody InsulinPostPutRequestDTO requestDTO) {
@@ -71,12 +70,7 @@ public class InsulinController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<InsulinDeleteResponseDTO> deletarInsulin(@PathVariable UUID id) {
-        // Isso deve ser verificação dentro do método do service
-        
-        // if (id == null) {
-        //     throw new IllegalArgumentException("ID não pode ser nulo");
-        // }
-        InsulinDeleteResponseDTO response = deletarInsulinService.deletarInsulin(id);
+        InsulinDeleteResponseDTO response = deletarInsulinService.deletarInsulina(id);
         return ResponseEntity.ok(response);
     }
 }

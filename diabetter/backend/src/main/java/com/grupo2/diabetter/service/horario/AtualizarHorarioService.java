@@ -4,7 +4,9 @@ import com.grupo2.diabetter.dto.horario.HorarioResponseDTO;
 import com.grupo2.diabetter.dto.horario.HorarioPostPutRequestDTO;
 import com.grupo2.diabetter.exception.NotFoundException;
 import com.grupo2.diabetter.model.Horario;
+import com.grupo2.diabetter.model.Usuario;  // Assuming Usuario model is imported
 import com.grupo2.diabetter.repository.HorarioRepository;
+import com.grupo2.diabetter.repository.UsuarioRepository;  // Assuming UsuarioRepository is used
 import com.grupo2.diabetter.service.horario.interfaces.IAtualizarHorarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,23 +19,28 @@ public class AtualizarHorarioService implements IAtualizarHorarioService {
     @Autowired
     private HorarioRepository horarioRepository;
 
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
     @Override
     public HorarioResponseDTO updateHorario(UUID uuid, HorarioPostPutRequestDTO dto){
-        Horario horario = horarioRepository.findById(uuid).orElseThrow(() -> new NotFoundException("Horario not found"));
+        Horario horario = horarioRepository.findById(uuid)
+                .orElseThrow(() -> new NotFoundException("Horario não encontrado"));
 
-        horario.setValue(dto.getValue());
-        horario.setUserId(dto.getUserId());
-        horario.setDate(dto.getDate());
+        Usuario usuario = usuarioRepository.findById(dto.getId())
+                .orElseThrow(() -> new NotFoundException("Usuário não encontrado"));
+
+        horario.setHorario(dto.getHorario());
+        horario.setData_criacao(dto.getData_criacao());
+        horario.setUsuario(usuario);
 
         horarioRepository.save(horario);
 
-        HorarioResponseDTO horarioResponseDTO = HorarioResponseDTO.builder()
-                .value(dto.getValue())
-                .date(dto.getDate())
-                .userId(dto.getUserId())
-                .uuid(horario.getUuid())
+        return HorarioResponseDTO.builder()
+                .id(horario.getId())
+                .horario(horario.getHorario())
+                .data_criacao(horario.getData_criacao())
+                .usuario(horario.getUsuario())
                 .build();
-            return horarioResponseDTO;
     }
-
 }

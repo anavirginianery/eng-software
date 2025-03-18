@@ -1,6 +1,6 @@
-package com.grupo2.diabetter.service.insulin.interfaces;
+package com.grupo2.diabetter.service.insulina.interfaces;
 
-import com.grupo2.diabetter.dto.insulin.InsulinDeleteResponseDTO;
+import com.grupo2.diabetter.dto.insulina.InsulinDeleteResponseDTO;
 
 import java.util.UUID;
 

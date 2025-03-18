@@ -3,7 +3,9 @@ package com.grupo2.diabetter.service.horario;
 import com.grupo2.diabetter.dto.horario.HorarioResponseDTO;
 import com.grupo2.diabetter.dto.horario.HorarioPostPutRequestDTO;
 import com.grupo2.diabetter.model.Horario;
+import com.grupo2.diabetter.model.Usuario;
 import com.grupo2.diabetter.repository.HorarioRepository;
+import com.grupo2.diabetter.repository.UsuarioRepository;
 import com.grupo2.diabetter.service.horario.interfaces.ICriarHorarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,21 +16,26 @@ public class CriarHorarioService implements ICriarHorarioService {
     @Autowired
     private HorarioRepository horarioRepository;
 
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
     @Override
-    public HorarioResponseDTO createHorario(HorarioPostPutRequestDTO dto){
+    public HorarioResponseDTO createHorario(HorarioPostPutRequestDTO dto) {
+        Usuario usuario = usuarioRepository.findById(dto.getId())
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
         Horario horario = new Horario();
-            horario.setValue(dto.getValue());
-            horario.setDate(dto.getDate());
-            horario.setUserId(dto.getUserId());
+        horario.setHorario(dto.getHorario());
+        horario.setData_criacao(dto.getData_criacao());
+        horario.setUsuario(usuario);
 
         horarioRepository.save(horario);
-        HorarioResponseDTO horarioResponseDTO = HorarioResponseDTO.builder()
-                .value(dto.getValue())
-                .date(dto.getDate())
-                .userId(dto.getUserId())
-                .uuid(horario.getUuid())
-                .build();
-        return horarioResponseDTO;
-    }
 
+        return HorarioResponseDTO.builder()
+                .id(horario.getId())
+                .horario(horario.getHorario())
+                .data_criacao(horario.getData_criacao())
+                .usuario(horario.getUsuario())
+                .build();
+    }
 }

@@ -14,4 +14,6 @@ public interface HorarioRepository extends JpaRepository<Horario, UUID> {
 
     @Query("SELECT h FROM Horario h WHERE h.userId = :userId")
     List<Horario> findAllByUserId(@Param("userId") Long userId);
+
+    List<Horario> findAllByUsuarioId(UUID usuarioId);
 }

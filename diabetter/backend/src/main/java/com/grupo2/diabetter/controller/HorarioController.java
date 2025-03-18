@@ -47,7 +47,7 @@ public class HorarioController {
     }
 
     @GetMapping("/user/{id}")
-    public ResponseEntity<?> listarHorarios(@PathVariable Long id) {
+    public ResponseEntity<?> listarHorarios(@PathVariable UUID id) {
         return ResponseEntity.status(HttpStatus.OK).body(listarHorarioService.listarHorario(id));
     }
 
