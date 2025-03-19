@@ -4,6 +4,9 @@ import java.util.List;
 
 import com.grupo2.diabetter.enuns.Genero;
 
+import com.grupo2.diabetter.enuns.TipoDiabetes;
+import com.grupo2.diabetter.enuns.TipoInsulina;
+import com.grupo2.diabetter.model.Horario;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

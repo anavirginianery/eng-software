@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.grupo2.diabetter.enuns.TipoDiabetes;
+import com.grupo2.diabetter.enuns.TipoInsulina;
+import com.grupo2.diabetter.model.Horario;
 import com.grupo2.diabetter.model.Usuario;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

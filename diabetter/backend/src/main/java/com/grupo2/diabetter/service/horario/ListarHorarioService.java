@@ -18,7 +18,7 @@ public class ListarHorarioService implements IListarHorarioService {
     private HorarioRepository horarioRepository;
 
     public List<HorarioResponseDTO> listarHorario(UUID usuarioId) {
-        List<Horario> horarios = horarioRepository.findAllByUsuarioId(usuarioId);
+        List<Horario> horarios = horarioRepository.findAllByUserId(usuarioId);
         return horarios.stream()
                 .map(horario ->
                         HorarioResponseDTO.builder()

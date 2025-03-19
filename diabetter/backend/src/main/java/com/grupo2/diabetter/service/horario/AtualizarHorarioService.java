@@ -32,7 +32,7 @@ public class AtualizarHorarioService implements IAtualizarHorarioService {
 
         horario.setHorario(dto.getHorario());
         horario.setData_criacao(dto.getData_criacao());
-        horario.setUsuario(usuario);
+        horario.setUsuario(horario.getUsuario());
 
         horarioRepository.save(horario);
 

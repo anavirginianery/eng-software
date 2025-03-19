@@ -23,9 +23,8 @@ public class Horario {
     @JsonProperty
     private UUID id;
 
-    @Column(name = "usuario", nullable = false)
-    @ManyToOne
-    @JsonProperty
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "usuario_id", nullable = false)  // This column should map to the foreign key in the database
     private Usuario usuario;
 
     @Column(name = "horario", nullable = false)
@@ -36,6 +35,4 @@ public class Horario {
     @Column(name = "data_criacao", nullable = false)
     @JsonProperty
     private String data_criacao;
-
-
 }
