@@ -53,6 +53,4 @@ public class UsuarioPostPutRequestDTO {
     private List<String> comorbidades;
 
     private List<Horario> horarios_afericao;
-
-
 }

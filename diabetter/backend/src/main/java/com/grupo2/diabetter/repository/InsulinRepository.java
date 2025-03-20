@@ -8,7 +8,5 @@ import java.util.UUID;
 import java.util.UUID;
 
 public interface InsulinRepository extends JpaRepository<Insulina, UUID> {
-    List<Insulina> findByHorario(UUID horarioId);
-
     List<Insulina> findByHorarioId(UUID horarioId);
 }

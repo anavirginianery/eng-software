@@ -18,6 +18,10 @@ public class CriarUsuarioService implements ICriarUsuarioService {
 
     @Override
     public Usuario criarUsuario(UsuarioPostPutRequestDTO dto) {
+        if (dto.getPassword() == null || dto.getPassword().isEmpty()) {
+            throw new IllegalArgumentException("Password cannot be empty");
+        }
+
         Usuario usuario = Usuario.builder()
                 .nome(dto.getNome())
                 .dataNasc(dto.getDataNasc())
