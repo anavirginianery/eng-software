@@ -21,14 +21,13 @@ public class RecuperarGlicemiaService implements IRecuperarGlicemiaService {
         Glicemia glicemia = glicemiaRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Glicemia não encontrada"));
 
-        return convertToDto(glicemia);
-    }
-
-    private GlicemiaResponseDTO convertToDto(Glicemia glicemia) {
         return GlicemiaResponseDTO.builder()
                 .id(glicemia.getId())
-                .measurement(glicemia.getMeasurement())
-                .horarioId(glicemia.getHorarioId())  // Include horarioId if it's part of the response
+                .valorGlicemia(glicemia.getValorGlicemia())
+                .horario(glicemia.getHorario())
+                .insulina(glicemia.getInsulina())
+                .comentario(glicemia.getComentario())
+                .createdAt(glicemia.getCreatedAt())
                 .build();
     }
 }

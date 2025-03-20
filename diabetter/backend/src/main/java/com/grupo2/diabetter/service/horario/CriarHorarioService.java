@@ -3,7 +3,9 @@ package com.grupo2.diabetter.service.horario;
 import com.grupo2.diabetter.dto.horario.HorarioResponseDTO;
 import com.grupo2.diabetter.dto.horario.HorarioPostPutRequestDTO;
 import com.grupo2.diabetter.model.Horario;
+import com.grupo2.diabetter.model.Usuario;
 import com.grupo2.diabetter.repository.HorarioRepository;
+import com.grupo2.diabetter.repository.UsuarioRepository;
 import com.grupo2.diabetter.service.horario.interfaces.ICriarHorarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,29 +16,26 @@ public class CriarHorarioService implements ICriarHorarioService {
     @Autowired
     private HorarioRepository horarioRepository;
 
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
     @Override
-    public HorarioResponseDTO createHorario(HorarioPostPutRequestDTO dto){
-        if (dto.getValue() == null || dto.getValue().isEmpty()) {
-            throw new IllegalArgumentException("O valor do horário não pode ser nulo ou vazio");
-        }
-        if (dto.getUserId() == null) {
-            throw new IllegalArgumentException("O ID do usuário não pode ser nulo");
-        }
-        
-    
-    Horario horario = new Horario();
-    horario.setValue(dto.getValue());
-    horario.setDate(dto.getDate());
-    horario.setUserId(dto.getUserId());
+    public HorarioResponseDTO createHorario(HorarioPostPutRequestDTO dto) {
+        Usuario usuario = usuarioRepository.findById(dto.getId())
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-    horarioRepository.save(horario);
-    HorarioResponseDTO horarioResponseDTO = HorarioResponseDTO.builder()
-            .value(dto.getValue())
-            .date(dto.getDate())
-            .userId(dto.getUserId())
-            .uuid(horario.getUuid())
-            .build();
-    return horarioResponseDTO;
-}
+        Horario horario = new Horario();
+        horario.setHorario(dto.getHorario());
+        horario.setData_criacao(dto.getData_criacao());
+        horario.setUsuario(horario.getUsuario());
 
+        horarioRepository.save(horario);
+
+        return HorarioResponseDTO.builder()
+                .id(horario.getId())
+                .horario(horario.getHorario())
+                .data_criacao(horario.getData_criacao())
+                .usuario(horario.getUsuario())
+                .build();
+    }
 }

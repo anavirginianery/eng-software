@@ -39,9 +39,16 @@ public class UsuarioController {
     @Autowired
     private IListarUsuarioService listarUsuarioService;
 
-   
 
-    
+    @PutMapping("{id}/completar-perfil")
+    public ResponseEntity<Usuario> completarPerfilUsuario(
+            @PathVariable("id") UUID id,
+            @Valid @RequestBody UsuarioPostPutRequestDTO dto
+    ) {
+        return ResponseEntity.ok().body(this.criarUsuarioService.completarPerfil(id, dto));
+    }
+
+
     @PostMapping
     public Usuario criarUsuario(
             @Valid @RequestBody UsuarioPostPutRequestDTO dto

@@ -1,4 +1,4 @@
-package com.grupo2.diabetter.dto.insulin;
+package com.grupo2.diabetter.dto.insulina;
 
 import lombok.Builder;
 import lombok.Data;

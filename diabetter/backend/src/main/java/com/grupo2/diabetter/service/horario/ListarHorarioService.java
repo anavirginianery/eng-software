@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -16,18 +17,17 @@ public class ListarHorarioService implements IListarHorarioService {
     @Autowired
     private HorarioRepository horarioRepository;
 
-@Override
-public List<HorarioResponseDTO> listarHorario(Long userId){
-    List<Horario> horarios = horarioRepository.findAllByUserId(userId);
+    public List<HorarioResponseDTO> listarHorario(UUID usuarioId) {
+        List<Horario> horarios = horarioRepository.findAllByUserId(usuarioId);
+        return horarios.stream()
+                .map(horario ->
+                        HorarioResponseDTO.builder()
+                                .id(horario.getId())
+                                .horario(horario.getHorario())
+                                .usuario(horario.getUsuario())
+                                .data_criacao(horario.getData_criacao())
+                                .build()
+                ).collect(Collectors.toList());
+    }
 
-    return horarios.stream()
-        .map(horario -> new HorarioResponseDTO(
-            horario.getUuid(),  
-            horario.getValue(), 
-            horario.getDate(),  
-            horario.getUserId() 
-        ))
-    
-        .collect(Collectors.toList());
-}
 }

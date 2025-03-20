@@ -6,14 +6,19 @@ import lombok.Getter;
 
 import java.util.UUID;
 
+import com.grupo2.diabetter.model.Usuario;
+
 @Getter
 @AllArgsConstructor
 @Builder
 public class HorarioResponseDTO {
 
-    private UUID uuid;
-    private String value;
-    private String date;
-    private Long userId;
+    private UUID id;
+
+    private Usuario usuario;
+
+    private String horario;
+
+    private String data_criacao;
 
 }
