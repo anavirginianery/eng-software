@@ -3,6 +3,7 @@ package com.grupo2.diabetter.controller;
 import com.grupo2.diabetter.dto.horario.HorarioPostPutRequestDTO;
 import com.grupo2.diabetter.service.horario.*;
 
+import com.grupo2.diabetter.service.horario.interfaces.*;
 import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
