@@ -1,7 +1,10 @@
 package com.grupo2.diabetter.controller;
 
 import com.grupo2.diabetter.dto.horario.HorarioPostPutRequestDTO;
-import com.grupo2.diabetter.service.horario.interfaces.*;
+import com.grupo2.diabetter.service.horario.*;
+
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +29,7 @@ public class HorarioController {
     private IRecuperarHorarioService recuperarHorarioService;
 
     @PostMapping
-    public ResponseEntity<?> createHorario(@RequestBody HorarioPostPutRequestDTO dto){
+    public ResponseEntity<?> createHorario(@Valid @RequestBody HorarioPostPutRequestDTO dto){
         return ResponseEntity.status(HttpStatus.CREATED).body(criarHorarioService.createHorario(dto));
     }
 

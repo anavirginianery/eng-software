@@ -16,19 +16,27 @@ public class CriarHorarioService implements ICriarHorarioService {
 
     @Override
     public HorarioResponseDTO createHorario(HorarioPostPutRequestDTO dto){
-        Horario horario = new Horario();
-            horario.setValue(dto.getValue());
-            horario.setDate(dto.getDate());
-            horario.setUserId(dto.getUserId());
+        if (dto.getValue() == null || dto.getValue().isEmpty()) {
+            throw new IllegalArgumentException("O valor do horário não pode ser nulo ou vazio");
+        }
+        if (dto.getUserId() == null) {
+            throw new IllegalArgumentException("O ID do usuário não pode ser nulo");
+        }
+        
+    
+    Horario horario = new Horario();
+    horario.setValue(dto.getValue());
+    horario.setDate(dto.getDate());
+    horario.setUserId(dto.getUserId());
 
-        horarioRepository.save(horario);
-        HorarioResponseDTO horarioResponseDTO = HorarioResponseDTO.builder()
-                .value(dto.getValue())
-                .date(dto.getDate())
-                .userId(dto.getUserId())
-                .uuid(horario.getUuid())
-                .build();
-        return horarioResponseDTO;
-    }
+    horarioRepository.save(horario);
+    HorarioResponseDTO horarioResponseDTO = HorarioResponseDTO.builder()
+            .value(dto.getValue())
+            .date(dto.getDate())
+            .userId(dto.getUserId())
+            .uuid(horario.getUuid())
+            .build();
+    return horarioResponseDTO;
+}
 
 }
