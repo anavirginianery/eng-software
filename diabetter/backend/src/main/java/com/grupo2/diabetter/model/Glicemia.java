@@ -26,4 +26,8 @@ public class Glicemia {
     @Column(name = "measurement", nullable = false)
     @JsonProperty
     private float measurement;
+
+    @Column(name = "horario_id")
+    @JsonProperty
+    private UUID horarioId;
 }

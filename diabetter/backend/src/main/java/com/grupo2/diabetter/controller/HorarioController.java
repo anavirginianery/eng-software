@@ -18,15 +18,15 @@ public class HorarioController {
 
 
     @Autowired
-    private CriarHorarioService criarHorarioService;
+    private ICriarHorarioService criarHorarioService;
     @Autowired
-    private AtualizarHorarioService atualizarHorarioService;
+    private IAtualizarHorarioService atualizarHorarioService;
     @Autowired
-    private DeletarHorarioService deletarHorarioService;
+    private IDeletarHorarioService deletarHorarioService;
     @Autowired
-    private ListarHorarioService listarHorarioService;
+    private IListarHorarioService listarHorarioService;
     @Autowired
-    private RecuperarHorarioService recuperarHorarioService;
+    private IRecuperarHorarioService recuperarHorarioService;
 
     @PostMapping
     public ResponseEntity<?> createHorario(@Valid @RequestBody HorarioPostPutRequestDTO dto){

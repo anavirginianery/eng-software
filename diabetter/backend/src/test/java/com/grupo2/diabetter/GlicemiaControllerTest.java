@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.grupo2.diabetter.dto.glicemia.GlicemiaResponseDTO;
 import org.apache.tomcat.util.http.parser.MediaType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -137,13 +138,15 @@ class  leituraGlicemia {
     void testReadBloodSugarWithValidId() {
         
         UUID validId = UUID.randomUUID();
-        Glicemia glicemia = new Glicemia();
+        GlicemiaResponseDTO glicemia = new GlicemiaResponseDTO();
         glicemia.setId(validId);
         glicemia.setMeasurement(120.0f);
-    
+        glicemia.setHorarioId(UUID.randomUUID());
+        glicemia.setHorarioId(UUID.randomUUID());
+
         when(recuperarGlicemiaService.executar(validId)).thenReturn(glicemia);
     
-        ResponseEntity<Glicemia> response = glicemiaController.recuperarGlicemia(validId);
+        ResponseEntity<GlicemiaResponseDTO> response = glicemiaController.recuperarGlicemia(validId);
     
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -196,15 +199,16 @@ class GlicemiaUpdate {
         UUID validId = UUID.randomUUID();
         GlicemiaPostPutRequestDto dto = new GlicemiaPostPutRequestDto();
         dto.setMeasurement(130.0f);
-    
-        Glicemia glicemiaAtualizada = new Glicemia();
+
+        GlicemiaResponseDTO glicemiaAtualizada = new GlicemiaResponseDTO();
         glicemiaAtualizada.setId(validId);
         glicemiaAtualizada.setMeasurement(dto.getMeasurement());
+        glicemiaAtualizada.setHorarioId(UUID.randomUUID());
     
         when(atualizarGlicemiaService.executar(validId, dto)).thenReturn(glicemiaAtualizada);
     
         
-        ResponseEntity<Glicemia> response = glicemiaController.atualizarGlicemia(validId, dto);
+        ResponseEntity<GlicemiaResponseDTO> response = glicemiaController.atualizarGlicemia(validId, dto);
     
         
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -257,16 +261,17 @@ class GlicemiaUpdate {
         
         UUID validId = UUID.randomUUID();
         GlicemiaPostPutRequestDto dto = new GlicemiaPostPutRequestDto();
-        dto.setMeasurement(120.0f); 
-    
-        Glicemia glicemiaAtualizada = new Glicemia();
+        dto.setMeasurement(120.0f);
+
+        GlicemiaResponseDTO glicemiaAtualizada = new GlicemiaResponseDTO();
         glicemiaAtualizada.setId(validId);
         glicemiaAtualizada.setMeasurement(dto.getMeasurement());
+        glicemiaAtualizada.setHorarioId(UUID.randomUUID());
     
         when(atualizarGlicemiaService.executar(validId, dto)).thenReturn(glicemiaAtualizada);
     
         
-        ResponseEntity<Glicemia> response = glicemiaController.atualizarGlicemia(validId, dto);
+        ResponseEntity<GlicemiaResponseDTO> response = glicemiaController.atualizarGlicemia(validId, dto);
     
         
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -348,19 +353,4 @@ class DeletarGlicemia {
     }
  
 }
-
-
-
-
-
-
-    
-    
-
-
-
-
-
-
-
 }

@@ -7,21 +7,23 @@ import com.grupo2.diabetter.service.glicemia.interfaces.ICriarGlicemiaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 public class CriarGlicemiaService implements ICriarGlicemiaService {
 
     @Autowired
     private GlicemiaRepository glicemiaRepository;
-    
+
 
     @Override
     public Glicemia executar(GlicemiaPostPutRequestDto dto) {
-        if (dto.getMeasurement() < 0) {
-            throw new IllegalArgumentException("Medição de glicemia inválida");
-        }
+
         Glicemia glicemia = Glicemia.builder()
                 .measurement(dto.getMeasurement())
+                .horarioId(dto.getHorarioId())
                 .build();
+
         return this.glicemiaRepository.save(glicemia);
     }
 }
