@@ -1,6 +1,6 @@
-import React from 'react';
-import { Button } from 'primereact/button';
-import Form from '@/app/pages/form/page';
+import React from "react";
+import { Button } from "primereact/button";
+import Form from "@/app/form/page";
 
 export default function DashBoard() {
   return (

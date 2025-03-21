@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "diabetter": "file:",
     "next": "15.2.1",
     "primeicons": "^7.0.0",
     "primereact": "^10.9.2",
