@@ -3,12 +3,25 @@ package com.grupo2.diabetter.controller;
 import com.grupo2.diabetter.dto.glicemia.GlicemiaPostPutRequestDto;
 import com.grupo2.diabetter.dto.glicemia.GlicemiaResponseDTO;
 import com.grupo2.diabetter.model.Glicemia;
-import com.grupo2.diabetter.service.glicemia.interfaces.*;
+import com.grupo2.diabetter.service.glicemia.interfaces.ICriarGlicemiaService;
+import com.grupo2.diabetter.service.glicemia.interfaces.IAtualizarGlicemiaService;
+import com.grupo2.diabetter.service.glicemia.interfaces.IDeletarGlicemiaService;
+import com.grupo2.diabetter.service.glicemia.interfaces.IListarGlicemiasService;
+import com.grupo2.diabetter.service.glicemia.interfaces.IRecuperarGlicemiaService;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+
 import jakarta.validation.Valid;
 
 import java.util.List;

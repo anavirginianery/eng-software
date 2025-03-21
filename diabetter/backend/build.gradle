@@ -3,6 +3,7 @@ plugins {
 	id 'org.springframework.boot' version '3.4.1'
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'jacoco'
+	id 'checkstyle'
 }
 
 group = 'com.grupo2'
@@ -12,6 +13,13 @@ java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(17)
 	}
+}
+
+checkstyle {
+    toolVersion = '10.12.1'
+    configFile = file("/home/gabriela/es/eng-software-17/diabetter/backend/config/checkstyle.xml")
+    ignoreFailures = false
+    showViolations = true
 }
 
 jacoco {
@@ -57,6 +65,8 @@ dependencies {
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.2'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	implementation 'com.google.firebase:firebase-admin:8.0.0'
+	checkstyle 'com.puppycrawl.tools:checkstyle:10.12.1'
+
 }
 
 tasks.named('test') {
