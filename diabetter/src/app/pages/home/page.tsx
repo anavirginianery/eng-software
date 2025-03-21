@@ -1,5 +1,8 @@
 import phoneImage from "@/app/img/phone.png";
 import Image from "next/image";
+import tabela from "@/app/img/FAVCON tabela.png";
+import fav01 from "@/app/img/favcon01.png";
+import fav03 from "@/app/img/favcon03.png";
 
 export default function Home() {
   return (
@@ -38,43 +41,68 @@ export default function Home() {
         <h2 className="text-2xl font-bold text-center">
           Principais Funcionalidades
         </h2>
-        <div className="mt-6 space-y-4">
-          <div className="bg-white shadow p-4 rounded flex items-center">
-            <div className="w-10 h-10 bg-teal-100 flex items-center justify-center rounded-full">
-              📋
-            </div>
-            <div className="ml-4">
-              <h3 className="font-bold">Registros Detalhados</h3>
-              <p className="text-gray-600">
-                Acompanhe suas taxas de glicose e insulina de forma organizada e
-                intuitiva.
-              </p>
-            </div>
+        <div className="mt-6 grid grid-cols-1 gap-4">
+          <div className="bg-white shadow p-4 rounded flex flex-col items-start w-full">
+              <div className="w-10 h-10 bg-teal-100 flex items-center justify-center rounded-full mb-4">
+                  <Image
+                      src={fav01}
+                      alt="fav1"
+                      width={90}
+                      height={90}
+                      className="w-40"
+                  />
+              </div>
+              <div className="text-left">
+                  <h3 className="font-bold">Registros Detalhados</h3>
+                  <p className="text-gray-600">
+                      Acompanhe suas taxas de glicose e insulina de forma organizada e intuitiva.
+                  </p>
+              </div>
           </div>
-          <div className="bg-white shadow p-4 rounded flex items-center">
-            <div className="w-10 h-10 bg-teal-100 flex items-center justify-center rounded-full">
-              📊
+
+
+
+              <div className="bg-white shadow p-4 rounded flex flex-col items-start w-full">
+                <div className="w-10 h-10 bg-teal-100 flex items-center justify-center rounded-full mb-4">
+                    <Image
+                        src={tabela}
+                        alt="fav2"
+                        width={90}
+                        height={90}
+                        className="w-40"
+                    />
+                </div>
+                <div className="text-left w-full">
+                    <h3 className="font-bold">Relatórios Completos</h3>
+                    <p className="text-gray-600">
+                        Visualize sua evolução através de gráficos e relatórios detalhados.
+                    </p>
+                </div>
             </div>
-            <div className="ml-4">
-              <h3 className="font-bold">Relatórios Completos</h3>
-              <p className="text-gray-600">
-                Visualize sua evolução através de gráficos e relatórios
-                detalhados.
-              </p>
+
+
+
+              
+                <div className="bg-white shadow p-4 rounded flex flex-col items-start w-full">
+                  <div className="w-10 h-10 bg-teal-100 flex items-center justify-center rounded-full mb-4">
+                      <Image
+                          src={fav03}
+                          alt="fav3"
+                          width={90}
+                          height={90}
+                          className="w-40"
+                      />
+                  </div>
+                  <div className="text-left">
+                      <h3 className="font-bold">Registros Detalhados</h3>
+                      <p className="text-gray-600">
+                          Acompanhe suas taxas de glicose e insulina de forma organizada e intuitiva.
+                      </p>
+                  </div>
+              </div>
             </div>
-          </div>
-          <div className="bg-white shadow p-4 rounded flex items-center">
-            <div className="w-10 h-10 bg-teal-100 flex items-center justify-center rounded-full">
-              💬
-            </div>
-            <div className="ml-4">
-              <h3 className="font-bold">Compartilhamento Médico</h3>
-              <p className="text-gray-600">
-                Compartilhe seus dados facilmente com sua equipe médica.
-              </p>
-            </div>
-          </div>
-        </div>
+
+
       </section>
     </main>
   );
