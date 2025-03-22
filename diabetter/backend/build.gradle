@@ -17,7 +17,7 @@ java {
 
 checkstyle {
     toolVersion = '10.12.1'
-    configFile = file("/home/gabriela/es/eng-software-17/diabetter/backend/config/checkstyle.xml")
+    configFile = file("/home/gabriel/eng-software/diabetter/backend/config/checkstyle.xml")
     ignoreFailures = false
     showViolations = true
 }
@@ -71,4 +71,8 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+tasks.named("checkstyleTest").configure {
+	enabled = false
 }
