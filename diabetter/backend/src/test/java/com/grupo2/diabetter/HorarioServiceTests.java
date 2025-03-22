@@ -2,14 +2,18 @@ package com.grupo2.diabetter;
 
 import com.grupo2.diabetter.dto.horario.HorarioPostPutRequestDTO;
 import com.grupo2.diabetter.dto.horario.HorarioResponseDTO;
+import com.grupo2.diabetter.dto.usuario.UsuarioPostPutRequestDTO;
+import com.grupo2.diabetter.enuns.Genero;
+import com.grupo2.diabetter.enuns.TipoDiabetes;
+import com.grupo2.diabetter.enuns.TipoInsulina;
 import com.grupo2.diabetter.exception.NotFoundException;
 import com.grupo2.diabetter.model.Horario;
+import com.grupo2.diabetter.model.Usuario;
 import com.grupo2.diabetter.repository.HorarioRepository;
+import com.grupo2.diabetter.repository.UsuarioRepository;
 import com.grupo2.diabetter.service.horario.*;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import com.grupo2.diabetter.service.usuario.CriarUsuarioService;
+import org.junit.jupiter.api.*;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -45,9 +49,44 @@ class HorarioServiceTests {
     @InjectMocks
     private RecuperarHorarioService recuperarHorarioService;
 
+    @Mock
+    private UsuarioRepository usuarioRepository;
+
+    private UsuarioPostPutRequestDTO userDto;
+
+    private Usuario usuarioSalvo;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+
+        UUID usuarioId = UUID.fromString("3fb126ed-dcf0-43e4-9d49-3d00ba55c00a");
+
+        userDto = new UsuarioPostPutRequestDTO();
+        userDto.setNome("João");
+        userDto.setEmail("joao@example.com");
+        userDto.setPassword("senha123");
+        userDto.setDataNasc("1990-01-01");
+        userDto.setGenero(Genero.MASCULINO);
+        userDto.setAltura(1.75f);
+        userDto.setPeso(70.0f);
+        userDto.setTipoDiabetes(TipoDiabetes.TIPO_1);
+        userDto.setTipoInsulina(TipoInsulina.RAPIDA);
+        userDto.setComorbidades(List.of("Hipertensão"));
+
+        usuarioSalvo = Usuario.builder()
+                .id(usuarioId)
+                .nome(userDto.getNome())
+                .email(userDto.getEmail())
+                .senha(userDto.getPassword())
+                .dataNasc(userDto.getDataNasc())
+                .genero(userDto.getGenero())
+                .altura(userDto.getAltura())
+                .peso(userDto.getPeso())
+                .tipoDiabetes(userDto.getTipoDiabetes())
+                .tipoInsulina(userDto.getTipoInsulina())
+                .comorbidades(userDto.getComorbidades())
+                .build();
     }
 
     @Nested
@@ -55,28 +94,32 @@ class HorarioServiceTests {
     class CriacaoHorario {
         @Test
         void testCreareScheduleWithvalidDate() {
-            HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO("08:00", "2025-02-20", 1L);
+            UUID id = UUID.randomUUID();
+            HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO(id, usuarioSalvo, "08:00", "2025-02-20");
             Horario horarioSalvo = new Horario();
-            horarioSalvo.setUuid(UUID.randomUUID());
-            horarioSalvo.setValue(dto.getValue());
-            horarioSalvo.setDate(dto.getDate());
-            horarioSalvo.setUserId(dto.getUserId());
+            horarioSalvo.setId(dto.getId());
+            horarioSalvo.setUsuario(dto.getUsuario());
+            horarioSalvo.setHorario(dto.getHorario());
+            horarioSalvo.setData_criacao(dto.getData_criacao());
 
+            when(usuarioRepository.findById(usuarioSalvo.getId())).thenReturn(Optional.of(usuarioSalvo));
             when(horarioRepository.save(any(Horario.class))).thenReturn(horarioSalvo);
 
             HorarioResponseDTO response = criarHorarioService.createHorario(dto);
 
             assertNotNull(response);
-            assertEquals(dto.getValue(), response.getValue());
-            assertEquals(dto.getDate(), response.getDate());
-            assertEquals(dto.getUserId(), response.getUserId());
+            assertEquals(dto.getHorario(), response.getHorario());
+            assertEquals(dto.getData_criacao(), response.getData_criacao() );
+            assertEquals(dto.getUsuario(), response.getUsuario());
         }
 
         
     @Test
     void testCreateScheduleWithInvalidDate() {
-        HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO("08:00", "data-invalida", 1L);
+        UUID id = UUID.randomUUID();
+        HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO(id, usuarioSalvo,"08:00", "data-invalida");
 
+        when(usuarioRepository.findById(usuarioSalvo.getId())).thenReturn(Optional.of(usuarioSalvo));
         when(horarioRepository.save(any(Horario.class)))
                 .thenThrow(new IllegalArgumentException("Data inválida"));
 
@@ -86,10 +129,14 @@ class HorarioServiceTests {
 
         assertEquals("Data inválida", exception.getMessage());
     }
+
+
     @Test
     void testCreateScheduleWithInternalError() {
-        HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO("08:00", "2025-02-20", 1L);
-    
+        UUID id = UUID.randomUUID();
+        HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO(id, usuarioSalvo, "08:00", "2025-02-20");
+
+        when(usuarioRepository.findById(usuarioSalvo.getId())).thenReturn(Optional.of(usuarioSalvo));
         when(horarioRepository.save(any(Horario.class)))
                 .thenThrow(new RuntimeException("Erro interno"));
     
@@ -103,10 +150,11 @@ class HorarioServiceTests {
     @Test
     @DisplayName("Deve lançar exceção ao criar horário com dados inválidos (value nulo)")
     void testCriarHorarioComDadosInvalidos() {
-      
-        HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO(null, "2025-02-20", 1L);
 
-   
+        UUID id = UUID.randomUUID();
+        HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO(id, usuarioSalvo, null, "2025-02-20");
+
+        when(usuarioRepository.findById(usuarioSalvo.getId())).thenReturn(Optional.of(usuarioSalvo));
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             criarHorarioService.createHorario(dto);
         });
@@ -126,33 +174,35 @@ class HorarioServiceTests {
         @Test
         void testRecuperarHorarioComIdValido() {
             UUID id = UUID.randomUUID();
+
             Horario horario = new Horario();
-            horario.setUuid(id);
-            horario.setValue("08:00");
-            horario.setDate("2025-02-21");
-            horario.setUserId(1L);
+            horario.setId(id);
+            horario.setUsuario(usuarioSalvo);
+            horario.setData_criacao("2025-02-20");
+            horario.setHorario("08:00");
 
             when(horarioRepository.findById(id)).thenReturn(Optional.of(horario));
 
             HorarioResponseDTO response = recuperarHorarioService.recuperarHorario(id);
 
             assertNotNull(response);
-            assertEquals(horario.getValue(), response.getValue());
-            assertEquals(horario.getDate(), response.getDate());
-            assertEquals(horario.getUserId(), response.getUserId());
+            assertEquals(horario.getHorario(), response.getHorario() );
+            assertEquals(horario.getData_criacao(), response.getData_criacao() );
+            assertEquals(horario.getUsuario(), response.getUsuario());
         }
 
         @Test
         void testRecuperarHorarioComIdInvalido() {
             UUID idInvalido = UUID.randomUUID();
 
+            when(usuarioRepository.findById(usuarioSalvo.getId())).thenReturn(Optional.of(usuarioSalvo));
             when(horarioRepository.findById(idInvalido)).thenReturn(Optional.empty());
 
             NotFoundException exception = assertThrows(NotFoundException.class, () -> {
                 recuperarHorarioService.recuperarHorario(idInvalido);
             });
 
-            assertEquals("Horario not found", exception.getMessage());
+            assertEquals("Horário não encontrado", exception.getMessage());
         }
 
         @Test
@@ -175,28 +225,40 @@ class HorarioServiceTests {
         @Test
         void testAtualizarHorarioComIdValido() {
             UUID id = UUID.randomUUID();
-            HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO("10:00", "2025-02-21", 1L);
-            Horario horarioExistente = new Horario();
-            horarioExistente.setUuid(id);
-            horarioExistente.setValue("08:00");
-            horarioExistente.setDate("2025-02-20");
-            horarioExistente.setUserId(1L);
 
+            HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO(id, usuarioSalvo, "10:00", "2025-02-21");
+
+            Horario horarioExistente = new Horario();
+            horarioExistente.setId(id);
+            horarioExistente.setHorario("08:00");
+            horarioExistente.setData_criacao("2025-02-20");
+            horarioExistente.setUsuario(usuarioSalvo);
+
+            when(usuarioRepository.findById(usuarioSalvo.getId())).thenReturn(Optional.of(usuarioSalvo));
             when(horarioRepository.findById(id)).thenReturn(Optional.of(horarioExistente));
-            when(horarioRepository.save(any(Horario.class))).thenReturn(horarioExistente);
+
+            Horario horarioAtualizado = new Horario();
+            horarioAtualizado.setId(dto.getId());
+            horarioAtualizado.setHorario(dto.getHorario());
+            horarioAtualizado.setData_criacao(dto.getData_criacao());
+            horarioAtualizado.setUsuario(dto.getUsuario());
+
+            when(usuarioRepository.findById(usuarioSalvo.getId())).thenReturn(Optional.of(usuarioSalvo));
+            when(horarioRepository.save(any(Horario.class))).thenReturn(horarioAtualizado);
 
             HorarioResponseDTO response = atualizarHorarioService.updateHorario(id, dto);
 
             assertNotNull(response);
-            assertEquals(dto.getValue(), response.getValue());
-            assertEquals(dto.getDate(), response.getDate());
-            assertEquals(dto.getUserId(), response.getUserId());
+            assertEquals(dto.getHorario(), response.getHorario());
+            assertEquals(dto.getData_criacao(), response.getData_criacao());
+            assertEquals(dto.getUsuario(), response.getUsuario());
         }
 
         @Test
         void testAtualizarHorarioComIdInvalido() {
             UUID idInvalido = UUID.randomUUID();
-            HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO("10:00", "2025-02-21", 1L);
+
+            HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO(idInvalido, usuarioSalvo, "10:00", "2025-02-21");
 
             when(horarioRepository.findById(idInvalido)).thenReturn(Optional.empty());
 
@@ -204,14 +266,16 @@ class HorarioServiceTests {
                 atualizarHorarioService.updateHorario(idInvalido, dto);
             });
 
-            assertEquals("Horario not found", exception.getMessage());
+            assertEquals("Horario não encontrado", exception.getMessage());
         }
 
         @Test
         void testUpdateScheduleWithInvalidValue() {
             UUID id = UUID.randomUUID();
-            HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO("valor-invalido", "2025-02-21", 1L);
 
+            HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO(id, usuarioSalvo, "valor-invalido", "2025-02-20");
+
+            when(usuarioRepository.findById(usuarioSalvo.getId())).thenReturn(Optional.of(usuarioSalvo));
             when(horarioRepository.findById(id)).thenReturn(Optional.of(new Horario()));
             when(horarioRepository.save(any(Horario.class)))
                     .thenThrow(new IllegalArgumentException("Valor inválido"));
@@ -226,28 +290,32 @@ class HorarioServiceTests {
         @Test
         void testUpdateScheduleWithoutChange() {
             UUID id = UUID.randomUUID();
-            HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO("08:00", "2025-02-21", 1L);
-            Horario horarioExistente = new Horario();
-            horarioExistente.setUuid(id);
-            horarioExistente.setValue(dto.getValue());
-            horarioExistente.setDate(dto.getDate());
-            horarioExistente.setUserId(dto.getUserId());
 
+            HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO(id, usuarioSalvo, "08:00", "2025-02-20");
+
+            Horario horarioExistente = new Horario();
+            horarioExistente.setId(id);
+            horarioExistente.setHorario(dto.getHorario());
+            horarioExistente.setData_criacao(dto.getData_criacao());
+            horarioExistente.setUsuario(dto.getUsuario());
+
+            when(usuarioRepository.findById(usuarioSalvo.getId())).thenReturn(Optional.of(usuarioSalvo));
             when(horarioRepository.findById(id)).thenReturn(Optional.of(horarioExistente));
             when(horarioRepository.save(any(Horario.class))).thenReturn(horarioExistente);
 
             HorarioResponseDTO response = atualizarHorarioService.updateHorario(id, dto);
 
             assertNotNull(response);
-            assertEquals(dto.getValue(), response.getValue());
-            assertEquals(dto.getDate(), response.getDate());
-            assertEquals(dto.getUserId(), response.getUserId());
+            assertEquals(dto.getHorario(), response.getHorario());
+            assertEquals(dto.getData_criacao(), response.getData_criacao());
+            assertEquals(dto.getUsuario(), response.getUsuario());
         }
 
         @Test
         void testUpdateScheduleWithInternalError() {
             UUID id = UUID.randomUUID();
-            HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO("10:00", "2025-02-21", 1L);
+
+            HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO(id, usuarioSalvo,"08:00", "2025-02-20");
 
             when(horarioRepository.findById(id))
                     .thenThrow(new RuntimeException("Erro interno"));
@@ -266,6 +334,7 @@ class HorarioServiceTests {
         @Test
         void testDeletarHorarioComSucesso() {
             UUID id = UUID.randomUUID();
+
             when(horarioRepository.existsById(id)).thenReturn(true);
             doNothing().when(horarioRepository).deleteById(id);
 
@@ -277,6 +346,14 @@ class HorarioServiceTests {
         @Test
         void testDeletarHorarioComIdInvalido() {
             UUID idInvalido = UUID.randomUUID();
+            UUID id = UUID.randomUUID();
+
+            Horario horarioExistente = new Horario();
+            horarioExistente.setId(id);
+            horarioExistente.setHorario("08:00");
+            horarioExistente.setData_criacao("2025-02-20");
+            horarioExistente.setUsuario(usuarioSalvo);
+
             when(horarioRepository.existsById(idInvalido)).thenReturn(false);
 
             NotFoundException exception = assertThrows(NotFoundException.class, () -> {
@@ -289,6 +366,7 @@ class HorarioServiceTests {
         @Test
         void testDisableScheduleAlreadyDisabled() {
             UUID id = UUID.randomUUID();
+
             when(horarioRepository.existsById(id)).thenReturn(false);
 
             NotFoundException exception = assertThrows(NotFoundException.class, () -> {
@@ -301,6 +379,13 @@ class HorarioServiceTests {
         @Test
         void testDisableScheduleWithInternalError() {
             UUID id = UUID.randomUUID();
+
+            Horario horarioExistente = new Horario();
+            horarioExistente.setId(id);
+            horarioExistente.setHorario("08:00");
+            horarioExistente.setData_criacao("2025-02-20");
+            horarioExistente.setUsuario(usuarioSalvo);
+
             when(horarioRepository.existsById(id)).thenReturn(true);
             doThrow(new RuntimeException("Erro interno")).when(horarioRepository).deleteById(id);
 
@@ -317,38 +402,40 @@ class HorarioServiceTests {
     class ListagemHorario {
         @Test
         void testListarHorariosComUsuarioValido() {
-            Long userId = 1L;
-            Horario horario1 = new Horario();
-            horario1.setUuid(UUID.randomUUID());
-            horario1.setValue("08:00");
-            horario1.setDate("2025-02-21");
-            horario1.setUserId(userId);
+            UUID id = UUID.randomUUID();
 
-            Horario horario2 = new Horario();
-            horario2.setUuid(UUID.randomUUID());
-            horario2.setValue("14:00");
-            horario2.setDate("2025-02-22");
-            horario2.setUserId(userId);
+            Horario horarioExistente = new Horario();
+            horarioExistente.setId(id);
+            horarioExistente.setHorario("08:00");
+            horarioExistente.setData_criacao("2025-02-20");
+            horarioExistente.setUsuario(usuarioSalvo);
 
-            List<Horario> horarios = Arrays.asList(horario1, horario2);
+            UUID id_2 = UUID.randomUUID();
 
-            when(horarioRepository.findAllByUserId(userId)).thenReturn(horarios);
+            Horario horarioExistente_2 = new Horario();
+            horarioExistente_2.setId(id_2);
+            horarioExistente_2.setHorario("10:00");
+            horarioExistente_2.setData_criacao("2025-02-21");
+            horarioExistente_2.setUsuario(usuarioSalvo);
 
-            List<HorarioResponseDTO> response = listarHorarioService.listarHorario(userId);
+            List<Horario> horarios = Arrays.asList(horarioExistente, horarioExistente_2);
+
+            when(horarioRepository.findAllByUserId(usuarioSalvo.getId())).thenReturn(horarios);
+
+            List<HorarioResponseDTO> response = listarHorarioService.listarHorario(usuarioSalvo.getId());
 
             assertNotNull(response);
             assertEquals(2, response.size());
-            assertEquals(horario1.getValue(), response.get(0).getValue());
-            assertEquals(horario2.getValue(), response.get(1).getValue());
+            assertEquals(horarioExistente.getUsuario(), response.get(0).getUsuario());
+            assertEquals(horarioExistente.getUsuario(), response.get(1).getUsuario());
         }
 
         @Test
         void testListarHorariosUsuarioSemHorarios() {
-            Long userId = 1L;
 
-            when(horarioRepository.findAllByUserId(userId)).thenReturn(Collections.emptyList());
+            when(horarioRepository.findAllByUserId(usuarioSalvo.getId())).thenReturn(Collections.emptyList());
 
-            List<HorarioResponseDTO> response = listarHorarioService.listarHorario(userId);
+            List<HorarioResponseDTO> response = listarHorarioService.listarHorario(usuarioSalvo.getId());
 
             assertNotNull(response);
             assertTrue(response.isEmpty());
