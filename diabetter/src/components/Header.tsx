@@ -20,7 +20,7 @@ export default function Header() {
             Login
           </Link>
           <Link
-            href="/signup"
+            href="/cadastro"
             className="bg-teal-600 text-white px-4 py-2 rounded"
           >
             Cadastrar
