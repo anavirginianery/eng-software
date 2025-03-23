@@ -4,6 +4,7 @@ import { InputText } from "primereact/inputtext";
 import { FloatLabel } from "primereact/floatlabel";
 import { Button } from "primereact/button";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function BasicDemo() {
   const [username, setUsername] = useState("");
@@ -76,7 +77,11 @@ export default function BasicDemo() {
           icon="pi pi-google"
           className="w-full mb-4 p-button-outlined p-button-secondary p-3"
         />
-        <Button label="Salvar" className="w-full bg-teal-600 text-white p-3" />
+        <Link href="/infocadastro">
+          <Button label="Salvar" className="w-full bg-teal-600 text-white p-3" />
+        </Link>
+
+        
       </div>
     </div>
   );
