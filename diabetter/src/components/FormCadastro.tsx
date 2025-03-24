@@ -1,12 +1,7 @@
-"use client";
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
-import Link from "next/link";
 
-export default function FormLogin() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
+export default function FormCadastro() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-t from-[#B4E4E2] to-[#E7F5F4]">
       <div className="bg-white rounded-3xl shadow-lg p-8 w-[400px]">
@@ -21,43 +16,51 @@ export default function FormLogin() {
           <span className="text-gray-500 text-sm">Keep your glucose under control</span>
         </div>
 
-        <h2 className="text-2xl font-medium mb-6 text-center">Login</h2>
+        <h2 className="text-2xl font-medium mb-6 text-center">Cadastre-se</h2>
 
         <form className="space-y-4">
+          <div>
+            <label className="block text-sm text-gray-800 mb-1">Nome Completo</label>
+            <input
+              type="text"
+              className="w-full p-2.5 bg-gray-100 rounded-md border-none"
+            />
+          </div>
+
           <div>
             <label className="block text-sm text-gray-800 mb-1">Email</label>
             <input
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
               className="w-full p-2.5 bg-gray-100 rounded-md border-none"
             />
           </div>
 
-          <div className="mb-2">
+          <div>
             <label className="block text-sm text-gray-800 mb-1">Senha</label>
             <input
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
               className="w-full p-2.5 bg-gray-100 rounded-md border-none"
             />
           </div>
 
-          <div className="text-center mb-8">
-            <Link href="/esqueci-senha" className="text-sm text-gray-600 hover:text-gray-800">
-              Esqueci minha senha
-            </Link>
+          <div>
+            <label className="block text-sm text-gray-800 mb-1">Confirme sua senha</label>
+            <input
+              type="password"
+              className="w-full p-2.5 bg-gray-100 rounded-md border-none"
+            />
           </div>
+
+          
 
           <button
             type="submit"
-            className="w-full p-2.5 bg-[#38B2AC] text-white rounded-md hover:bg-[#2C9A94] transition-colors"
+            className="w-full p-2.5 bg-[#38B2AC] text-white rounded-md hover:bg-[#2C9A94] transition-colors mt-8"
           >
-            Entrar
+            Salvar
           </button>
         </form>
       </div>
     </div>
   );
-}
+} 
