@@ -1,6 +1,7 @@
 import { Footer } from "@/components/Footer";
 import Header from "@/components/Header";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -19,8 +20,8 @@ export default function Home() {
           </div>
           <div className="md:w-2/3 flex flex-col items-center md:items-start text-center md:text-left">
             <h1 className="text-3xl font-bold">
-              Keep your glucose{" "}
-              <span className="text-teal-600">under control</span>
+              Mantenha sua glicose{" "}
+              <span className="text-teal-600">bem controlada</span>
             </h1>
             <p className="mt-4 text-gray-600">
               Plataforma intuitiva para pessoas com diabetes registrarem suas
@@ -28,12 +29,11 @@ export default function Home() {
               monitoramento diário.
             </p>
             <div className="mt-6 flex flex-col md:flex-row md:space-x-4 w-full justify-center md:justify-start">
-              <button className="bg-teal-600 text-white px-6 py-2 rounded w-full md:w-auto">
-                Começar agora
-              </button>
-              <button className="border border-teal-600 text-teal-600 px-6 py-2 rounded w-full md:w-auto mt-2 md:mt-0">
-                Saiba Mais
-              </button>
+              <Link href="/cadastro">
+                <button className="bg-teal-600 text-white px-6 py-2 rounded w-full md:w-auto">
+                  Começar agora
+                </button>
+              </Link>
             </div>
           </div>
         </section>
