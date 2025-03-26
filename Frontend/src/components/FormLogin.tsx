@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+
 export default function FormLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -54,8 +55,13 @@ export default function FormLogin() {
 
           <button
             type="submit"
-            onClick={() => {
-              router.push("/home");
+            onClick={(e) => {
+              e.preventDefault();
+              if (email.includes("@")) {
+                router.push("/home");
+              } else {
+                alert("Por favor, insira um email válido");
+              }
             }}
             className="w-full p-2.5 bg-[#38B2AC] text-white rounded-md hover:bg-[#2C9A94] transition-colors cursor-pointer"
           >
