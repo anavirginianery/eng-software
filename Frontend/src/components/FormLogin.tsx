@@ -1,12 +1,13 @@
 "use client";
+
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-
+import { useRouter } from "next/navigation";
 export default function FormLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
+  const router = useRouter();
   return (
     <div className="h-full px-4 sm:px-6 lg:px-8 py-6 flex items-center justify-center bg-gradient-to-t from-[#B4E4E2] to-[#E7F5F4]">
       <div className="bg-white rounded-3xl shadow-lg p-8 w-[400px]">
@@ -51,14 +52,15 @@ export default function FormLogin() {
             </Link>
           </div>
 
-          <Link href="/home">
-            <button
-              type="submit"
-              className="w-full p-2.5 bg-[#38B2AC] text-white rounded-md hover:bg-[#2C9A94] transition-colors"
-            >
-              Entrar
-            </button>
-          </Link>
+          <button
+            type="submit"
+            onClick={() => {
+              router.push("/home");
+            }}
+            className="w-full p-2.5 bg-[#38B2AC] text-white rounded-md hover:bg-[#2C9A94] transition-colors cursor-pointer"
+          >
+            Entrar
+          </button>
         </form>
       </div>
     </div>
