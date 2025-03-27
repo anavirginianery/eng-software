@@ -29,6 +29,10 @@ public class CriarGlicemiaService implements ICriarGlicemiaService {
         Horario horario = horarioRepository.findById(dto.getHorario())
                 .orElseThrow(() -> new IllegalArgumentException("Horario not found"));
 
+        if (dto.getValorGlicemia() <= 0) {
+            throw new IllegalArgumentException("Medição de glicemia inválida");
+        }
+
         Insulina insulina = null;
         if (dto.getInsulina() != null) {
             insulina = insulinaRepository.findById(dto.getInsulina())
