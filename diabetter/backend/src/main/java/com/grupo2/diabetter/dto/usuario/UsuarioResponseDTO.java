@@ -45,8 +45,6 @@ public class UsuarioResponseDTO {
 
     private List<Horario> horarios_afericao;
 
-
-
     public UsuarioResponseDTO(Usuario usuario) {
         this.id = usuario.getId();
         this.nome = usuario.getNome();
@@ -54,5 +52,11 @@ public class UsuarioResponseDTO {
         // this.telefone = usuario.getTelefone();
         this.email = usuario.getEmail();
         this.genero = usuario.getGenero().toString();
+        this.altura = usuario.getAltura(); // Mapeando a altura
+        this.peso = usuario.getPeso(); // Mapeando o peso
+        this.tipoDiabetes = usuario.getTipoDiabetes(); // Mapeando o tipo de diabetes
+        this.tipoInsulina = usuario.getTipoInsulina(); // Mapeando o tipo de insulina
+        this.comorbidades = usuario.getComorbidades(); // Mapeando as comorbidades
+        this.horarios_afericao = usuario.getHorarios_afericao(); // Mapeando os horários de aferição
     }
 }

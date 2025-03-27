@@ -5,6 +5,7 @@
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/diabetter/backend" />
+        <option name="gradleHome" value="/opt/gradle/gradle-8.12.1" />
         <option name="gradleJvm" value="17" />
         <option name="modules">
           <set>

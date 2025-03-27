@@ -21,13 +21,18 @@ public class CriarHorarioService implements ICriarHorarioService {
 
     @Override
     public HorarioResponseDTO createHorario(HorarioPostPutRequestDTO dto) {
-        Usuario usuario = usuarioRepository.findById(dto.getId())
+        Usuario usuario = usuarioRepository.findById(dto.getUsuario().getId())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
+        if (dto.getHorario() == null || dto.getHorario().trim().isEmpty()) {
+            throw new IllegalArgumentException("O valor do horário não pode ser nulo ou vazio");
+        }
+
         Horario horario = new Horario();
+        horario.setId(dto.getId());
         horario.setHorario(dto.getHorario());
         horario.setData_criacao(dto.getData_criacao());
-        horario.setUsuario(horario.getUsuario());
+        horario.setUsuario(usuario);
 
         horarioRepository.save(horario);
 

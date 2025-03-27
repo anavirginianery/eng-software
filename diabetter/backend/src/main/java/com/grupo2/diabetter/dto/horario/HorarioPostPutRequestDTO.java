@@ -17,7 +17,7 @@ public class HorarioPostPutRequestDTO {
 
     private UUID id;
 
-    private UUID usuario;
+    private Usuario usuario;
 
     private String horario;
 

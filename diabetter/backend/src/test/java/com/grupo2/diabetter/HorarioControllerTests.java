@@ -3,21 +3,27 @@ package com.grupo2.diabetter;
 import com.grupo2.diabetter.controller.HorarioController;
 import com.grupo2.diabetter.dto.horario.HorarioPostPutRequestDTO;
 import com.grupo2.diabetter.dto.horario.HorarioResponseDTO;
+import com.grupo2.diabetter.dto.usuario.UsuarioPostPutRequestDTO;
+import com.grupo2.diabetter.enuns.Genero;
+import com.grupo2.diabetter.enuns.TipoDiabetes;
+import com.grupo2.diabetter.enuns.TipoInsulina;
 import com.grupo2.diabetter.exception.NotFoundException;
+import com.grupo2.diabetter.model.Horario;
+import com.grupo2.diabetter.model.Usuario;
+import com.grupo2.diabetter.repository.HorarioRepository;
+import com.grupo2.diabetter.repository.UsuarioRepository;
 import com.grupo2.diabetter.service.horario.*;
 
+import com.grupo2.diabetter.service.usuario.CriarUsuarioService;
 import jakarta.validation.ConstraintViolationException;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import net.bytebuddy.asm.Advice;
+import org.junit.jupiter.api.*;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
@@ -52,12 +58,51 @@ class HorarioControllerTests {
     @Mock
     private RecuperarHorarioService recuperarHorarioService;
 
+    @Mock
+    private CriarUsuarioService criarUsuarioService;
+
+    @Mock
+    private UsuarioRepository usuarioRepository;
+
+    @Mock
+    private HorarioRepository horarioRepository;
+
     @InjectMocks
     private HorarioController horarioController;
+
+    private UsuarioPostPutRequestDTO userDto;
+
+    private Usuario usuarioSalvo;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+
+        userDto = new UsuarioPostPutRequestDTO();
+              userDto.setNome("João");
+              userDto.setEmail("joao@example.com");
+              userDto.setPassword("senha123");
+              userDto.setDataNasc("1990-01-01");
+              userDto.setGenero(Genero.MASCULINO);
+              userDto.setAltura(1.75f);
+              userDto.setPeso(70.0f);
+              userDto.setTipoDiabetes(TipoDiabetes.TIPO_1);
+              userDto.setTipoInsulina(TipoInsulina.RAPIDA);
+              userDto.setComorbidades(List.of("Hipertensão"));
+
+         usuarioSalvo = Usuario.builder()
+                .nome(userDto.getNome())
+                .email(userDto.getEmail())
+                .senha(userDto.getPassword())
+                .dataNasc(userDto.getDataNasc())
+                .genero(userDto.getGenero())
+                .altura(userDto.getAltura())
+                .peso(userDto.getPeso())
+                .tipoDiabetes(userDto.getTipoDiabetes())
+                .tipoInsulina(userDto.getTipoInsulina())
+                .comorbidades(userDto.getComorbidades())
+                .build();
+
     }
 
     @Nested
@@ -65,9 +110,10 @@ class HorarioControllerTests {
     class CriacaoHorario {
         @Test
         void testCriarHorarioComDadosValidos() {
-            HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO("08:00", "2025-02-20", 1L);
 
-            HorarioResponseDTO horarioSalvo = new HorarioResponseDTO(UUID.randomUUID(), dto.getValue(), dto.getDate(), dto.getUserId());
+            HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO(UUID.randomUUID(), usuarioSalvo, "08:00", "2025-02-20");
+
+            HorarioResponseDTO horarioSalvo = new HorarioResponseDTO(dto.getId(), dto.getUsuario(), dto.getHorario(), dto.getData_criacao());
 
             when(criarHorarioService.createHorario(any(HorarioPostPutRequestDTO.class))).thenReturn(horarioSalvo);
 
@@ -77,10 +123,10 @@ class HorarioControllerTests {
             assertEquals(horarioSalvo, response.getBody());
         }
         
-        
         @Test
         void testCriarHorarioComDataInvalida() {
-            HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO("08:00", "data-invalida", 1L);
+
+            HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO(UUID.randomUUID(), usuarioSalvo, "08:00", "data-invalida");
 
             when(criarHorarioService.createHorario(any(HorarioPostPutRequestDTO.class)))
                     .thenThrow(new IllegalArgumentException("Data inválida"));
@@ -94,7 +140,8 @@ class HorarioControllerTests {
 
     @Test
     void testCriarHorarioComErroInterno() {
-        HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO("08:00", "2025-02-20", 1L);
+
+        HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO(UUID.randomUUID(), usuarioSalvo, "08:00", "2025-02-20");
 
         when(criarHorarioService.createHorario(any(HorarioPostPutRequestDTO.class)))
                 .thenThrow(new RuntimeException("Erro interno"));
@@ -107,8 +154,8 @@ class HorarioControllerTests {
     }
     @Test
     void testCriarHorarioComDadosInvalidos() {
-       
-        HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO(null, "2025-02-20", 1L);
+
+        HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO(null, usuarioSalvo, "08:00", "2025-02-20");
 
         when(criarHorarioService.createHorario(any(HorarioPostPutRequestDTO.class)))
                 .thenThrow(new ConstraintViolationException("Dados inválidos", Set.of()));
@@ -129,7 +176,8 @@ class HorarioControllerTests {
         @Test
         void testReadHorarioComIdValido() {
             UUID id = UUID.randomUUID();
-            HorarioResponseDTO responseDTO = new HorarioResponseDTO(id, "08:00", "2025-02-21", 1L);
+
+            HorarioResponseDTO responseDTO = new HorarioResponseDTO(id, usuarioSalvo, "08:00", "2025-02-20");
 
             when(recuperarHorarioService.recuperarHorario(id)).thenReturn(responseDTO);
 
@@ -164,7 +212,7 @@ class HorarioControllerTests {
             });
 
             assertEquals("Erro interno", exception.getMessage());
-    }
+        }
     }
 
     @Nested
@@ -173,8 +221,9 @@ class HorarioControllerTests {
         @Test
         void testAtualizarHorarioComIdValido() {
             UUID id = UUID.randomUUID();
-            HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO("10:00", "2025-02-21", 1L);
-            HorarioResponseDTO horarioAtualizado = new HorarioResponseDTO(id, dto.getValue(), dto.getDate(), dto.getUserId());
+
+            HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO(id, usuarioSalvo, "10:00", "2025-02-21");
+            HorarioResponseDTO horarioAtualizado = new HorarioResponseDTO(dto.getId(), dto.getUsuario(), dto.getHorario(), dto.getData_criacao());
 
             when(atualizarHorarioService.updateHorario(eq(id), any(HorarioPostPutRequestDTO.class))).thenReturn(horarioAtualizado);
 
@@ -187,7 +236,7 @@ class HorarioControllerTests {
         @Test
         void testAtualizarHorarioComIdInvalido() {
             UUID idInvalido = UUID.randomUUID();
-            HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO("10:00", "2025-02-21", 1L);
+            HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO(idInvalido, usuarioSalvo, "10:00", "2025-02-21");
 
             when(atualizarHorarioService.updateHorario(eq(idInvalido), any(HorarioPostPutRequestDTO.class)))
                     .thenThrow(new NotFoundException("Horario not found"));
@@ -202,7 +251,7 @@ class HorarioControllerTests {
         @Test
         void testAtualizarHorarioComValorInvalido() {
             UUID id = UUID.randomUUID();
-            HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO("valor-invalido", "2025-02-21", 1L);
+            HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO(id, usuarioSalvo, "valor-invalido", "2025-02-21");
 
             when(atualizarHorarioService.updateHorario(eq(id), any(HorarioPostPutRequestDTO.class)))
                     .thenThrow(new IllegalArgumentException("Valor inválido"));
@@ -217,8 +266,8 @@ class HorarioControllerTests {
         @Test
         void testAtualizarHorarioSemMudanca() {
             UUID id = UUID.randomUUID();
-            HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO("08:00", "2025-02-21", 1L);
-            HorarioResponseDTO horarioAtualizado = new HorarioResponseDTO(id, dto.getValue(), dto.getDate(), dto.getUserId());
+            HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO(id, usuarioSalvo, "08:00", "2025-02-21");
+            HorarioResponseDTO horarioAtualizado = new HorarioResponseDTO(id, dto.getUsuario(), dto.getHorario(), dto.getData_criacao());
 
             when(atualizarHorarioService.updateHorario(eq(id), any(HorarioPostPutRequestDTO.class))).thenReturn(horarioAtualizado);
 
@@ -231,7 +280,7 @@ class HorarioControllerTests {
         @Test
         void testAtualizarHorarioComErroInterno() {
             UUID id = UUID.randomUUID();
-            HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO("10:00", "2025-02-21", 1L);
+            HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO(id, usuarioSalvo, "08:00", "2025-02-21");
 
             when(atualizarHorarioService.updateHorario(eq(id), any(HorarioPostPutRequestDTO.class)))
                     .thenThrow(new RuntimeException("Erro interno"));
@@ -250,6 +299,7 @@ class HorarioControllerTests {
         @Test
         void testDeletarHorarioComSucesso() {
             UUID id = UUID.randomUUID();
+
             doNothing().when(deletarHorarioService).deletarHorario(id);
 
             ResponseEntity<?> response = horarioController.disableHorario(id);
@@ -260,6 +310,7 @@ class HorarioControllerTests {
         @Test
         void testDeletarHorarioComIdInvalido() {
             UUID idInvalido = UUID.randomUUID();
+
             doThrow(new NotFoundException("Horario not found")).when(deletarHorarioService).deletarHorario(idInvalido);
 
             NotFoundException exception = assertThrows(NotFoundException.class, () -> {
@@ -301,16 +352,16 @@ class HorarioControllerTests {
     class ListagemHorario {
         @Test
         void testListarHorariosComUsuarioValido() {
-            Long userId = 1L;
+            UUID id = UUID.randomUUID();
 
             List<HorarioResponseDTO> horariosMockados = Arrays.asList(
-                new HorarioResponseDTO(UUID.randomUUID(), "08:00", "2025-02-21", userId),
-                new HorarioResponseDTO(UUID.randomUUID(), "14:00", "2025-02-22", userId)
+                new HorarioResponseDTO(id, usuarioSalvo,"10:00", "2025-02-20"),
+                new HorarioResponseDTO(id, usuarioSalvo,"10:00", "2025-02-21")
             );
 
-            when(listarHorarioService.listarHorario(userId)).thenReturn(horariosMockados);
+            when(listarHorarioService.listarHorario(usuarioSalvo.getId())).thenReturn(horariosMockados);
 
-            ResponseEntity<?> response = horarioController.listarHorarios(userId);
+            ResponseEntity<?> response = horarioController.listarHorarios(usuarioSalvo.getId());
 
             assertEquals(HttpStatus.OK, response.getStatusCode());
             assertEquals(horariosMockados, response.getBody());
@@ -318,11 +369,10 @@ class HorarioControllerTests {
 
         @Test
         void testListarHorariosUsuarioSemHorarios() {
-            Long userId = 1L;
 
-            when(listarHorarioService.listarHorario(userId)).thenReturn(Collections.emptyList());
+            when(listarHorarioService.listarHorario(usuarioSalvo.getId())).thenReturn(Collections.emptyList());
 
-            ResponseEntity<?> response = horarioController.listarHorarios(userId);
+            ResponseEntity<?> response = horarioController.listarHorarios(usuarioSalvo.getId());
 
             assertEquals(HttpStatus.OK, response.getStatusCode());
             assertTrue(((List<?>) response.getBody()).isEmpty());

@@ -4,50 +4,64 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.grupo2.diabetter.exception.ErrorHandlingControllerAdvice;
+import com.grupo2.diabetter.model.Horario;
+import org.springframework.test.web.servlet.MockMvc;
+
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.grupo2.diabetter.enuns.TipoInsulina;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.dao.EmptyResultDataAccessException;
+
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import com.grupo2.diabetter.controller.InsulinController;
-import com.grupo2.diabetter.dto.glicemia.GlicemiaPostPutRequestDto;
-import com.grupo2.diabetter.dto.insulin.InsulinDeleteResponseDTO;
-import com.grupo2.diabetter.dto.insulin.InsulinPostPutRequestDTO;
-import com.grupo2.diabetter.dto.insulin.InsulinResponseDTO;
+import com.grupo2.diabetter.dto.insulina.InsulinDeleteResponseDTO;
+import com.grupo2.diabetter.dto.insulina.InsulinPostPutRequestDTO;
+import com.grupo2.diabetter.dto.insulina.InsulinResponseDTO;
 import com.grupo2.diabetter.exception.CommerceException;
 import com.grupo2.diabetter.exception.NotFoundException;
 import com.grupo2.diabetter.model.Glicemia;
 import com.grupo2.diabetter.model.Insulina;
 import com.grupo2.diabetter.repository.InsulinRepository;
-import com.grupo2.diabetter.service.insulin.AtualizarInsulinService;
-import com.grupo2.diabetter.service.insulin.CriarInsulinService;
-import com.grupo2.diabetter.service.insulin.DeletarInsulinService;
-import com.grupo2.diabetter.service.insulin.ListarInsulinService;
-import com.grupo2.diabetter.service.insulin.RecuperarInsulinService;
+import com.grupo2.diabetter.service.insulina.AtualizarInsulinService;
+import com.grupo2.diabetter.service.insulina.CriarInsulinService;
+import com.grupo2.diabetter.service.insulina.DeletarInsulinService;
+import com.grupo2.diabetter.service.insulina.ListarInsulinService;
+import com.grupo2.diabetter.service.insulina.RecuperarInsulinService;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 @SpringBootTest
 public class TestesControllerInsulina {
 
-    private MockMvc mockmcv;
+    private MockMvc mockMvc;
 
     @Mock
     private AtualizarInsulinService atualizarInsulinService;
@@ -64,531 +78,694 @@ public class TestesControllerInsulina {
     @Mock
     private RecuperarInsulinService recuperarInsulinService;
 
-   
-
     @InjectMocks
     private InsulinController insulinController;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @BeforeEach
     void setup(){
         MockitoAnnotations.openMocks(this);
+        this.mockMvc = MockMvcBuilders
+                .standaloneSetup(insulinController)
+                .setControllerAdvice(new ErrorHandlingControllerAdvice())
+                .build();
     }
 
-@Nested
-@DisplayName("Caso de testes de criação de insulina")
-class CriarInsulina{
-    @Test
-    @DisplayName("Cria insulina com dados válidos")
-    void testCreateInsulinWithValidData(){
-        UUID horarioId = UUID.randomUUID();
+    @Nested
+    @DisplayName("Casos de testes de criação de insulina")
+    class CriarInsulina {
 
-        InsulinPostPutRequestDTO dto = InsulinPostPutRequestDTO.builder()
-                .type("Novorapido")
-                .units(10)
-                .horarioId(horarioId)
+        @Test
+        @DisplayName("Cria insulina com dados válidos")
+        void testCreateInsulinWithValidData(){
+            UUID horarioId = UUID.randomUUID();
+
+            // Criação do DTO usando os nomes corretos
+            InsulinPostPutRequestDTO dto = InsulinPostPutRequestDTO.builder()
+                    .tipoInsulina(TipoInsulina.RAPIDA)  // supondo que NOVORAPIDO seja um valor válido do enum
+                    .unidades(10)
+                    .horarioId(horarioId)
+                    .dataAplicacao(LocalDateTime.now())
+                    .build();
+
+            // Criação da resposta esperada com os nomes corretos
+            InsulinResponseDTO responseDTO = InsulinResponseDTO.builder()
+                    .insulidaId(UUID.randomUUID())
+                    .tipoInsulina(dto.getTipoInsulina())
+                    .unidades(dto.getUnidades())
+                    .horarioId(dto.getHorarioId())
+                    .dataAplicacao(dto.getDataAplicacao())
+                    .build();
+
+            when(criarInsulinService.criarInsulina(any(InsulinPostPutRequestDTO.class))).thenReturn(responseDTO);
+
+            ResponseEntity<InsulinResponseDTO> response = insulinController.criarInsulina(dto);
+
+            assertEquals(HttpStatus.CREATED, response.getStatusCode());
+            assertNotNull(response.getBody());
+            assertEquals(horarioId, response.getBody().getHorarioId());
+        }
+
+        @Test
+        @DisplayName("Cria insulina com tipo inválido")
+        void testCreateInsulinWithInvalidType() {
+            UUID horarioId = UUID.randomUUID();
+
+            // Para simular tipo inválido, passamos null ou outro valor inadequado
+            InsulinPostPutRequestDTO dto = InsulinPostPutRequestDTO.builder()
+                    .tipoInsulina(null)
+                    .unidades(10)
+                    .horarioId(horarioId)
+                    .dataAplicacao(LocalDateTime.now())
+                    .build();
+
+            when(criarInsulinService.criarInsulina(any(InsulinPostPutRequestDTO.class)))
+                    .thenThrow(new CommerceException("Tipo de insulina inválido"));
+
+            CommerceException exception = assertThrows(CommerceException.class, () -> {
+                insulinController.criarInsulina(dto);
+            });
+
+            assertEquals("Tipo de insulina inválido", exception.getMessage());
+        }
+
+        @Test
+        @DisplayName("Cria insulina com unidades inválidas")
+        void testCreateInsulinWithInvalidUnits() {
+            UUID horarioId = UUID.randomUUID();
+
+            // Usando os nomes corretos no builder
+            InsulinPostPutRequestDTO dto = InsulinPostPutRequestDTO.builder()
+                    .tipoInsulina(TipoInsulina.RAPIDA)
+                    .unidades(-5)  // Unidades inválidas (negativas)
+                    .horarioId(horarioId)
+                    .dataAplicacao(LocalDateTime.now())
+                    .build();
+
+            when(criarInsulinService.criarInsulina(any(InsulinPostPutRequestDTO.class)))
+                    .thenThrow(new CommerceException("Unidades de insulina inválidas"));
+
+            CommerceException exception = assertThrows(CommerceException.class, () -> {
+                insulinController.criarInsulina(dto);
+            });
+
+            assertEquals("Unidades de insulina inválidas", exception.getMessage());
+        }
+
+        @Test
+        @DisplayName("Cria insulina sem horário")
+        void testCreateInsulinWithoutSchedule() {
+            InsulinPostPutRequestDTO dto = InsulinPostPutRequestDTO.builder()
+                    .tipoInsulina(TipoInsulina.RAPIDA)
+                    .unidades(10)
+                    .horarioId(null) // Horário inválido (nulo)
+                    .dataAplicacao(LocalDateTime.now())
+                    .build();
+
+            when(criarInsulinService.criarInsulina(any(InsulinPostPutRequestDTO.class)))
+                    .thenThrow(new CommerceException("Horário de insulina inválido"));
+
+            CommerceException exception = assertThrows(CommerceException.class, () -> {
+                insulinController.criarInsulina(dto);
+            });
+
+            assertEquals("Horário de insulina inválido", exception.getMessage());
+        }
+
+        @Test
+        @DisplayName("Cria insulina com erro interno")
+        void testCreateInsulinWithInternalError() {
+            UUID horarioId = UUID.randomUUID();
+
+            InsulinPostPutRequestDTO dto = InsulinPostPutRequestDTO.builder()
+                    .tipoInsulina(TipoInsulina.RAPIDA)
+                    .unidades(10)
+                    .horarioId(horarioId)
+                    .dataAplicacao(LocalDateTime.now())
+                    .build();
+
+            when(criarInsulinService.criarInsulina(any(InsulinPostPutRequestDTO.class)))
+                    .thenThrow(new RuntimeException("Erro interno no servidor"));
+
+            RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+                insulinController.criarInsulina(dto);
+            });
+
+            assertEquals("Erro interno no servidor", exception.getMessage());
+        }
+    }
+
+    @Nested
+    @DisplayName("Conjunto de casos de leitura de insulina")
+    class LeituraInsulina {
+        @Test
+        @DisplayName("Lê insulina com dados válidos")
+        void testReadInsulinWithValidId(){
+            UUID horarioId = UUID.randomUUID();
+            UUID insulinId = UUID.randomUUID();
+
+            InsulinResponseDTO responseDTO = InsulinResponseDTO.builder()
+                    .insulidaId(insulinId)
+                    .tipoInsulina(TipoInsulina.RAPIDA)
+                    .unidades(10)
+                    .horarioId(horarioId)
+                    .dataAplicacao(LocalDateTime.now())
+                    .build();
+
+            when(recuperarInsulinService.recuperarInsulina(insulinId)).thenReturn(responseDTO);
+
+            ResponseEntity<InsulinResponseDTO> response = insulinController.recuperarInsulina(insulinId);
+
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+            assertNotNull(response.getBody());
+            assertEquals(insulinId, response.getBody().getInsulidaId());
+            assertEquals(horarioId, response.getBody().getHorarioId());
+        }
+
+        @Test
+        @DisplayName("Leitura de insulina com dados inválidos")
+        void testReadInsulinWithInvalidData(){
+            UUID insulinId = UUID.randomUUID();
+
+            when(recuperarInsulinService.recuperarInsulina(insulinId))
+                    .thenThrow(new RuntimeException("Insulina não encontrada"));
+
+            RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+                insulinController.recuperarInsulina(insulinId);
+            });
+            assertEquals("Insulina não encontrada", exception.getMessage());
+        }
+    }
+
+    @Nested
+    @DisplayName("Casos de listar insulina")
+    class ListarInsulina {
+        @Test
+        @DisplayName("Listar insulinas registradas")
+        void testListAllInsulinWithRecords(){
+            UUID horarioId1 = UUID.randomUUID();
+            UUID horarioId2 = UUID.randomUUID();
+
+            List<InsulinResponseDTO> insulinList = List.of(
+                    InsulinResponseDTO.builder()
+                            .insulidaId(UUID.randomUUID())
+                            .tipoInsulina(TipoInsulina.RAPIDA)
+                            .unidades(10)
+                            .horarioId(horarioId1)
+                            .dataAplicacao(LocalDateTime.now())
+                            .build(),
+                    InsulinResponseDTO.builder()
+                            .insulidaId(UUID.randomUUID())
+                            .tipoInsulina(TipoInsulina.RAPIDA)
+                            .unidades(20)
+                            .horarioId(horarioId2)
+                            .dataAplicacao(LocalDateTime.now())
+                            .build()
+            );
+
+            when(listarInsulinService.listarTodasInsulinas()).thenReturn(insulinList);
+
+            ResponseEntity<List<InsulinResponseDTO>> response = insulinController.listarTodasInsulinas();
+
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+            assertNotNull(response.getBody());
+            assertEquals(2, response.getBody().size());
+            assertEquals(horarioId1, response.getBody().get(0).getHorarioId());
+            assertEquals(horarioId2, response.getBody().get(1).getHorarioId());
+        }
+
+        @Test
+        @DisplayName("Listar todas as insulinas quando não há registros")
+        void testListAllInsulinWithoutRecords(){
+            when(listarInsulinService.listarTodasInsulinas())
+                    .thenThrow(new NotFoundException("Não existem registros"));
+
+            NotFoundException exception = assertThrows(NotFoundException.class, () -> {
+                insulinController.listarTodasInsulinas();
+            });
+
+            assertEquals("Não existem registros", exception.getMessage());
+        }
+
+        @Test
+        @DisplayName("Listar insulinas com erro interno")
+        void testListAllInsulinWithInternalError(){
+            when(listarInsulinService.listarTodasInsulinas())
+                    .thenThrow(new RuntimeException("Erro interno no servidor"));
+
+            RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+                insulinController.listarTodasInsulinas();
+            });
+
+            assertEquals("Erro interno no servidor", exception.getMessage());
+        }
+    }
+
+    @Nested
+    @DisplayName("Casos de atualização de insulina")
+    class UpdateInsulin {
+        @Test
+        @DisplayName("Atualizar insulina com dados válidos")
+        void testUpdateInsulinWithValidData(){
+            UUID insulinId = UUID.randomUUID();
+            UUID horarioId = UUID.randomUUID();
+
+            InsulinPostPutRequestDTO dto = InsulinPostPutRequestDTO.builder()
+                    .tipoInsulina(TipoInsulina.RAPIDA)
+                    .unidades(15)
+                    .horarioId(horarioId)
+                    .dataAplicacao(LocalDateTime.now())
+                    .build();
+
+            InsulinResponseDTO responseDTO = InsulinResponseDTO.builder()
+                    .insulidaId(insulinId)
+                    .tipoInsulina(TipoInsulina.BASAL)  // Supondo que a atualização mude o tipo
+                    .unidades(15)
+                    .horarioId(horarioId)
+                    .dataAplicacao(LocalDateTime.now())
+                    .build();
+
+            when(atualizarInsulinService.atualizarInsulina(insulinId, dto)).thenReturn(responseDTO);
+
+            ResponseEntity<InsulinResponseDTO> response = insulinController.atualizarInsulina(insulinId, dto);
+
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+            assertNotNull(response.getBody());
+            assertEquals(insulinId, response.getBody().getInsulidaId());
+            assertEquals(TipoInsulina.BASAL, response.getBody().getTipoInsulina());
+            assertEquals(15, response.getBody().getUnidades(), 0.001);
+            assertEquals(horarioId, response.getBody().getHorarioId());
+
+            verify(atualizarInsulinService, times(1)).atualizarInsulina(insulinId, dto);
+        }
+
+        @Test
+        @DisplayName("Atualização de insulina com ID inválido")
+        void testUpdateInsulinWithInvalidID(){
+            UUID invalidId = UUID.randomUUID();
+            InsulinPostPutRequestDTO dto = InsulinPostPutRequestDTO.builder()
+                    .tipoInsulina(TipoInsulina.RAPIDA)
+                    .unidades(15)
+                    .horarioId(UUID.randomUUID())
+                    .dataAplicacao(LocalDateTime.now())
+                    .build();
+
+            when(atualizarInsulinService.atualizarInsulina(invalidId, dto))
+                    .thenThrow(new RuntimeException("Insulina não encontrada"));
+
+            RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+                insulinController.atualizarInsulina(invalidId, dto);
+            });
+
+            assertEquals("Insulina não encontrada", exception.getMessage());
+            verify(atualizarInsulinService, times(1)).atualizarInsulina(invalidId, dto);
+        }
+
+        @Test
+        @DisplayName("Teste de atualização de insulina com tipo inválido")
+        void testUpdateInsulinWithInvalidType(){
+            UUID insulinId = UUID.randomUUID();
+            InsulinPostPutRequestDTO dto = InsulinPostPutRequestDTO.builder()
+                    .tipoInsulina(null) // Tipo inválido
+                    .unidades(15)
+                    .horarioId(UUID.randomUUID())
+                    .dataAplicacao(LocalDateTime.now())
+                    .build();
+
+            when(atualizarInsulinService.atualizarInsulina(insulinId, dto))
+                    .thenThrow(new CommerceException("Tipo de insulina inválido"));
+
+            CommerceException exception = assertThrows(CommerceException.class, () -> {
+                insulinController.atualizarInsulina(insulinId, dto);
+            });
+
+            assertEquals("Tipo de insulina inválido", exception.getMessage());
+            verify(atualizarInsulinService, times(1)).atualizarInsulina(insulinId, dto);
+        }
+
+        @Test
+        @DisplayName("Atualização de insulina com unidades inválidas")
+        void testUpdateInsulinWithInvalidUnits() {
+            UUID insulinId = UUID.randomUUID();
+            InsulinPostPutRequestDTO dto = InsulinPostPutRequestDTO.builder()
+                    .tipoInsulina(TipoInsulina.RAPIDA)
+                    .unidades(-5) // Unidades inválidas
+                    .horarioId(UUID.randomUUID())
+                    .dataAplicacao(LocalDateTime.now())
+                    .build();
+
+            when(atualizarInsulinService.atualizarInsulina(insulinId, dto))
+                    .thenThrow(new CommerceException("Unidades de insulina inválidas"));
+
+            CommerceException exception = assertThrows(CommerceException.class, () -> {
+                insulinController.atualizarInsulina(insulinId, dto);
+            });
+
+            assertEquals("Unidades de insulina inválidas", exception.getMessage());
+            verify(atualizarInsulinService, times(1)).atualizarInsulina(insulinId, dto);
+        }
+
+        @Test
+        @DisplayName("Atualização de insulina com horário inválido")
+        void testUpdateInsulinWithInvalidSchedule() {
+            UUID insulinId = UUID.randomUUID();
+            InsulinPostPutRequestDTO dto = InsulinPostPutRequestDTO.builder()
+                    .tipoInsulina(TipoInsulina.RAPIDA)
+                    .unidades(15)
+                    .horarioId(null) // Horário inválido (nulo)
+                    .dataAplicacao(LocalDateTime.now())
+                    .build();
+
+            when(atualizarInsulinService.atualizarInsulina(insulinId, dto))
+                    .thenThrow(new CommerceException("Horário de insulina inválido"));
+
+            CommerceException exception = assertThrows(CommerceException.class, () -> {
+                insulinController.atualizarInsulina(insulinId, dto);
+            });
+
+            assertEquals("Horário de insulina inválido", exception.getMessage());
+            verify(atualizarInsulinService, times(1)).atualizarInsulina(insulinId, dto);
+        }
+
+        @Test
+        @DisplayName("Atualização de insulina sem alterações")
+        void testUpdateInsulinWithoutChanges() {
+            UUID insulinId = UUID.randomUUID();
+            UUID horarioId = UUID.randomUUID();
+
+            InsulinPostPutRequestDTO dto = InsulinPostPutRequestDTO.builder()
+                    .tipoInsulina(TipoInsulina.RAPIDA)
+                    .unidades(15)
+                    .horarioId(horarioId)
+                    .dataAplicacao(LocalDateTime.now())
+                    .build();
+
+            InsulinResponseDTO responseDTO = InsulinResponseDTO.builder()
+                    .insulidaId(insulinId)
+                    .tipoInsulina(TipoInsulina.RAPIDA)
+                    .unidades(15)
+                    .horarioId(horarioId)
+                    .dataAplicacao(LocalDateTime.now())
+                    .build();
+
+            when(atualizarInsulinService.atualizarInsulina(insulinId, dto)).thenReturn(responseDTO);
+
+            ResponseEntity<InsulinResponseDTO> response = insulinController.atualizarInsulina(insulinId, dto);
+
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+            assertNotNull(response.getBody());
+            assertEquals(insulinId, response.getBody().getInsulidaId());
+            assertEquals(TipoInsulina.RAPIDA, response.getBody().getTipoInsulina());
+            assertEquals(15, response.getBody().getUnidades(), 0.001);
+            assertEquals(horarioId, response.getBody().getHorarioId());
+
+            verify(atualizarInsulinService, times(1)).atualizarInsulina(insulinId, dto);
+        }
+
+        @Test
+        @DisplayName("Atualização de insulina com erro interno")
+        void testUpdateInsulinWithInternalError() {
+            UUID insulinId = UUID.randomUUID();
+            InsulinPostPutRequestDTO dto = InsulinPostPutRequestDTO.builder()
+                    .tipoInsulina(TipoInsulina.RAPIDA)
+                    .unidades(15)
+                    .horarioId(UUID.randomUUID())
+                    .dataAplicacao(LocalDateTime.now())
+                    .build();
+
+            when(atualizarInsulinService.atualizarInsulina(insulinId, dto))
+                    .thenThrow(new RuntimeException("Erro interno no servidor"));
+
+            RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+                insulinController.atualizarInsulina(insulinId, dto);
+            });
+
+            assertEquals("Erro interno no servidor", exception.getMessage());
+            verify(atualizarInsulinService, times(1)).atualizarInsulina(insulinId, dto);
+        }
+    }
+
+    @Test
+    @DisplayName("POST /api/insulin - cria insulina com sucesso")
+    void testCriarInsulinaComSucesso() throws Exception {
+        InsulinPostPutRequestDTO requestDTO = InsulinPostPutRequestDTO.builder()
+                .tipoInsulina(TipoInsulina.RAPIDA)
+                .unidades(10)
+                .horarioId(UUID.randomUUID())
+                .glicemia(UUID.randomUUID())
+                .dataAplicacao(LocalDateTime.now())
                 .build();
-    
+
         InsulinResponseDTO responseDTO = InsulinResponseDTO.builder()
-                .uuid(UUID.randomUUID()) 
-                .type(dto.getType())
-                .units(dto.getUnits())
-                .horarioId(dto.getHorarioId())
+                .insulidaId(UUID.randomUUID())
+                .tipoInsulina(TipoInsulina.RAPIDA)
+                .unidades(10)
                 .build();
-    
-       
-        when(criarInsulinService.criarInsulin(any(InsulinPostPutRequestDTO.class))).thenReturn(responseDTO);
-    
-  
-        ResponseEntity<InsulinResponseDTO> response = insulinController.createInsulin(dto);
-    
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(horarioId, response.getBody().getHorarioId()); 
 
+        Mockito.when(criarInsulinService.criarInsulina(any(InsulinPostPutRequestDTO.class)))
+                .thenReturn(responseDTO);
+
+        mockMvc.perform(post("/api/insulin")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDTO)))
+                .andExpect(status().isCreated())
+                .andExpect((ResultMatcher) jsonPath("$.insulidaId").value(responseDTO.getInsulidaId().toString()));
     }
+
     @Test
-    @DisplayName("Cria insulina com tipo inválido")
-    void testCreateInsulinWithInvalidType() {
-        UUID horarioId = UUID.randomUUID();
-    
-        InsulinPostPutRequestDTO dto = InsulinPostPutRequestDTO.builder()
-                .type("") 
-                .units(10)
-                .horarioId(horarioId)
+    @DisplayName("POST /api/insulin - falha ao criar insulina com tipo nulo")
+    void testCriarInsulinaFalha() throws Exception {
+        InsulinPostPutRequestDTO requestDTO = InsulinPostPutRequestDTO.builder()
+                .tipoInsulina(null)
+                .unidades(10)
+                .horarioId(UUID.randomUUID())
+                .glicemia(UUID.randomUUID())
+                .dataAplicacao(LocalDateTime.now())
                 .build();
-    
-        when(criarInsulinService.criarInsulin(any(InsulinPostPutRequestDTO.class)))
+
+        Mockito.when(criarInsulinService.criarInsulina(any(InsulinPostPutRequestDTO.class)))
                 .thenThrow(new CommerceException("Tipo de insulina inválido"));
-    
-        CommerceException exception = assertThrows(CommerceException.class, () -> {
-            insulinController.createInsulin(dto);
-        });
-    
-        assertEquals("Tipo de insulina inválido", exception.getMessage());
-    }
-    @Test
-    @DisplayName("Cria insulina com unidades inválidas")
-    void testCreateInsulinWithInvalidUnits() {
-        UUID horarioId = UUID.randomUUID();
 
-        InsulinPostPutRequestDTO dto = InsulinPostPutRequestDTO.builder()
-                .type("Novorapido")
-                .units(-5)
-                .horarioId(horarioId)
-                .build();
+        mockMvc.perform(post("/api/insulin")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDTO)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Tipo de insulina inválido"));
 
-        when(criarInsulinService.criarInsulin(any(InsulinPostPutRequestDTO.class)))
-                .thenThrow(new CommerceException("Unidades de insulina inválidas"));
-
-        CommerceException exception = assertThrows(CommerceException.class, () -> {
-            insulinController.createInsulin(dto);
-        });
-
-        assertEquals("Unidades de insulina inválidas", exception.getMessage());
+        verify(criarInsulinService, times(1)).criarInsulina(any(InsulinPostPutRequestDTO.class));
     }
 
     @Test
-    @DisplayName("Cria insulina sem horário")
-    void testCreateInsulinWithoutSchedule() {
-        InsulinPostPutRequestDTO dto = InsulinPostPutRequestDTO.builder()
-                .type("Novorapido")
-                .units(10)
-                .horarioId(null) // Horário inválido (nulo)
-                .build();
-
-        when(criarInsulinService.criarInsulin(any(InsulinPostPutRequestDTO.class)))
-                .thenThrow(new CommerceException("Horário de insulina inválido"));
-
-        CommerceException exception = assertThrows(CommerceException.class, () -> {
-            insulinController.createInsulin(dto);
-        });
-
-        assertEquals("Horário de insulina inválido", exception.getMessage());
-    }
-    @Test
-    @DisplayName("Cria insulina com erro interno")
-    void testCreateInsulinWithInternalError() {
-        UUID horarioId = UUID.randomUUID();
-
-        InsulinPostPutRequestDTO dto = InsulinPostPutRequestDTO.builder()
-                .type("Novorapido")
-                .units(10)
-                .horarioId(horarioId)
-                .build();
-
-        when(criarInsulinService.criarInsulin(any(InsulinPostPutRequestDTO.class)))
-                .thenThrow(new RuntimeException("Erro interno no servidor"));
-
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            insulinController.createInsulin(dto);
-        });
-
-        assertEquals("Erro interno no servidor", exception.getMessage());
-    }
-}
-@Nested
-@DisplayName("Conjunto de casos de lê insulina")
-class  leituraInsulina{
-    @Test
-    @DisplayName("lê insulina com dados válidos")
-    void testReadInsulinWithValidId(){
-        UUID horarioId = UUID.randomUUID();
+    @DisplayName("GET /api/insulin/{id} - recupera insulina com sucesso")
+    void testRecuperarInsulinaComSucesso() throws Exception {
         UUID insulinId = UUID.randomUUID();
-
         InsulinResponseDTO responseDTO = InsulinResponseDTO.builder()
-        .uuid(insulinId)
-        .type("Novorapido")
-        .units(10)
-        .horarioId(horarioId)
-        .build();
-               
-               
-        when(recuperarInsulinService.recuperarInsulin(insulinId)).thenReturn(responseDTO);
+                .insulidaId(insulinId)
+                .tipoInsulina(TipoInsulina.RAPIDA)
+                .unidades(10)
+                .build();
 
-        ResponseEntity<InsulinResponseDTO> response = insulinController.readInsulin(insulinId);
+        Mockito.when(recuperarInsulinService.recuperarInsulina(insulinId))
+                .thenReturn(responseDTO);
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(insulinId, response.getBody().getUuid());
-        assertEquals(horarioId, response.getBody().getHorarioId());
+        mockMvc.perform(get("/api/insulin/{id}", insulinId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.insulidaId").value(insulinId.toString()))
+                .andExpect(jsonPath("$.tipoInsulina").value("RAPIDA"))
+                .andExpect(jsonPath("$.unidades").value(10));
+
+        verify(recuperarInsulinService, times(1)).recuperarInsulina(insulinId);
     }
 
     @Test
-    @DisplayName("Leitura de insulina com dados invalidos")
-    void testReadInsulinWithInternalError(){
-        UUID horarioId = UUID.randomUUID();
+    @DisplayName("GET /api/insulin/{id} - insulina não encontrada")
+    void testRecuperarInsulinaNaoEncontrada() throws Exception {
         UUID insulinId = UUID.randomUUID();
 
-        InsulinResponseDTO responseDTO = InsulinResponseDTO.builder()
-        .uuid(null)
-        .type("Novorapido")
-        .units(10)
-        .horarioId(horarioId)
-        .build();
+        Mockito.when(recuperarInsulinService.recuperarInsulina(insulinId))
+                .thenThrow(new NotFoundException("Insulina não encontrada"));
 
-        when(recuperarInsulinService.recuperarInsulin(insulinId)).thenThrow(new RuntimeException("Insulina não encontrada"));
+        mockMvc.perform(get("/api/insulin/{id}", insulinId))
+                .andExpect(status().isNotFound());
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            insulinController.readInsulin(insulinId);
-        });
-        assertEquals("Insulina não encontrada", exception.getMessage());
-    
-
-
-
-    }
-}
-
-@Nested
-@DisplayName("Casos de listar insulina")
-class ListarInsulina{
-    @Test
-    @DisplayName("Listar insulinas registradas")
-    void testListAllInsulinWithRecords(){
-        UUID horarioId1 = UUID.randomUUID();
-        UUID horarioId2 = UUID.randomUUID();
-    
-        List<InsulinResponseDTO> insulinList = List.of(
-                InsulinResponseDTO.builder()
-                        .uuid(UUID.randomUUID())
-                        .type("Novorapido")
-                        .units(10)
-                        .horarioId(horarioId1)
-                        .build(),
-                InsulinResponseDTO.builder()
-                        .uuid(UUID.randomUUID())
-                        .type("Lantus")
-                        .units(20)
-                        .horarioId(horarioId2)
-                        .build()
-        );
-    
-        when(listarInsulinService.listarTodasInsulinas()).thenReturn(insulinList);
-    
-        ResponseEntity<List<InsulinResponseDTO>> response = insulinController.listAllInsulin();
-    
-       
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-    
-        assertNotNull(response.getBody());
-        assertEquals(2, response.getBody().size());
-        assertEquals(horarioId1, response.getBody().get(0).getHorarioId());
-        assertEquals(horarioId2, response.getBody().get(1).getHorarioId());
+        verify(recuperarInsulinService, times(1)).recuperarInsulina(insulinId);
     }
 
     @Test
-    @DisplayName("Listar todas as insulinas, quando nãos e tem registro")
-    void testListAllInsulinWithotRecords(){
-        when(listarInsulinService.listarTodasInsulinas())
-        .thenThrow(new NotFoundException("Não existem registros"));
+    @DisplayName("GET /api/insulin - lista todas as insulinas")
+    void testListarTodasInsulinas() throws Exception {
+        InsulinResponseDTO r1 = InsulinResponseDTO.builder()
+                .insulidaId(UUID.randomUUID())
+                .tipoInsulina(TipoInsulina.RAPIDA)
+                .unidades(10)
+                .horarioId(UUID.randomUUID())
+                .horario(null) // ou crie um objeto Horario se necessário
+                .glicemia(new Glicemia()) // considerando que Glicemia possui um construtor padrão para teste
+                .dataAplicacao(LocalDateTime.now())
+                .build();
 
+        InsulinResponseDTO r2 = InsulinResponseDTO.builder()
+                .insulidaId(UUID.randomUUID())
+                .tipoInsulina(TipoInsulina.BASAL)
+                .unidades(20)
+                .horarioId(UUID.randomUUID())
+                .horario(null) // ou crie um objeto Horario se necessário
+                .glicemia(null) // para testar o caminho onde a glicemia é nula
+                .dataAplicacao(LocalDateTime.now())
+                .build();
 
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
-            insulinController.listAllInsulin();
-        });
+        Mockito.when(listarInsulinService.listarTodasInsulinas())
+                .thenReturn(List.of(r1, r2));
 
-        assertEquals("Não existem registros", exception.getMessage());
+        mockMvc.perform(get("/api/insulin"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].insulidaId").value(r1.getInsulidaId().toString()))
+                .andExpect(jsonPath("$[1].insulidaId").value(r2.getInsulidaId().toString()));
+
+        verify(listarInsulinService, times(1)).listarTodasInsulinas();
     }
 
     @Test
-    @DisplayName("le insulina com erro interno")
-    void testListAllInsulinWithInternalError(){
-    UUID horarioId = UUID.randomUUID();
-    UUID insulinId = UUID.randomUUID();
-
-    InsulinResponseDTO responseDTO = InsulinResponseDTO.builder()
-    .uuid(insulinId)
-    .type("Novorapido")
-    .units(10)
-    .horarioId(horarioId)
-    .build();
-           
-           
-    when(listarInsulinService.listarTodasInsulinas()).thenThrow(new RuntimeException("Erro interno no servidor"));
-
-    RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-        insulinController.listAllInsulin();
-    });
-
-    assertEquals("Erro interno no servidor", exception.getMessage());
-
-    }
-    }
-
-@Nested
-@DisplayName("Conjunto de casos de atualização da insulina")
-class updateInsulin{
-    @Test
-    @DisplayName("Atualizar insulina")
-    void testUpdateInsulinWithValidData(){
-        
-        UUID insulinId = UUID.randomUUID();
+    @DisplayName("GET /api/insulin/horario/{horarioId} - lista insulinas por horário")
+    void testListarInsulinaPorHorario() throws Exception {
         UUID horarioId = UUID.randomUUID();
 
-        
-        InsulinPostPutRequestDTO dto = InsulinPostPutRequestDTO.builder()
-                .type("Rapida")
-                .units(15)
-                .horarioId(horarioId)
+        InsulinResponseDTO r1 = InsulinResponseDTO.builder()
+                .insulidaId(UUID.randomUUID())
+                .tipoInsulina(TipoInsulina.RAPIDA)
+                .unidades(10)
+                .horarioId(UUID.randomUUID())
+                .horario(Horario.builder()
+                        .id(UUID.randomUUID())
+                        .horario("08:00")
+                        .data_criacao("2025-03-22")
+                        .build())
+                .glicemia(Glicemia.builder()
+                        .id(UUID.randomUUID())
+                        .valorGlicemia(120.0f)
+                        .build())
+                .dataAplicacao(LocalDateTime.now())
+                .build();
+
+        InsulinResponseDTO r2 = InsulinResponseDTO.builder()
+                .insulidaId(UUID.randomUUID())
+                .tipoInsulina(TipoInsulina.BASAL)
+                .unidades(20)
+                .horarioId(UUID.randomUUID())
+                .horario(Horario.builder()
+                        .id(UUID.randomUUID())
+                        .horario("09:00")
+                        .data_criacao("2025-03-22")
+                        .build())
+                .glicemia(null) // para testar o caso sem glicemia associada
+                .dataAplicacao(LocalDateTime.now())
+                .build();
+
+        Mockito.when(listarInsulinService.listarInsulinaPorHorario(horarioId))
+                .thenReturn(List.of(r1, r2));
+
+        mockMvc.perform(get("/api/insulin/horario/{horarioId}", horarioId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].insulidaId").value(r1.getInsulidaId().toString()))
+                .andExpect(jsonPath("$[1].insulidaId").value(r2.getInsulidaId().toString()));
+
+        verify(listarInsulinService, times(1)).listarInsulinaPorHorario(horarioId);
+    }
+
+    @Test
+    @DisplayName("PUT /api/insulin/{id} - atualiza insulina com sucesso")
+    void testAtualizarInsulinaComSucesso() throws Exception {
+        UUID insulinId = UUID.randomUUID();
+        InsulinPostPutRequestDTO requestDTO = InsulinPostPutRequestDTO.builder()
+                .tipoInsulina(TipoInsulina.RAPIDA)
+                .unidades(10)
+                .horarioId(UUID.fromString("11111111-1111-1111-1111-111111111111"))
+                .glicemia(UUID.fromString("22222222-2222-2222-2222-222222222222"))
+                .dataAplicacao(LocalDateTime.now())
                 .build();
 
         InsulinResponseDTO responseDTO = InsulinResponseDTO.builder()
-                .uuid(insulinId)
-                .type("Basal")
-                .units(15)
-                .horarioId(horarioId)
+                .insulidaId(UUID.fromString("33333333-3333-3333-3333-333333333333"))
+                .tipoInsulina(TipoInsulina.RAPIDA)
+                .unidades(10)
+                .horarioId(UUID.fromString("11111111-1111-1111-1111-111111111111"))
+                .horario(Horario.builder()
+                        .id(UUID.fromString("11111111-1111-1111-1111-111111111111"))
+                        .horario("08:00")
+                        .data_criacao("2025-03-22")
+                        .build())
+                .glicemia(Glicemia.builder()
+                        .id(UUID.fromString("22222222-2222-2222-2222-222222222222"))
+                        .valorGlicemia(120.0f)
+                        .build())
+                .dataAplicacao(LocalDateTime.now())
                 .build();
 
-        when(atualizarInsulinService.atualizarInsulin(insulinId, dto)).thenReturn(responseDTO);
+        Mockito.when(atualizarInsulinService.atualizarInsulina(eq(insulinId), any(InsulinPostPutRequestDTO.class)))
+                .thenReturn(responseDTO);
 
-        ResponseEntity<InsulinResponseDTO> response = insulinController.updateInsulin(insulinId, dto);
+        mockMvc.perform(put("/api/insulin/{id}", insulinId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.insulidaId").value(responseDTO.getInsulidaId().toString()));
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-
-        assertNotNull(response.getBody());
-        assertEquals(insulinId, response.getBody().getUuid());
-        assertEquals("Basal", response.getBody().getType());
-        assertEquals(15, response.getBody().getUnits(), 0.001);
-        assertEquals(horarioId, response.getBody().getHorarioId());
-
+        verify(atualizarInsulinService, times(1)).atualizarInsulina(eq(insulinId), any(InsulinPostPutRequestDTO.class));
     }
 
     @Test
-    @DisplayName("Atualizaão de insulina com valor invalido")
-    void testUpdateInsulinWithInvalidID(){
-    UUID invalidId = UUID.randomUUID();
-        InsulinPostPutRequestDTO dto = InsulinPostPutRequestDTO.builder()
-                .type("Rapida")
-                .units(15)
-                .horarioId(UUID.randomUUID())
-                .build();
-
-        when(atualizarInsulinService.atualizarInsulin(invalidId, dto))
-                .thenThrow(new RuntimeException("Insulin não encontrada"));
-
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            insulinController.updateInsulin(invalidId, dto);
-        });
-
-        assertEquals("Insulin não encontrada", exception.getMessage());
-        verify(atualizarInsulinService, times(1)).atualizarInsulin(invalidId, dto);
-    }
-
-    @Test
-    @DisplayName("Teste de atualizar insulina com tipo inválido")
-    void testUpdateInsulinWithInvalidType(){
-        UUID insulinId = UUID.randomUUID();
-        InsulinPostPutRequestDTO dto = InsulinPostPutRequestDTO.builder()
-                .type(" ")
-                .units(15)
-                .horarioId(UUID.randomUUID())
-                .build();
-            
-                when(atualizarInsulinService.atualizarInsulin(insulinId, dto))
-                .thenThrow(new CommerceException("Tipo de insulina inválido"));
-
-        CommerceException exception = assertThrows(CommerceException.class, () -> {
-            insulinController.updateInsulin(insulinId, dto);
-        });
-
-        assertEquals("Tipo de insulina inválido", exception.getMessage());
-
-        verify(atualizarInsulinService, times(1)).atualizarInsulin(insulinId, dto);
-    }
-
-    @Test
-    @DisplayName("Atualização de insulina com unidades inválidas")
-    void testUpdateInsulinWithInvalidUnits() {
-        UUID insulinId = UUID.randomUUID();
-        InsulinPostPutRequestDTO dto = InsulinPostPutRequestDTO.builder()
-                .type("Rapida")
-                .units(-5) // Unidades inválidas (negativas)
-                .horarioId(UUID.randomUUID())
-                .build();
-
-        when(atualizarInsulinService.atualizarInsulin(insulinId, dto))
-                .thenThrow(new CommerceException("Unidades de insulina inválidas"));
-
-        CommerceException exception = assertThrows(CommerceException.class, () -> {
-            insulinController.updateInsulin(insulinId, dto);
-        });
-
-        assertEquals("Unidades de insulina inválidas", exception.getMessage());
-
-        verify(atualizarInsulinService, times(1)).atualizarInsulin(insulinId, dto);
-    }
-
-    @Test
-    @DisplayName("Atualização de insulina com horário inválido")
-    void testUpdateInsulinWithInvalidSchedule() {
-        UUID insulinId = UUID.randomUUID();
-        InsulinPostPutRequestDTO dto = InsulinPostPutRequestDTO.builder()
-                .type("Rapida")
-                .units(15)
-                .horarioId(null) // Horário inválido (nulo)
-                .build();
-
-        when(atualizarInsulinService.atualizarInsulin(insulinId, dto))
-                .thenThrow(new CommerceException("Horário de insulina inválido"));
-
-        CommerceException exception = assertThrows(CommerceException.class, () -> {
-            insulinController.updateInsulin(insulinId, dto);
-        });
-
-        assertEquals("Horário de insulina inválido", exception.getMessage());
-
-        verify(atualizarInsulinService, times(1)).atualizarInsulin(insulinId, dto);
-    }
-
-    @Test
-    @DisplayName("Atualização de insulina sem alterações")
-    void testUpdateInsulinWithoutChanges() {
-        UUID insulinId = UUID.randomUUID();
-        UUID horarioId = UUID.randomUUID();
-
-        InsulinPostPutRequestDTO dto = InsulinPostPutRequestDTO.builder()
-                .type("Rapida")
-                .units(15)
-                .horarioId(horarioId)
-                .build();
-
-        InsulinResponseDTO responseDTO = InsulinResponseDTO.builder()
-                .uuid(insulinId)
-                .type("Rapida")
-                .units(15)
-                .horarioId(horarioId)
-                .build();
-
-        when(atualizarInsulinService.atualizarInsulin(insulinId, dto)).thenReturn(responseDTO);
-
-        ResponseEntity<InsulinResponseDTO> response = insulinController.updateInsulin(insulinId, dto);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(insulinId, response.getBody().getUuid());
-        assertEquals("Rapida", response.getBody().getType());
-        assertEquals(15, response.getBody().getUnits(), 0.001);
-        assertEquals(horarioId, response.getBody().getHorarioId());
-
-        verify(atualizarInsulinService, times(1)).atualizarInsulin(insulinId, dto);
-    }
-
-    @Test
-    @DisplayName("Atualização de insulina com erro interno")
-    void testUpdateInsulinWithInternalError() {
-        UUID insulinId = UUID.randomUUID();
-        InsulinPostPutRequestDTO dto = InsulinPostPutRequestDTO.builder()
-                .type("Rapida")
-                .units(15)
-                .horarioId(UUID.randomUUID())
-                .build();
-
-        when(atualizarInsulinService.atualizarInsulin(insulinId, dto))
-                .thenThrow(new RuntimeException("Erro interno no servidor"));
-
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            insulinController.updateInsulin(insulinId, dto);
-        });
-
-        assertEquals("Erro interno no servidor", exception.getMessage());
-
-        verify(atualizarInsulinService, times(1)).atualizarInsulin(insulinId, dto);
-    }
-
-
-
-    
-}
-@Nested
-@DisplayName("Casos de teste de deletar a insulina")
-class DeletarInsulina{
-    
-    @Test
-    @DisplayName("Desativa insulina com sucesso")
-    void testDisableInsulinWithSuccess() {
+    @DisplayName("DELETE /api/insulin/{id} - deleta insulina com sucesso")
+    void testDeletarInsulinaComSucesso() throws Exception {
         UUID insulinId = UUID.randomUUID();
 
         InsulinDeleteResponseDTO responseDTO = InsulinDeleteResponseDTO.builder()
                 .mensagem("Insulin deletada com sucesso")
                 .build();
 
-        when(deletarInsulinService.deletarInsulin(insulinId)).thenReturn(responseDTO);
+        Mockito.when(deletarInsulinService.deletarInsulina(insulinId))
+                .thenReturn(responseDTO);
 
-        ResponseEntity<InsulinDeleteResponseDTO> response = insulinController.deleteInsulin(insulinId);
+        mockMvc.perform(delete("/api/insulin/{id}", insulinId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.mensagem").value("Insulin deletada com sucesso"));
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals("Insulin deletada com sucesso", response.getBody().getMensagem());
+        verify(deletarInsulinService, times(1)).deletarInsulina(insulinId);
+    }
 
-        verify(deletarInsulinService, times(1)).deletarInsulin(insulinId);
+
+    @Test
+    @DisplayName("PUT /api/insulin/{id} - falha ao atualizar insulina")
+    void testAtualizarInsulinaFalha() throws Exception {
+        UUID insulinId = UUID.randomUUID();
+        InsulinPostPutRequestDTO requestDTO = InsulinPostPutRequestDTO.builder()
+                .tipoInsulina(null) // causa erro
+                .unidades(15)
+                .build();
+
+        Mockito.when(atualizarInsulinService.atualizarInsulina(eq(insulinId), any(InsulinPostPutRequestDTO.class)))
+                .thenThrow(new CommerceException("Tipo de insulina inválido"));
+
+        mockMvc.perform(put("/api/insulin/{id}", insulinId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDTO)))
+                .andExpect(status().isBadRequest());
+
+        verify(atualizarInsulinService, times(1)).atualizarInsulina(eq(insulinId), any(InsulinPostPutRequestDTO.class));
     }
 
     @Test
-    @DisplayName("Desativa insulina com ID inválido")
-    void testDisableInsulinWithInvalidId() {
-        UUID invalidId = UUID.randomUUID();
-
-        when(deletarInsulinService.deletarInsulin(invalidId))
-                .thenThrow(new RuntimeException("Insulin não encontrada"));
-
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            insulinController.deleteInsulin(invalidId);
-        });
-
-        assertEquals("Insulin não encontrada", exception.getMessage());
-
-        verify(deletarInsulinService, times(1)).deletarInsulin(invalidId);
-    }
-
-    @Test
-    @DisplayName("Desativa insulina com dados inválidos")
-    void testDisableInsulinWithInvalidData() {
-        UUID insulinId = null; // ID inválido (nulo)
-
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            insulinController.deleteInsulin(insulinId);
-        });
-
-        assertEquals("ID não pode ser nulo", exception.getMessage());
-
-        verify(deletarInsulinService, never()).deletarInsulin(any());
-    }
-
-    @Test
-    @DisplayName("Desativa insulina já desativada")
-    void testDisableInsulinAlreadyDisabled() {
+    @DisplayName("DELETE /api/insulin/{id} - insulina não encontrada")
+    void testDeletarInsulinaNaoEncontrada() throws Exception {
         UUID insulinId = UUID.randomUUID();
 
-        when(deletarInsulinService.deletarInsulin(insulinId))
-                .thenThrow(new RuntimeException("Insulin já desativada"));
+        Mockito.when(deletarInsulinService.deletarInsulina(insulinId))
+                .thenThrow(new NotFoundException("Insulina não encontrada"));
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            insulinController.deleteInsulin(insulinId);
-        });
+        mockMvc.perform(delete("/api/insulin/{id}", insulinId))
+                .andExpect(status().isNotFound());
 
-        assertEquals("Insulin já desativada", exception.getMessage());
-
-        verify(deletarInsulinService, times(1)).deletarInsulin(insulinId);
+        verify(deletarInsulinService, times(1)).deletarInsulina(insulinId);
     }
-
-    @Test
-    @DisplayName("Desativa insulina com erro interno")
-    void testDisableInsulinWithInternalError() {
-        UUID insulinId = UUID.randomUUID();
-
-        when(deletarInsulinService.deletarInsulin(insulinId))
-                .thenThrow(new RuntimeException("Erro interno no servidor"));
-
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            insulinController.deleteInsulin(insulinId);
-        });
-
-        assertEquals("Erro interno no servidor", exception.getMessage());
-
-        verify(deletarInsulinService, times(1)).deletarInsulin(insulinId);
-    }
-
 }
-}
-
-
