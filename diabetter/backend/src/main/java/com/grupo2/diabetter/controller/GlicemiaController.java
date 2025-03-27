@@ -2,7 +2,6 @@ package com.grupo2.diabetter.controller;
 
 import com.grupo2.diabetter.dto.glicemia.GlicemiaPostPutRequestDto;
 import com.grupo2.diabetter.dto.glicemia.GlicemiaResponseDTO;
-import com.grupo2.diabetter.model.Glicemia;
 import com.grupo2.diabetter.service.glicemia.interfaces.ICriarGlicemiaService;
 import com.grupo2.diabetter.service.glicemia.interfaces.IAtualizarGlicemiaService;
 import com.grupo2.diabetter.service.glicemia.interfaces.IDeletarGlicemiaService;
