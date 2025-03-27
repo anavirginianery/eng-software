@@ -165,6 +165,22 @@ class HorarioServiceTests {
         verify(horarioRepository, never()).save(any(Horario.class));
     }
 
+    @Test
+    void testCriarHorarioComUsuarioInvalido(){
+
+        UUID id = UUID.randomUUID();
+        HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO(id, usuarioSalvo, "08:00", "2025-02-20");
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            criarHorarioService.createHorario(dto);
+        });
+
+        assertEquals("Usuário não encontrado", exception.getMessage());
+
+
+        verify(horarioRepository, never()).save(any(Horario.class));
+    }
+
     }
 
 
@@ -267,6 +283,29 @@ class HorarioServiceTests {
             });
 
             assertEquals("Horario não encontrado", exception.getMessage());
+        }
+
+        @Test
+        void testAtualizarHorarioComUsuarioInvalido() {
+            UUID id = UUID.randomUUID();
+            UUID idUserInexistente = UUID.randomUUID();
+
+            HorarioPostPutRequestDTO dto = new HorarioPostPutRequestDTO(id, usuarioSalvo, "10:00", "2025-02-21");
+
+            Horario horario = new Horario();
+            horario.setId(dto.getId());
+            horario.setHorario(dto.getHorario());
+            horario.setData_criacao(dto.getData_criacao());
+            horario.setUsuario(dto.getUsuario());
+
+            when(horarioRepository.findById(id)).thenReturn(Optional.of(horario));
+            when(usuarioRepository.findById(idUserInexistente)).thenReturn(Optional.empty());
+
+            NotFoundException exception = assertThrows(NotFoundException.class, () -> {
+                atualizarHorarioService.updateHorario(id, dto);
+            });
+
+            assertEquals("Usuário não encontrado", exception.getMessage());
         }
 
         @Test
