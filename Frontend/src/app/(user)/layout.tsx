@@ -9,9 +9,7 @@ export default function UserLayout({
     <div>
       <SideBar />
       <main className="lg:pl-64">
-        <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          {children}
-        </div>
+        <div className="max-w-8xl mx-auto">{children}</div>
       </main>
     </div>
   );

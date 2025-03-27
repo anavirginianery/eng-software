@@ -3,11 +3,13 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 import {
-  Home,
-  User,
-  Activity,
-  BarChart2,
+  Users,
+  ChartBar,
+  FileQuestion,
+  TrendingUp,
+  LogOut,
   X,
   Menu,
 } from "lucide-react";
@@ -16,7 +18,7 @@ interface SidebarProps {
   className?: string;
 }
 
-const AdvisorSidebar: React.FC<SidebarProps> = ({ className = "" }) => {
+const UserSidebar: React.FC<SidebarProps> = ({ className = "" }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
 
@@ -24,17 +26,19 @@ const AdvisorSidebar: React.FC<SidebarProps> = ({ className = "" }) => {
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
-  const ProfileSection = () => (
-    <div className="flex flex-col items-center px-4 pt-8 pb-6">
-      <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center mb-3">
-        <User className="w-12 h-12 text-gray-400" />
-      </div>
-      <span className="text-gray-500 text-sm mb-4">Nome do Usuário</span>
-    </div>
-  );
-
   const MobileHeader = () => (
-    <header className="fixed top-0 left-0 right-0 z-20 flex items-center justify-end h-16 px-4 bg-[#FFFFFF] border-b border-gray-300 lg:hidden">
+    <header className="fixed top-0 left-0 right-0 z-20 flex items-center justify-between h-16 px-4 bg-[#FFFFFF] border-b border-gray-300 lg:hidden">
+      <Link href="/">
+        <Image
+          src="/img/logo.png"
+          alt="Logo"
+          width={64}
+          height={64}
+          unoptimized
+          className="h-8 w-auto"
+        />
+      </Link>
+
       {!isMobileMenuOpen && (
         <button
           onClick={toggleMobileMenu}
@@ -62,33 +66,14 @@ const AdvisorSidebar: React.FC<SidebarProps> = ({ className = "" }) => {
               <X className="w-6 h-6" />
             </button>
           </div>
-          <ProfileSection />
           <nav className="flex-1 p-4 space-y-1">
             <Link
               href="/home"
               className="flex items-center gap-2 p-2 rounded-lg text-sm font-medium text-gray-800 hover:text-white hover:bg-teal-800/80"
               onClick={toggleMobileMenu}
             >
-              <Home className="w-4 h-4" />
+              <Users className="w-4 h-4" />
               <span>Home</span>
-            </Link>
-
-            <Link
-              href="/perfil"
-              className="flex items-center gap-2 p-2 rounded-lg text-sm font-medium text-gray-800 hover:text-white hover:bg-teal-800/80"
-              onClick={toggleMobileMenu}
-            >
-              <User className="w-4 h-4" />
-              <span>Perfil</span>
-            </Link>
-
-            <Link
-              href="/medicoes"
-              className="flex items-center gap-2 p-2 rounded-lg text-sm font-medium text-gray-800 hover:text-white hover:bg-teal-800/80"
-              onClick={toggleMobileMenu}
-            >
-              <Activity className="w-4 h-4" />
-              <span>Medições</span>
             </Link>
 
             <Link
@@ -96,10 +81,37 @@ const AdvisorSidebar: React.FC<SidebarProps> = ({ className = "" }) => {
               className="flex items-center gap-2 p-2 rounded-lg text-sm font-medium text-gray-800 hover:text-white hover:bg-teal-800/80"
               onClick={toggleMobileMenu}
             >
-              <BarChart2 className="w-4 h-4" />
+              <ChartBar className="w-4 h-4" />
               <span>Dashboard</span>
             </Link>
+
+            <Link
+              href="/form"
+              className="flex items-center gap-2 p-2 rounded-lg text-sm font-medium text-gray-800 hover:text-white hover:bg-teal-800/80"
+              onClick={toggleMobileMenu}
+            >
+              <FileQuestion className="w-4 h-4" />
+              <span>Formulário</span>
+            </Link>
+
+            <Link
+              href="/inserirDados"
+              className="flex items-center gap-2 p-2 rounded-lg text-sm font-medium text-gray-800 hover:text-white hover:bg-teal-800/80"
+              onClick={toggleMobileMenu}
+            >
+              <TrendingUp className="w-4 h-4" />
+              <span>Medições</span>
+            </Link>
           </nav>
+          <div className="mt-auto flex justify-center items-center">
+            <Link
+              href="/"
+              className="flex items-center justify-center gap-2 mb-2 w-32 rounded-lg p-2.5 text-sm hover:bg-teal-800/80 text-center"
+            >
+              <LogOut className="w-4 h-4" />
+              Sair
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -108,11 +120,21 @@ const AdvisorSidebar: React.FC<SidebarProps> = ({ className = "" }) => {
     <aside
       className={`fixed top-0 left-0 bottom-0 w-64 bg-[#FFFFFF] border-r border-gray-300 hidden lg:block ${className}`}
     >
-      <ProfileSection />
-      <nav className="p-3 space-y-1">
-        <Link
-          href="/home"
-          className={`
+      <div className="h-16 px-4 flex items-center">
+        <Image
+          src="/img/logo.png"
+          alt="Logo"
+          width={64}
+          height={64}
+          unoptimized
+          className="h-8 w-auto"
+        />
+      </div>
+      <div className="flex flex-col h-[calc(100%-4rem)]">
+        <nav className="p-3 space-y-1">
+          <Link
+            href="/home"
+            className={`
             flex items-center gap-2 p-2 rounded-lg
             text-sm font-medium transition-colors
             ${
@@ -121,46 +143,14 @@ const AdvisorSidebar: React.FC<SidebarProps> = ({ className = "" }) => {
                 : "text-gray-800 hover:text-white hover:bg-teal-800/80"
             }
           `}
-        >
-          <Home className="w-4 h-4" />
-          <span>Home</span>
-        </Link>
+          >
+            <Users className="w-4 h-4" />
+            <span>Home</span>
+          </Link>
 
-        <Link
-          href="/perfil"
-          className={`
-            flex items-center gap-2 p-2 rounded-lg
-            text-sm font-medium transition-colors
-            ${
-              isActive("/perfil")
-                ? "text-white bg-teal-800/80"
-                : "text-gray-800 hover:text-white hover:bg-teal-800/80"
-            }
-          `}
-        >
-          <User className="w-4 h-4" />
-          <span>Perfil</span>
-        </Link>
-
-        <Link
-          href="/inserirDados"
-          className={`
-            flex items-center gap-2 p-2 rounded-lg
-            text-sm font-medium transition-colors
-            ${
-              isActive("/medicoes")
-                ? "text-white bg-teal-800/80"
-                : "text-gray-800 hover:text-white hover:bg-teal-800/80"
-            }
-          `}
-        >
-          <Activity className="w-4 h-4" />
-          <span>Medições</span>
-        </Link>
-
-        <Link
-          href="/dashboard"
-          className={`
+          <Link
+            href="/dashboard"
+            className={`
             flex items-center gap-2 p-2 rounded-lg
             text-sm font-medium transition-colors
             ${
@@ -169,11 +159,53 @@ const AdvisorSidebar: React.FC<SidebarProps> = ({ className = "" }) => {
                 : "text-gray-800 hover:text-white hover:bg-teal-800/80"
             }
           `}
-        >
-          <BarChart2 className="w-4 h-4" />
-          <span>Dashboard</span>
-        </Link>
-      </nav>
+          >
+            <ChartBar className="w-4 h-4" />
+            <span>Dashboard</span>
+          </Link>
+
+          <Link
+            href="/form"
+            className={`
+            flex items-center gap-2 p-2 rounded-lg
+            text-sm font-medium transition-colors
+            ${
+              isActive("/form")
+                ? "text-white bg-teal-800/80"
+                : "text-gray-800 hover:text-white hover:bg-teal-800/80"
+            }
+          `}
+          >
+            <FileQuestion className="w-4 h-4" />
+            <span>Formulário</span>
+          </Link>
+
+          <Link
+            href="/inserirDados"
+            className={`
+            flex items-center gap-2 p-2 rounded-lg
+            text-sm font-medium transition-colors
+            ${
+              isActive("/inserirDados")
+                ? "text-white bg-teal-800/80"
+                : "text-gray-800 hover:text-white hover:bg-teal-800/80"
+            }
+          `}
+          >
+            <TrendingUp className="w-4 h-4" />
+            <span>Medições</span>
+          </Link>
+        </nav>
+        <div className="mt-auto flex justify-center items-center">
+          <Link
+            href="/"
+            className="flex items-center justify-center gap-2 mb-2 w-32 rounded-lg p-2.5 text-sm hover:bg-teal-800/80 text-center"
+          >
+            <LogOut className="w-4 h-4" />
+            Sair
+          </Link>
+        </div>
+      </div>
     </aside>
   );
 
@@ -187,4 +219,4 @@ const AdvisorSidebar: React.FC<SidebarProps> = ({ className = "" }) => {
   );
 };
 
-export default AdvisorSidebar;
+export default UserSidebar;
