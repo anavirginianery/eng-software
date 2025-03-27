@@ -66,6 +66,7 @@ dependencies {
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	implementation 'com.google.firebase:firebase-admin:8.0.0'
 	checkstyle 'com.puppycrawl.tools:checkstyle:10.12.1'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.0'
 
 }
 
