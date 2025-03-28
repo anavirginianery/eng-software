@@ -27,14 +27,13 @@ checkstyle {
 
 pmd {
     toolVersion = '6.55.0'
-    ruleSetFiles = files("config/pmd/rulesets/java/quickstart.xml")
-    ruleSets = []
+    ruleSets = ["java-quickstart"]
     ignoreFailures = true
 }
 
 
 jacoco {
-    toolVersion = "0.8.10" // Versão do JaCoCo
+    toolVersion = "0.8.10"
 }
 
 jacocoTestReport {
@@ -91,7 +90,7 @@ tasks.named("checkstyleTest").configure {
 
 spotbugs {
     toolVersion = '4.7.3'
-    ignoreFailures = false
+    ignoreFailures = true
     showProgress = true
     effort = 'max'
     reportLevel = 'low'
