@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import {
   Users,
@@ -21,10 +21,15 @@ interface SidebarProps {
 const UserSidebar: React.FC<SidebarProps> = ({ className = "" }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
 
   const isActive = (path: string) => pathname.startsWith(path);
-
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+
+  const handleLogout = () => {
+    localStorage.removeItem("usuario");
+    router.push("/");
+  };
 
   const MobileHeader = () => (
     <header className="fixed top-0 left-0 right-0 z-20 flex items-center justify-between h-16 px-4 bg-[#FFFFFF] border-b border-gray-300 lg:hidden">
@@ -104,13 +109,13 @@ const UserSidebar: React.FC<SidebarProps> = ({ className = "" }) => {
             </Link>
           </nav>
           <div className="mt-auto flex justify-center items-center">
-            <Link
-              href="/"
+            <button
               className="flex items-center justify-center gap-2 mb-2 w-32 rounded-lg p-2.5 text-sm hover:bg-teal-800/80 text-center"
+              onClick={handleLogout}
             >
               <LogOut className="w-4 h-4" />
               Sair
-            </Link>
+            </button>
           </div>
         </div>
       </div>
@@ -197,13 +202,13 @@ const UserSidebar: React.FC<SidebarProps> = ({ className = "" }) => {
           </Link>
         </nav>
         <div className="mt-auto flex justify-center items-center">
-          <Link
-            href="/"
+          <button
+            onClick={handleLogout}
             className="flex items-center justify-center gap-2 mb-2 w-32 rounded-lg p-2.5 text-sm hover:bg-teal-800/80 text-center"
           >
             <LogOut className="w-4 h-4" />
             Sair
-          </Link>
+          </button>
         </div>
       </div>
     </aside>

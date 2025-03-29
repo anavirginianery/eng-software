@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import SideBar from "@/components/SideBar";
 
 export default function UserLayout({
@@ -5,6 +9,15 @@ export default function UserLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const router = useRouter();
+
+  useEffect(() => {
+    const usuario = localStorage.getItem("usuario");
+    if (!usuario) {
+      router.push("/login");
+    }
+  }, [router]);
+
   return (
     <div>
       <SideBar />
