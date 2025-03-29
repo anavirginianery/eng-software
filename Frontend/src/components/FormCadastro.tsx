@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import api from "@/hook/useApi";
 
 export default function FormCadastro() {
   const router = useRouter();
@@ -10,6 +11,33 @@ export default function FormCadastro() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
+
+  const handleCadastro = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!email.includes("@")) {
+      return alert("Por favor, insira um email válido.");
+    }
+
+    if (senha !== confirmarSenha) {
+      return alert("As senhas não coincidem.");
+    }
+
+    try {
+      const response = await api.post("/usuarios", {
+        nome,
+        email,
+        senha,
+      });
+
+      console.log("Usuário cadastrado com sucesso:", response.data);
+      alert("Cadastro realizado com sucesso!");
+      router.push("/");
+    } catch (error) {
+      console.error("Erro ao cadastrar:", error);
+      alert("Erro ao cadastrar. Verifique os dados ou tente novamente.");
+    }
+  };
 
   return (
     <div className="h-full px-4 sm:px-6 lg:px-8 py-6 flex items-center justify-center bg-gradient-to-t from-[#B4E4E2] to-[#E7F5F4]">
@@ -28,7 +56,7 @@ export default function FormCadastro() {
           Cadastre-se
         </h2>
 
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleCadastro}>
           <div>
             <label className="block text-sm text-gray-800 mb-1">
               Nome Completo
@@ -38,6 +66,7 @@ export default function FormCadastro() {
               value={nome}
               onChange={(e) => setNome(e.target.value)}
               className="w-full p-2.5 bg-gray-100 rounded-md border-none"
+              required
             />
           </div>
 
@@ -48,6 +77,7 @@ export default function FormCadastro() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full p-2.5 bg-gray-100 rounded-md border-none"
+              required
             />
           </div>
 
@@ -58,6 +88,7 @@ export default function FormCadastro() {
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
               className="w-full p-2.5 bg-gray-100 rounded-md border-none"
+              required
             />
           </div>
 
@@ -70,19 +101,12 @@ export default function FormCadastro() {
               value={confirmarSenha}
               onChange={(e) => setConfirmarSenha(e.target.value)}
               className="w-full p-2.5 bg-gray-100 rounded-md border-none"
+              required
             />
           </div>
 
           <button
             type="submit"
-            onClick={(e) => {
-              e.preventDefault();
-              if (email.includes("@")) {
-                router.push("/home");
-              } else {
-                alert("Por favor, insira um email válido");
-              }
-            }}
             className="w-full p-2.5 bg-[#38B2AC] text-white rounded-md hover:bg-[#2C9A94] transition-colors cursor-pointer"
           >
             Cadastrar
