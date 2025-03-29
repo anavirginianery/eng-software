@@ -44,8 +44,7 @@ export default function FormCadastro() {
       }
 
       const data = await response.json();
-      localStorage.setItem("usuario", JSON.stringify({ nome }));
-      alert("Cadastro realizado com sucesso!");
+      localStorage.setItem("usuario", JSON.stringify(data));
       router.push("/dashboard");      
     } catch (error) {
       console.error("Erro ao cadastrar:", error);

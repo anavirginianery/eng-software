@@ -35,7 +35,6 @@ export default function FormLogin() {
 
       const usuario = await response.json();
       localStorage.setItem("usuario", JSON.stringify(usuario));
-      alert("Login realizado com sucesso!");
       router.push("/dashboard");
     } catch (error) {
       console.error("Erro ao fazer login:", error);
