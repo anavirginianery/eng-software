@@ -1,9 +1,28 @@
+"use client";
+
 import { Footer } from "@/components/Footer";
 import Header from "@/components/Header";
 import Image from "next/image";
-import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    const user = localStorage.getItem("usuario");
+    setIsLoggedIn(!!user);
+  }, []);
+
+  const handleComecarAgora = () => {
+    if (isLoggedIn) {
+      router.push("/dashboard");
+    } else {
+      router.push("/cadastro");
+    }
+  };
+
   return (
     <>
       <Header />
@@ -29,11 +48,12 @@ export default function Home() {
               monitoramento diário.
             </p>
             <div className="mt-6 flex flex-col md:flex-row md:space-x-4 w-full justify-center md:justify-start">
-              <Link href="/cadastro">
-                <button className="bg-teal-600 text-white px-6 py-2 rounded w-full md:w-auto">
-                  Começar agora
-                </button>
-              </Link>
+              <button
+                onClick={handleComecarAgora}
+                className="bg-teal-600 text-white px-6 py-2 rounded w-full md:w-auto"
+              >
+                Começar agora
+              </button>
             </div>
           </div>
         </section>

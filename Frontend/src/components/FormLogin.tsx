@@ -18,25 +18,25 @@ export default function FormLogin() {
     }
 
     try {
-      const response = await fetch("/api/usuarios");
+      const response = await fetch("/api/usuarios/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
       if (!response.ok) {
-        throw new Error("Erro ao buscar usuários");
+        if (response.status === 401) {
+          return alert("Email ou senha inválidos");
+        }
+        throw new Error("Erro na resposta da API");
       }
 
-      const usuarios = await response.json();
-
-      const usuarioEncontrado = usuarios.find(
-        (u: any) => u.email === email && u.password === password
-      );
-
-      if (usuarioEncontrado) {
-        localStorage.setItem("usuario", JSON.stringify({ nome: usuarioEncontrado.nome }));
-        alert("Login realizado com sucesso!");
-        router.push("/dashboard");
-      } else {
-        alert("Email ou senha inválidos");
-      }
+      const usuario = await response.json();
+      localStorage.setItem("usuario", JSON.stringify(usuario));
+      alert("Login realizado com sucesso!");
+      router.push("/dashboard");
     } catch (error) {
       console.error("Erro ao fazer login:", error);
       alert("Erro ao fazer login. Tente novamente.");

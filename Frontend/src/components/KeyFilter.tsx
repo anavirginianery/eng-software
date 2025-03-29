@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import { Toast } from "primereact/toast";
 import { InputText } from "primereact/inputtext";
@@ -22,7 +22,24 @@ export default function ProfileForm() {
     glucose: "",
     comorbidities: "",
     schedule: "",
+    email: "",
+    password: "",
   });
+
+  const usuarioLocal = typeof window !== "undefined" ? localStorage.getItem("usuario") : null;
+  const usuario = usuarioLocal ? JSON.parse(usuarioLocal) : null;
+
+  useEffect(() => {
+    if (usuario) {
+      setFormData((prev) => ({
+        ...prev,
+        dob: usuario.dataNasc || "",
+        sex: usuario.genero || "",
+        email: usuario.email || "",
+        password: usuario.password || "",
+      }));
+    }
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -34,42 +51,54 @@ export default function ProfileForm() {
     detail: string
   ) => {
     if (toast.current) {
-      toast.current.show({
-        severity,
-        summary,
-        detail,
-        life: 3000,
-      });
+      toast.current.show({ severity, summary, detail, life: 3000 });
     }
   };
 
   const handleSubmit = async () => {
     try {
-      const response = await fetch("/api/usuarios", {
-        method: "POST",
+      if (!usuario?.id) {
+        showToast("error", "Erro", "Usuário não encontrado");
+        return;
+      }
+  
+      const response = await fetch(`/api/usuarios/${usuario.id}/completar-perfil`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          nome: usuario.nome,
+          email: usuario.email,
+          password: usuario.password,
+          dataNasc: formData.dob,
+          genero: formData.sex,
+          peso: parseFloat(formData.weight),
+          altura: parseFloat(formData.height),
+          tipoDiabetes: formData.diabetesType,
+          tipoInsulina: formData.insulinType,
+          comorbidades: formData.comorbidities
+            ? formData.comorbidities.split(",").map((c) => c.trim())
+            : [],
+          horarios_afericao: formData.schedule
+            ? formData.schedule.split(",").map((h) => ({ horario: h.trim() }))
+            : [],
+        }),
       });
-
+  
       if (!response.ok) throw new Error("Erro ao enviar dados");
-
+  
       showToast("success", "Sucesso", "Perfil cadastrado com sucesso!");
-      router.push("/"); // redireciona após envio
+      router.push("/inserirDados");
     } catch (error) {
       console.error("Erro ao cadastrar:", error);
       showToast("error", "Erro", "Falha ao cadastrar. Tente novamente.");
     }
   };
+  
 
-  const accept = () => {
-    handleSubmit();
-  };
-
-  const reject = () => {
-    showToast("warn", "Cancelado", "Envio cancelado.");
-  };
+  const accept = () => handleSubmit();
+  const reject = () => showToast("warn", "Cancelado", "Envio cancelado.");
 
   const confirm1 = () => {
     confirmDialog({
@@ -218,27 +247,14 @@ export default function ProfileForm() {
               placeholder="--:--"
               className="w-1/4"
             />
-            <Button
-              icon="pi pi-plus"
-              className="p-button-rounded p-button-outlined"
-            />
+            <Button icon="pi pi-plus" className="p-button-rounded p-button-outlined" />
           </div>
         </div>
       </div>
 
       <div className="flex justify-between mt-6">
-        <Button
-          onClick={confirm1}
-          icon="pi pi-check"
-          label="Confirmar"
-          className="mr-2"
-        />
-        <Button
-          onClick={confirm2}
-          icon="pi pi-times"
-          label="Deletar"
-          className="p-button-danger"
-        />
+        <Button onClick={confirm1} icon="pi pi-check" label="Confirmar" className="mr-2" />
+        <Button onClick={confirm2} icon="pi pi-times" label="Deletar" className="p-button-danger" />
       </div>
     </div>
   );
