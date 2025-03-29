@@ -1,10 +1,20 @@
 package com.grupo2.diabetter.controller;
 
-import com.grupo2.diabetter.dto.usuario.*;
+import com.grupo2.diabetter.dto.usuario.UsuarioLoginDTO;
+
+import com.grupo2.diabetter.dto.usuario.UsuarioPostPutRequestDTO;
+import com.grupo2.diabetter.dto.usuario.UsuarioResponseDTO;
+import com.grupo2.diabetter.dto.usuario.UsuarioDeleteRequestDTO;
+import com.grupo2.diabetter.dto.usuario.UsuarioChangePasswordDTO;
 import com.grupo2.diabetter.exception.InvalidPasswordException;
 import com.grupo2.diabetter.exception.NotFoundException;
 import com.grupo2.diabetter.model.Usuario;
-import com.grupo2.diabetter.service.usuario.interfaces.*;
+import com.grupo2.diabetter.service.usuario.interfaces.IDesativarUsuarioService;
+import com.grupo2.diabetter.service.usuario.interfaces.ICriarUsuarioService;
+import com.grupo2.diabetter.service.usuario.interfaces.IAtualizarUsuarioService;
+import com.grupo2.diabetter.service.usuario.interfaces.ILoginUsuario;
+import com.grupo2.diabetter.service.usuario.interfaces.IListarUsuarioService;
+import com.grupo2.diabetter.service.usuario.interfaces.IAlterarSenhaService;
 
 import java.util.List;
 import java.util.UUID;
