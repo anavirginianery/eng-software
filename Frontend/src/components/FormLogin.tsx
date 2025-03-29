@@ -9,6 +9,40 @@ export default function FormLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!email.includes("@")) {
+      return alert("Por favor, insira um email válido");
+    }
+
+    try {
+      const response = await fetch("/api/usuarios");
+
+      if (!response.ok) {
+        throw new Error("Erro ao buscar usuários");
+      }
+
+      const usuarios = await response.json();
+
+      const usuarioEncontrado = usuarios.find(
+        (u: any) => u.email === email && u.password === password
+      );
+
+      if (usuarioEncontrado) {
+        localStorage.setItem("usuario", JSON.stringify({ nome: usuarioEncontrado.nome }));
+        alert("Login realizado com sucesso!");
+        router.push("/dashboard");
+      } else {
+        alert("Email ou senha inválidos");
+      }
+    } catch (error) {
+      console.error("Erro ao fazer login:", error);
+      alert("Erro ao fazer login. Tente novamente.");
+    }
+  };
+
   return (
     <div className="h-full px-4 sm:px-6 lg:px-8 py-6 flex items-center justify-center bg-gradient-to-t from-[#B4E4E2] to-[#E7F5F4]">
       <div className="bg-white rounded-3xl shadow-lg p-8 w-[400px]">
@@ -23,7 +57,7 @@ export default function FormLogin() {
 
         <h2 className="mt-4 text-xl font-medium mb-4 text-center">Login</h2>
 
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleLogin}>
           <div>
             <label className="block text-sm text-gray-800 mb-1">Email</label>
             <input
@@ -31,6 +65,7 @@ export default function FormLogin() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full p-2.5 bg-gray-100 rounded-md border-none"
+              required
             />
           </div>
 
@@ -41,6 +76,7 @@ export default function FormLogin() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full p-2.5 bg-gray-100 rounded-md border-none"
+              required
             />
           </div>
 
@@ -55,14 +91,6 @@ export default function FormLogin() {
 
           <button
             type="submit"
-            onClick={(e) => {
-              e.preventDefault();
-              if (email.includes("@")) {
-                router.push("/home");
-              } else {
-                alert("Por favor, insira um email válido");
-              }
-            }}
             className="w-full p-2.5 bg-[#38B2AC] text-white rounded-md hover:bg-[#2C9A94] transition-colors cursor-pointer"
           >
             Entrar
