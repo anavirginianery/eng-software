@@ -27,7 +27,7 @@ public class AtualizarHorarioService implements IAtualizarHorarioService {
         Horario horario = horarioRepository.findById(uuid)
                 .orElseThrow(() -> new NotFoundException("Horario não encontrado"));
 
-        Usuario usuario = usuarioRepository.findById(dto.getUsuario().getId())
+        Usuario usuario = usuarioRepository.findById(dto.getUsuario())
                 .orElseThrow(() -> new NotFoundException("Usuário não encontrado"));
 
         horario.setHorario(dto.getHorario());
@@ -40,7 +40,7 @@ public class AtualizarHorarioService implements IAtualizarHorarioService {
                 .id(horario.getId())
                 .horario(horario.getHorario())
                 .data_criacao(horario.getData_criacao())
-                .usuario(horario.getUsuario())
+                .usuario(horario.getUsuario().getId())
                 .build();
     }
 }

@@ -15,7 +15,7 @@ public class HorarioResponseDTO {
 
     private UUID id;
 
-    private Usuario usuario;
+    private UUID usuario;
 
     private String horario;
 
