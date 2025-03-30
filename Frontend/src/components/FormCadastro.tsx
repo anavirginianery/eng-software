@@ -40,12 +40,23 @@ export default function FormCadastro() {
       });
 
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Resposta da API:", errorText);
         throw new Error("Erro na resposta da API");
       }
 
       const data = await response.json();
-      localStorage.setItem("usuario", JSON.stringify(data));
-      router.push("/dashboard");      
+      localStorage.setItem("usuario", JSON.stringify({
+        id: data.id,
+        nome: data.nome,
+        email: data.email,
+        password: senha,
+        dataNasc: data.dataNasc,
+        genero: data.genero
+      }));
+      router.push("/dashboard");
+
+      
     } catch (error) {
       console.error("Erro ao cadastrar:", error);
       alert("Erro ao cadastrar. Verifique os dados ou tente novamente.");
