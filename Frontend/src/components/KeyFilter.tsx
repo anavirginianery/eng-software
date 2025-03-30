@@ -21,8 +21,6 @@ export default function ProfileForm() {
     insulinType: "" as TipoInsulina,
     comorbidities: [] as string[],
     schedule: "",
-    email: "",
-    password: "",
   });
 
   const [prefilledFields, setPrefilledFields] = useState<Set<string>>(new Set());
@@ -36,8 +34,6 @@ export default function ProfileForm() {
         ...formData,
         dob: usuario.dataNasc || "",
         sex: usuario.genero || "",
-        email: usuario.email || "",
-        password: usuario.password || "",
         weight: usuario.peso?.toString() || "",
         height: usuario.altura?.toString() || "",
         diabetesType: usuario.tipoDiabetes || "",
@@ -104,8 +100,6 @@ export default function ProfileForm() {
         },
         body: JSON.stringify({
           nome: usuario.nome,
-          email: usuario.email,
-          password: usuario.password,
           dataNasc: formData.dob,
           genero: formData.sex,
           peso: parseFloat(formData.weight),
@@ -163,35 +157,7 @@ export default function ProfileForm() {
       <h2 className="text-2xl font-bold text-center mb-6">Complete seu perfil:</h2>
 
       <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label htmlFor="dob" className="font-bold block mb-1">
-            Data de Nascimento
-          </label>
-          <input
-            type="date"
-            id="dob"
-            value={formData.dob}
-            onChange={handleChange}
-            className={`w-full p-2.5 bg-gray-100 rounded-md border-none ${prefilledFields.has('dob') ? 'bg-gray-100' : ''}`}
-          />
-        </div>
-        <div>
-          <label htmlFor="sex" className="font-bold block mb-1">
-            Gênero
-          </label>
-          <select
-            id="sex"
-            value={formData.sex}
-            onChange={handleChange}
-            className={`w-full p-2.5 bg-gray-100 rounded-md border-none ${prefilledFields.has('sex') ? 'bg-gray-100' : ''}`}
-          >
-            <option value="">Selecione</option>
-            <option value="MASCULINO">Masculino</option>
-            <option value="FEMININO">Feminino</option>
-            <option value="OUTRO">Outro</option>
-            <option value="NAO_INFORMADO">Prefiro não dizer</option>
-          </select>
-        </div>
+    
         <div>
           <label htmlFor="weight" className="font-bold block mb-1">
             Peso
