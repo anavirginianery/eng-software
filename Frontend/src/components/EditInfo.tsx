@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import api from "@/hook/useApi"; 
 
 interface FormData {
   nomeCompleto: string;
@@ -35,12 +36,10 @@ export default function Perfil() {
   });
 
   const router = useRouter();
-  
-  
   const searchParams = useSearchParams();
   const id = searchParams?.get("id");
 
-  // Função para mockar os dados
+  
   const mockarDados = (): FormData => {
     return {
       nomeCompleto: "Maria Oliveira",
@@ -60,7 +59,7 @@ export default function Perfil() {
 
   useEffect(() => {
     if (id) {
-      //teste comd dados mockados
+      
       const dadosMock = mockarDados();
       setFormData(dadosMock);
     }
@@ -71,31 +70,32 @@ export default function Perfil() {
     setFormData({ ...formData, [name]: value });
   };
 
-  
   const adicionarHorario = () => {
-    
-        if (formData.novoHorario) {
-          
-          const novosHorarios = [...formData.horarios, formData.novoHorario];
-          
-         
-          novosHorarios.sort();
-    
-          
-          setFormData({
-            ...formData,
-            horarios: novosHorarios,
-            novoHorario: "",
-          });
-        }
-      
+    if (formData.novoHorario) {
+      const novosHorarios = [...formData.horarios, formData.novoHorario];
+      novosHorarios.sort();
+      setFormData({
+        ...formData,
+        horarios: novosHorarios,
+        novoHorario: "",
+      });
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Dados editados:", formData);
-    //logica do back aqui
-    router.push("/perfil-atualizado"); //exemplo da rota
+    
+    try {
+      
+      const response = await api.put(`/perfil/${id}`, formData);
+      console.log("Dados atualizados com sucesso", response.data);
+      
+    
+      router.push("/perfil-atualizado");
+    } catch (error) {
+      console.error("Erro ao atualizar os dados", error);
+    }
   };
 
   return (

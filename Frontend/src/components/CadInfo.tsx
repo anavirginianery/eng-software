@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from "react";
+import api from "@/hook/useApi"; // Certifique-se de importar o axios configurado
 
 interface FormData {
   dataNascimento: string;
@@ -13,7 +14,7 @@ interface FormData {
   glicemia: string;
   comorbidades: string;
   horarios: string[];
-  novoHorario: string; 
+  novoHorario: string;
 }
 
 export default function Perfil() {
@@ -28,10 +29,11 @@ export default function Perfil() {
     glicemia: "",
     comorbidades: "",
     horarios: [],
-    novoHorario: "", 
+    novoHorario: "",
   });
 
   const [cadastroSucesso, setCadastroSucesso] = useState(false);
+  const [erroCadastro, setErroCadastro] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -40,13 +42,8 @@ export default function Perfil() {
 
   const adicionarHorario = () => {
     if (formData.novoHorario) {
-     
       const novosHorarios = [...formData.horarios, formData.novoHorario];
-      
-      
       novosHorarios.sort();
-
-      
       setFormData({
         ...formData,
         horarios: novosHorarios,
@@ -55,11 +52,25 @@ export default function Perfil() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Dados do Cadastro:", formData);
-    setCadastroSucesso(true);
 
+    try {
+     
+      const response = await api.post('/caminho/para/salvar', formData); 
+
+     
+      setCadastroSucesso(true);
+      setErroCadastro(false);
+
+      console.log('Dados salvos:', response.data);
+    } catch (error) {
+      console.error('Erro ao salvar os dados:', error);
+      setCadastroSucesso(false);
+      setErroCadastro(true);
+    }
+
+    
     setFormData({
       dataNascimento: "",
       sexo: "",
@@ -82,6 +93,11 @@ export default function Perfil() {
         {cadastroSucesso && (
           <div className="mb-4 p-4 bg-green-100 text-green-700 border-l-4 border-green-500">
             Cadastro realizado com sucesso!
+          </div>
+        )}
+        {erroCadastro && (
+          <div className="mb-4 p-4 bg-red-100 text-red-700 border-l-4 border-red-500">
+            Ocorreu um erro ao salvar os dados. Tente novamente.
           </div>
         )}
         <form onSubmit={handleSubmit} className="space-y-4">
