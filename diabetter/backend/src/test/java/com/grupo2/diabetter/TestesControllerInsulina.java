@@ -107,7 +107,6 @@ public class TestesControllerInsulina {
                     .tipoInsulina(TipoInsulina.RAPIDA)  // supondo que NOVORAPIDO seja um valor válido do enum
                     .unidades(10)
                     .horarioId(horarioId)
-                    .dataAplicacao(LocalDateTime.now())
                     .build();
 
             // Criação da resposta esperada com os nomes corretos
@@ -116,7 +115,6 @@ public class TestesControllerInsulina {
                     .tipoInsulina(dto.getTipoInsulina())
                     .unidades(dto.getUnidades())
                     .horarioId(dto.getHorarioId())
-                    .dataAplicacao(dto.getDataAplicacao())
                     .build();
 
             when(criarInsulinService.criarInsulina(any(InsulinPostPutRequestDTO.class))).thenReturn(responseDTO);
@@ -138,7 +136,6 @@ public class TestesControllerInsulina {
                     .tipoInsulina(null)
                     .unidades(10)
                     .horarioId(horarioId)
-                    .dataAplicacao(LocalDateTime.now())
                     .build();
 
             when(criarInsulinService.criarInsulina(any(InsulinPostPutRequestDTO.class)))
@@ -161,7 +158,6 @@ public class TestesControllerInsulina {
                     .tipoInsulina(TipoInsulina.RAPIDA)
                     .unidades(-5)  // Unidades inválidas (negativas)
                     .horarioId(horarioId)
-                    .dataAplicacao(LocalDateTime.now())
                     .build();
 
             when(criarInsulinService.criarInsulina(any(InsulinPostPutRequestDTO.class)))
@@ -181,7 +177,6 @@ public class TestesControllerInsulina {
                     .tipoInsulina(TipoInsulina.RAPIDA)
                     .unidades(10)
                     .horarioId(null) // Horário inválido (nulo)
-                    .dataAplicacao(LocalDateTime.now())
                     .build();
 
             when(criarInsulinService.criarInsulina(any(InsulinPostPutRequestDTO.class)))
@@ -203,7 +198,6 @@ public class TestesControllerInsulina {
                     .tipoInsulina(TipoInsulina.RAPIDA)
                     .unidades(10)
                     .horarioId(horarioId)
-                    .dataAplicacao(LocalDateTime.now())
                     .build();
 
             when(criarInsulinService.criarInsulina(any(InsulinPostPutRequestDTO.class)))
@@ -336,7 +330,6 @@ public class TestesControllerInsulina {
                     .tipoInsulina(TipoInsulina.RAPIDA)
                     .unidades(15)
                     .horarioId(horarioId)
-                    .dataAplicacao(LocalDateTime.now())
                     .build();
 
             InsulinResponseDTO responseDTO = InsulinResponseDTO.builder()
@@ -369,7 +362,6 @@ public class TestesControllerInsulina {
                     .tipoInsulina(TipoInsulina.RAPIDA)
                     .unidades(15)
                     .horarioId(UUID.randomUUID())
-                    .dataAplicacao(LocalDateTime.now())
                     .build();
 
             when(atualizarInsulinService.atualizarInsulina(invalidId, dto))
@@ -391,7 +383,6 @@ public class TestesControllerInsulina {
                     .tipoInsulina(null) // Tipo inválido
                     .unidades(15)
                     .horarioId(UUID.randomUUID())
-                    .dataAplicacao(LocalDateTime.now())
                     .build();
 
             when(atualizarInsulinService.atualizarInsulina(insulinId, dto))
@@ -413,7 +404,6 @@ public class TestesControllerInsulina {
                     .tipoInsulina(TipoInsulina.RAPIDA)
                     .unidades(-5) // Unidades inválidas
                     .horarioId(UUID.randomUUID())
-                    .dataAplicacao(LocalDateTime.now())
                     .build();
 
             when(atualizarInsulinService.atualizarInsulina(insulinId, dto))
@@ -435,7 +425,6 @@ public class TestesControllerInsulina {
                     .tipoInsulina(TipoInsulina.RAPIDA)
                     .unidades(15)
                     .horarioId(null) // Horário inválido (nulo)
-                    .dataAplicacao(LocalDateTime.now())
                     .build();
 
             when(atualizarInsulinService.atualizarInsulina(insulinId, dto))
@@ -459,7 +448,6 @@ public class TestesControllerInsulina {
                     .tipoInsulina(TipoInsulina.RAPIDA)
                     .unidades(15)
                     .horarioId(horarioId)
-                    .dataAplicacao(LocalDateTime.now())
                     .build();
 
             InsulinResponseDTO responseDTO = InsulinResponseDTO.builder()
@@ -492,7 +480,6 @@ public class TestesControllerInsulina {
                     .tipoInsulina(TipoInsulina.RAPIDA)
                     .unidades(15)
                     .horarioId(UUID.randomUUID())
-                    .dataAplicacao(LocalDateTime.now())
                     .build();
 
             when(atualizarInsulinService.atualizarInsulina(insulinId, dto))
@@ -515,7 +502,6 @@ public class TestesControllerInsulina {
                 .unidades(10)
                 .horarioId(UUID.randomUUID())
                 .glicemia(UUID.randomUUID())
-                .dataAplicacao(LocalDateTime.now())
                 .build();
 
         InsulinResponseDTO responseDTO = InsulinResponseDTO.builder()
@@ -542,7 +528,6 @@ public class TestesControllerInsulina {
                 .unidades(10)
                 .horarioId(UUID.randomUUID())
                 .glicemia(UUID.randomUUID())
-                .dataAplicacao(LocalDateTime.now())
                 .build();
 
         Mockito.when(criarInsulinService.criarInsulina(any(InsulinPostPutRequestDTO.class)))
@@ -602,7 +587,7 @@ public class TestesControllerInsulina {
                 .unidades(10)
                 .horarioId(UUID.randomUUID())
                 .horario(null) // ou crie um objeto Horario se necessário
-                .glicemia(new Glicemia()) // considerando que Glicemia possui um construtor padrão para teste
+                .glicemia(UUID.randomUUID()) // considerando que Glicemia possui um construtor padrão para teste
                 .dataAplicacao(LocalDateTime.now())
                 .build();
 
@@ -637,15 +622,8 @@ public class TestesControllerInsulina {
                 .tipoInsulina(TipoInsulina.RAPIDA)
                 .unidades(10)
                 .horarioId(UUID.randomUUID())
-                .horario(Horario.builder()
-                        .id(UUID.randomUUID())
-                        .horario("08:00")
-                        .data_criacao("2025-03-22")
-                        .build())
-                .glicemia(Glicemia.builder()
-                        .id(UUID.randomUUID())
-                        .valorGlicemia(120.0f)
-                        .build())
+                .horario(UUID.randomUUID())
+                .glicemia(UUID.randomUUID())
                 .dataAplicacao(LocalDateTime.now())
                 .build();
 
@@ -654,11 +632,7 @@ public class TestesControllerInsulina {
                 .tipoInsulina(TipoInsulina.BASAL)
                 .unidades(20)
                 .horarioId(UUID.randomUUID())
-                .horario(Horario.builder()
-                        .id(UUID.randomUUID())
-                        .horario("09:00")
-                        .data_criacao("2025-03-22")
-                        .build())
+                .horario(UUID.randomUUID())
                 .glicemia(null) // para testar o caso sem glicemia associada
                 .dataAplicacao(LocalDateTime.now())
                 .build();
@@ -683,7 +657,6 @@ public class TestesControllerInsulina {
                 .unidades(10)
                 .horarioId(UUID.fromString("11111111-1111-1111-1111-111111111111"))
                 .glicemia(UUID.fromString("22222222-2222-2222-2222-222222222222"))
-                .dataAplicacao(LocalDateTime.now())
                 .build();
 
         InsulinResponseDTO responseDTO = InsulinResponseDTO.builder()
@@ -691,15 +664,8 @@ public class TestesControllerInsulina {
                 .tipoInsulina(TipoInsulina.RAPIDA)
                 .unidades(10)
                 .horarioId(UUID.fromString("11111111-1111-1111-1111-111111111111"))
-                .horario(Horario.builder()
-                        .id(UUID.fromString("11111111-1111-1111-1111-111111111111"))
-                        .horario("08:00")
-                        .data_criacao("2025-03-22")
-                        .build())
-                .glicemia(Glicemia.builder()
-                        .id(UUID.fromString("22222222-2222-2222-2222-222222222222"))
-                        .valorGlicemia(120.0f)
-                        .build())
+                .horario(UUID.randomUUID())
+                .glicemia(UUID.randomUUID())
                 .dataAplicacao(LocalDateTime.now())
                 .build();
 

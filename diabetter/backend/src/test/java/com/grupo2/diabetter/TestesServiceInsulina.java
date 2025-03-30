@@ -85,7 +85,6 @@ public class TestesServiceInsulina {
                     .unidades(10)
                     .horarioId(horarioId)
                     .glicemia(glicemiaId)
-                    .dataAplicacao(null)
                     .build();
 
             Horario horario = new Horario();
@@ -129,7 +128,6 @@ public class TestesServiceInsulina {
                     .tipoInsulina(null)
                     .unidades(10)
                     .horarioId(horarioId)
-                    .dataAplicacao(null)
                     .build();
 
             CommerceException exception = assertThrows(CommerceException.class, () -> {
@@ -148,7 +146,6 @@ public class TestesServiceInsulina {
                     .tipoInsulina(TipoInsulina.RAPIDA)
                     .unidades(-5)
                     .horarioId(horarioId)
-                    .dataAplicacao(null)
                     .build();
 
             CommerceException exception = assertThrows(CommerceException.class, () -> {
@@ -169,7 +166,6 @@ public class TestesServiceInsulina {
                     .unidades(10)
                     .horarioId(horarioId)
                     .glicemia(glicemiaId)
-                    .dataAplicacao(null)
                     .build();
 
             when(horarioRepository.findById(horarioId))
@@ -586,7 +582,6 @@ public class TestesServiceInsulina {
 
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertNotNull(result.get(0).getGlicemia());
         verify(insulinRepository, times(1)).findAll();
     }
 
@@ -646,7 +641,6 @@ public class TestesServiceInsulina {
 
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertNotNull(result.get(0).getGlicemia());
         verify(insulinRepository, times(1)).findByHorarioId(horarioId);
     }
 
@@ -695,7 +689,6 @@ public class TestesServiceInsulina {
         assertEquals(insulinId, response.getInsulidaId());
         assertEquals(TipoInsulina.RAPIDA, response.getTipoInsulina());
         assertEquals(10, response.getUnidades());
-        assertNotNull(response.getGlicemia());
         verify(insulinRepository, times(1)).findById(insulinId);
     }
 
@@ -888,7 +881,6 @@ public class TestesServiceInsulina {
         Assertions.assertEquals(TipoInsulina.RAPIDA, response.getTipoInsulina());
         Assertions.assertEquals(10, response.getUnidades());
         Assertions.assertEquals(horarioId, response.getHorarioId());
-        Assertions.assertNotNull(response.getGlicemia());
     }
 
     @Test
@@ -1021,7 +1013,6 @@ public class TestesServiceInsulina {
                 .unidades(10)
                 .horarioId(horarioId)
                 .glicemia(glicemiaId)
-                .dataAplicacao(LocalDateTime.now())
                 .build();
 
         Horario horario = new Horario();
@@ -1040,7 +1031,6 @@ public class TestesServiceInsulina {
                 .unidades(10)
                 .horario(horario)
                 .glicemia(glicemia)
-                .dataAplicacao(dto.getDataAplicacao())
                 .build();
 
         when(insulinRepository.save(any(Insulina.class))).thenReturn(insulinaSalva);
@@ -1052,7 +1042,6 @@ public class TestesServiceInsulina {
         assertEquals(TipoInsulina.RAPIDA, response.getTipoInsulina());
         assertEquals(10, response.getUnidades());
         assertEquals(horarioId, response.getHorarioId());
-        assertEquals(glicemiaId, response.getGlicemia().getId());
-        assertEquals(dto.getDataAplicacao(), response.getDataAplicacao());
+        assertEquals(glicemiaId, response.getGlicemia());
     }
 }

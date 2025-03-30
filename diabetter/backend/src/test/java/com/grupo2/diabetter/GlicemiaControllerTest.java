@@ -133,7 +133,7 @@ class GlicemiaControllerTest {
             GlicemiaResponseDTO glicemia = new GlicemiaResponseDTO();
             glicemia.setId(validId);
             glicemia.setValorGlicemia(120.0f);
-            glicemia.setHorario(new Horario()); // Assuming Horario is properly set
+            glicemia.setHorario(UUID.randomUUID()); // Assuming Horario is properly set
 
             when(recuperarGlicemiaService.executar(validId)).thenReturn(glicemia);
 
@@ -232,12 +232,12 @@ class GlicemiaControllerTest {
             GlicemiaResponseDTO glicemia1 = new GlicemiaResponseDTO();
             glicemia1.setId(UUID.randomUUID());
             glicemia1.setValorGlicemia(120.0f);
-            glicemia1.setHorario(horario);  // Set Horario object directly
+            glicemia1.setHorario(horario.getId());  // Set Horario object directly
 
             GlicemiaResponseDTO glicemia2 = new GlicemiaResponseDTO();
             glicemia2.setId(UUID.randomUUID());
             glicemia2.setValorGlicemia(130.0f);
-            glicemia2.setHorario(horario);  // Set Horario object directly
+            glicemia2.setHorario(horario.getId());  // Set Horario object directly
 
             // Mock service to return the list of GlicemiaResponseDTOs
             List<GlicemiaResponseDTO> glicemias = List.of(glicemia1, glicemia2);
@@ -251,8 +251,8 @@ class GlicemiaControllerTest {
             assertNotNull(response.getBody());
             assertEquals(2, response.getBody().size());
             // Check that the horarioId matches for both glicemias
-            assertEquals(horarioId, response.getBody().get(0).getHorario().getId());
-            assertEquals(horarioId, response.getBody().get(1).getHorario().getId());
+            assertEquals(horarioId, response.getBody().get(0).getHorario());
+            assertEquals(horarioId, response.getBody().get(1).getHorario());
         }
 
         @Test
@@ -289,7 +289,7 @@ class GlicemiaControllerTest {
             GlicemiaResponseDTO glicemiaAtualizada = new GlicemiaResponseDTO();
             glicemiaAtualizada.setId(validId);
             glicemiaAtualizada.setValorGlicemia(dto.getValorGlicemia());
-            glicemiaAtualizada.setHorario(new Horario());
+            glicemiaAtualizada.setHorario(UUID.randomUUID());
 
             when(atualizarGlicemiaService.executar(validId, dto)).thenReturn(glicemiaAtualizada);
 
@@ -346,7 +346,7 @@ class GlicemiaControllerTest {
             GlicemiaResponseDTO glicemiaAtualizada = new GlicemiaResponseDTO();
             glicemiaAtualizada.setId(validId);
             glicemiaAtualizada.setValorGlicemia(dto.getValorGlicemia());
-            glicemiaAtualizada.setHorario(new Horario());
+            glicemiaAtualizada.setHorario(UUID.randomUUID());
 
             when(atualizarGlicemiaService.executar(validId, dto)).thenReturn(glicemiaAtualizada);
 

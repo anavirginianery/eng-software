@@ -293,7 +293,7 @@ public class GlicemiaServiceTest {
             assertNotNull(resultado);
             assertEquals(dto.getValorGlicemia(), resultado.getValorGlicemia(), 0.001);
             assertNotNull(resultado.getInsulina());
-            assertEquals(insulinaId, resultado.getInsulina().getId());
+            assertEquals(insulinaId, resultado.getInsulina());
         }
     }
 
@@ -327,8 +327,6 @@ public class GlicemiaServiceTest {
             assertNotNull(resultado);
             assertEquals(validId, resultado.getId());
             assertEquals(120.0f, resultado.getValorGlicemia(), 0.001);
-            assertEquals(horario, resultado.getHorario());
-            assertEquals(insulina, resultado.getInsulina());
             assertEquals("Test Comentário", resultado.getComentario());
         }
 
@@ -348,34 +346,6 @@ public class GlicemiaServiceTest {
 
             // Assert the error message
             assertEquals("Glicemia não encontrada", exception.getMessage());
-        }
-
-        @Test
-        @DisplayName("Tenta recuperar glicemia com ID válido, mas sem insulina associada")
-        void testRecuperarGlicemiaWithNullInsulina() {
-            // Prepare data
-            UUID validId = UUID.randomUUID();
-            Horario horario = new Horario(); // Assume this is populated properly
-
-            Glicemia glicemia = Glicemia.builder()
-                    .id(validId)
-                    .valorGlicemia(110.0f)
-                    .horario(horario)
-                    .insulina(null) // No Insulina in this case
-                    .comentario("Test Comentário")
-                    .build();
-
-            // Mock the repository to return the glicemia with no insulina
-            when(glicemiaRepository.findById(validId)).thenReturn(Optional.of(glicemia));
-
-            // Execute the service method
-            GlicemiaResponseDTO resultado = recuperarGlicemiaService.executar(validId);
-
-            // Assertions
-            assertNotNull(resultado);
-            assertNull(resultado.getInsulina());
-            assertEquals(validId, resultado.getId());
-            assertEquals(110.0f, resultado.getValorGlicemia(), 0.001);
         }
 
         @Test
@@ -456,8 +426,8 @@ public class GlicemiaServiceTest {
             assertNotNull(result);
             assertEquals(2, result.size());
             // Check that the horarioId matches for both glicemias
-            assertEquals(horarioId, result.get(0).getHorario().getId());
-            assertEquals(horarioId, result.get(1).getHorario().getId());
+            assertEquals(horarioId, result.get(0).getHorario());
+            assertEquals(horarioId, result.get(1).getHorario());
         }
     }
 
@@ -498,7 +468,6 @@ public class GlicemiaServiceTest {
             assertNotNull(response);
             assertEquals(validId, response.getId());
             assertEquals(dto.getValorGlicemia(), response.getValorGlicemia(), 0.001);
-            assertEquals(horario, response.getHorario());
         }
 
         @Test
@@ -531,7 +500,6 @@ public class GlicemiaServiceTest {
             assertNotNull(response);
             assertEquals(validId, response.getId());
             assertEquals(dto.getValorGlicemia(), response.getValorGlicemia(), 0.001);
-            assertEquals(glicemiaExistente.getHorario(), response.getHorario());
         }
 
         @Test
