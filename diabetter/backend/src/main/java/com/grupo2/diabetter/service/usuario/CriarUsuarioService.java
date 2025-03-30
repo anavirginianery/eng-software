@@ -1,5 +1,6 @@
 package com.grupo2.diabetter.service.usuario;
 
+import com.grupo2.diabetter.dto.usuario.CompletarPerfil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +35,7 @@ public class CriarUsuarioService implements ICriarUsuarioService {
     }
 
     @Override
-    public Usuario completarPerfil(UUID usuarioId, UsuarioPostPutRequestDTO dto) {
+    public Usuario completarPerfil(UUID usuarioId, CompletarPerfil dto) {
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 

@@ -1,9 +1,6 @@
 package com.grupo2.diabetter;
 
-import com.grupo2.diabetter.dto.usuario.UsuarioChangePasswordDTO;
-import com.grupo2.diabetter.dto.usuario.UsuarioDeleteRequestDTO;
-import com.grupo2.diabetter.dto.usuario.UsuarioPostPutRequestDTO;
-import com.grupo2.diabetter.dto.usuario.UsuarioResponseDTO;
+import com.grupo2.diabetter.dto.usuario.*;
 import com.grupo2.diabetter.enuns.Genero;
 import com.grupo2.diabetter.enuns.TipoDiabetes;
 import com.grupo2.diabetter.enuns.TipoInsulina;
@@ -402,7 +399,7 @@ class UsuarioServiceTests {
     @Test
 void completarPerfil_UsuarioEncontrado_DeveRetornarUsuarioAtualizado() {
     UUID id = UUID.randomUUID();
-    UsuarioPostPutRequestDTO dto = new UsuarioPostPutRequestDTO();
+    CompletarPerfil dto = new CompletarPerfil();
     dto.setAltura(1.80f);
     dto.setPeso(75.0f);
     dto.setTipoDiabetes(TipoDiabetes.TIPO_2);
@@ -431,7 +428,7 @@ void completarPerfil_UsuarioEncontrado_DeveRetornarUsuarioAtualizado() {
 @Test
 void completarPerfil_UsuarioNaoEncontrado_DeveLancarExcecao() {
     UUID id = UUID.randomUUID();
-    UsuarioPostPutRequestDTO dto = new UsuarioPostPutRequestDTO();
+    CompletarPerfil dto = new CompletarPerfil();
 
     when(usuarioRepository.findById(id)).thenReturn(Optional.empty());
 

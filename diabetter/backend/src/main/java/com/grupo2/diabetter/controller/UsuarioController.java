@@ -6,6 +6,7 @@ import com.grupo2.diabetter.dto.usuario.UsuarioPostPutRequestDTO;
 import com.grupo2.diabetter.dto.usuario.UsuarioResponseDTO;
 import com.grupo2.diabetter.dto.usuario.UsuarioDeleteRequestDTO;
 import com.grupo2.diabetter.dto.usuario.UsuarioChangePasswordDTO;
+import com.grupo2.diabetter.dto.usuario.CompletarPerfil;
 import com.grupo2.diabetter.exception.InvalidPasswordException;
 import com.grupo2.diabetter.exception.NotFoundException;
 import com.grupo2.diabetter.model.Usuario;
@@ -55,7 +56,7 @@ public class UsuarioController {
     @PutMapping("{id}/completar-perfil")
     public ResponseEntity<Usuario> completarPerfilUsuario(
             @PathVariable("id") UUID id,
-            @Valid @RequestBody UsuarioPostPutRequestDTO dto
+            @Valid @RequestBody CompletarPerfil dto
     ) {
         return ResponseEntity.ok().body(this.criarUsuarioService.completarPerfil(id, dto));
     }

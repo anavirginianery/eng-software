@@ -1,10 +1,7 @@
 package com.grupo2.diabetter;
 
 import com.grupo2.diabetter.controller.UsuarioController;
-import com.grupo2.diabetter.dto.usuario.UsuarioChangePasswordDTO;
-import com.grupo2.diabetter.dto.usuario.UsuarioDeleteRequestDTO;
-import com.grupo2.diabetter.dto.usuario.UsuarioPostPutRequestDTO;
-import com.grupo2.diabetter.dto.usuario.UsuarioResponseDTO;
+import com.grupo2.diabetter.dto.usuario.*;
 import com.grupo2.diabetter.enuns.Genero;
 import com.grupo2.diabetter.enuns.TipoDiabetes;
 import com.grupo2.diabetter.enuns.TipoInsulina;
@@ -377,7 +374,7 @@ class UsuarioControllerTests {
         @Test
         void completarPerfilUsuario_UsuarioEncontrado_DeveRetornarUsuarioAtualizado() {
             UUID id = UUID.randomUUID();
-            UsuarioPostPutRequestDTO dto = new UsuarioPostPutRequestDTO();
+            CompletarPerfil dto = new CompletarPerfil();
             dto.setAltura(1.80f);
             dto.setPeso(75.0f);
 
