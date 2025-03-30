@@ -21,7 +21,7 @@ public class CriarHorarioService implements ICriarHorarioService {
 
     @Override
     public HorarioResponseDTO createHorario(HorarioPostPutRequestDTO dto) {
-        Usuario usuario = usuarioRepository.findById(dto.getUsuario())
+        usuarioRepository.findById(dto.getUsuario())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
         if (dto.getHorario() == null || dto.getHorario().trim().isEmpty()) {
@@ -32,7 +32,7 @@ public class CriarHorarioService implements ICriarHorarioService {
         horario.setId(dto.getId());
         horario.setHorario(dto.getHorario());
         horario.setData_criacao(dto.getData_criacao());
-        horario.setUsuario(usuario);
+        horario.setUsuarioId(dto.getUsuario());
 
         horarioRepository.save(horario);
 
@@ -40,7 +40,7 @@ public class CriarHorarioService implements ICriarHorarioService {
                 .id(horario.getId())
                 .horario(horario.getHorario())
                 .data_criacao(horario.getData_criacao())
-                .usuario(horario.getUsuario().getId())
+                .usuario(horario.getUsuarioId())
                 .build();
     }
 }

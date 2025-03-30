@@ -44,7 +44,6 @@ public class CriarUsuarioService implements ICriarUsuarioService {
         usuario.setTipoDiabetes(dto.getTipoDiabetes());
         usuario.setTipoInsulina(dto.getTipoInsulina());
         usuario.setComorbidades(dto.getComorbidades());
-        usuario.setHorarios_afericao(dto.getHorarios_afericao());
 
         return usuarioRepository.save(usuario);
     }

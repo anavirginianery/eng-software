@@ -25,7 +25,7 @@ public class RecuperarHorarioService implements IRecuperarHorarioService {
                 .id(horario.getId())
                 .horario(horario.getHorario())
                 .data_criacao(horario.getData_criacao())
-                .usuario(horario.getUsuario().getId())
+                .usuario(horario.getUsuarioId())
                 .build();
 
         return horarioResponseDTO;

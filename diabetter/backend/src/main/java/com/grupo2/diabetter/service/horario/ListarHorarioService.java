@@ -24,7 +24,7 @@ public class ListarHorarioService implements IListarHorarioService {
                         HorarioResponseDTO.builder()
                                 .id(horario.getId())
                                 .horario(horario.getHorario())
-                                .usuario(horario.getUsuario().getId())
+                                .usuario(horario.getUsuarioId())
                                 .data_criacao(horario.getData_criacao())
                                 .build()
                 ).collect(Collectors.toList());

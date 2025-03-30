@@ -31,9 +31,8 @@ public class Horario {
     @JsonProperty
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "usuario_id", nullable = false)  // This column should map to the foreign key in the database
-    private Usuario usuario;
+    @Column(name = "usuario_id", nullable = false)
+    private UUID usuarioId;
 
     @Column(name = "horario", nullable = false)
     @Pattern(regexp = "^([01]\\d|2[0-3]):[0-5]\\d$", message = "O horário deve estar no formato HH:mm")

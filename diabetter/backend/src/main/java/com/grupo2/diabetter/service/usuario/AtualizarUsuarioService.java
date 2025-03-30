@@ -37,7 +37,6 @@ public class AtualizarUsuarioService implements IAtualizarUsuarioService {
         usuario.setTipoDiabetes(dto.getTipoDiabetes());
         usuario.setTipoInsulina(dto.getTipoInsulina());
         usuario.setComorbidades(dto.getComorbidades());
-        usuario.setHorarios_afericao(dto.getHorarios_afericao());
 
         return this.usuarioRepository.save(usuario);
     }

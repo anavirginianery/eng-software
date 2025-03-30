@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public interface HorarioRepository extends JpaRepository<Horario, UUID> {
 
-    @Query("SELECT h FROM Horario h WHERE h.usuario.id = :userId")
-    List<Horario> findAllByUserId(@Param("userId") UUID userId);
+    @Query("SELECT h FROM Horario h WHERE h.usuarioId = :usuarioId")
+    List<Horario> findAllByUserId(@Param("usuarioId") UUID usuarioId);
 
 }

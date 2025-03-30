@@ -80,10 +80,4 @@ public class Usuario {
 
     @Column(nullable = true)
     private List<String> comorbidades;
-
-    @Column(nullable = true)
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
-    private List<Horario> horarios_afericao;
-
-
 }
