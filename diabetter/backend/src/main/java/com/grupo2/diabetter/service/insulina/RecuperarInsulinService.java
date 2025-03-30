@@ -25,7 +25,7 @@ public class RecuperarInsulinService implements IRecuperarInsulinaService {
                 .tipoInsulina(insulin.getTipoInsulina())
                 .unidades(insulin.getUnidades())
                 .horarioId(insulin.getHorario().getId())
-                .glicemia(insulin.getGlicemia() != null ? insulin.getGlicemia() : null)
+                .glicemia(insulin.getGlicemia() != null ? insulin.getGlicemia().getId() : null)
                 .dataAplicacao(insulin.getDataAplicacao())
                 .build();
     }

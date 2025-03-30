@@ -13,6 +13,8 @@ import com.grupo2.diabetter.service.insulina.interfaces.ICriarInsulinaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 public class CriarInsulinService implements ICriarInsulinaService {
 
@@ -52,13 +54,12 @@ public class CriarInsulinService implements ICriarInsulinaService {
         Glicemia glicemia = glicemiaRepository.findById(requestDTO.getGlicemia())
                 .orElseThrow(() -> new CommerceException("Glicemia não encontrada"));
 
-        // Create the Insulina entity
         Insulina insulina = Insulina.builder()
                 .tipoInsulina(requestDTO.getTipoInsulina())
                 .unidades(requestDTO.getUnidades())
                 .horario(horario)
                 .glicemia(glicemia)
-                .dataAplicacao(requestDTO.getDataAplicacao())
+                .dataAplicacao(LocalDateTime.now())
                 .build();
 
         Insulina insulinaSalva = insulinRepository.save(insulina);
@@ -68,8 +69,8 @@ public class CriarInsulinService implements ICriarInsulinaService {
                 .tipoInsulina(insulinaSalva.getTipoInsulina())
                 .unidades(insulinaSalva.getUnidades())
                 .horarioId(insulinaSalva.getHorario().getId())
-                .horario(insulinaSalva.getHorario())
-                .glicemia(insulinaSalva.getGlicemia())
+                .horario(insulinaSalva.getHorario().getId())
+                .glicemia(insulinaSalva.getGlicemia().getId())
                 .dataAplicacao(insulinaSalva.getDataAplicacao())
                 .build();
     }

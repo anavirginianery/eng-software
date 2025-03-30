@@ -26,7 +26,7 @@ public class ListarInsulinService implements IListarInsulinaService {
                         .tipoInsulina(insulina.getTipoInsulina())
                         .unidades(insulina.getUnidades())
                         .horarioId(insulina.getHorario().getId())
-                        .glicemia(insulina.getGlicemia() != null ? insulina.getGlicemia() : null)
+                        .glicemia(insulina.getGlicemia() != null ? insulina.getGlicemia().getId() : null)
                         .dataAplicacao(insulina.getDataAplicacao())
                         .build()
         ).collect(Collectors.toList());
@@ -41,7 +41,7 @@ public class ListarInsulinService implements IListarInsulinaService {
                         .tipoInsulina(insulina.getTipoInsulina())
                         .unidades(insulina.getUnidades())
                         .horarioId(insulina.getHorario().getId())
-                        .glicemia(insulina.getGlicemia() != null ? insulina.getGlicemia() : null)
+                        .glicemia(insulina.getGlicemia() != null ? insulina.getGlicemia().getId() : null)
                         .dataAplicacao(insulina.getDataAplicacao())
                         .build()
         ).collect(Collectors.toList());

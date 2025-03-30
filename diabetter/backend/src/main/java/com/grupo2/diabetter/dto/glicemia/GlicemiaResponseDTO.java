@@ -24,11 +24,11 @@ public class GlicemiaResponseDTO {
 
     private float valorGlicemia;
 
-    private Horario horario;
+    private UUID horario;
 
     private LocalDateTime createdAt;
 
-    private Insulina insulina;
+    private UUID insulina;
 
     private String comentario;
     

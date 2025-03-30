@@ -20,12 +20,13 @@ public class ListarGlicemiasService implements IListarGlicemiasService {
     @Override
     public List<GlicemiaResponseDTO> executar() {
         List<Glicemia> glicemias = glicemiaRepository.findAll();
+
         return glicemias.stream().map(glicemia ->
                 GlicemiaResponseDTO.builder()
                         .id(glicemia.getId())
                         .valorGlicemia(glicemia.getValorGlicemia())
-                        .horario(glicemia.getHorario())
-                        .insulina(glicemia.getInsulina())
+                        .horario(glicemia.getHorario() != null ? glicemia.getHorario().getId() : null)
+                        .insulina(glicemia.getInsulina() != null ? glicemia.getInsulina().getId() : null)
                         .comentario(glicemia.getComentario())
                         .createdAt(glicemia.getCreatedAt())
                         .build()
@@ -39,8 +40,8 @@ public class ListarGlicemiasService implements IListarGlicemiasService {
                 GlicemiaResponseDTO.builder()
                         .id(glicemia.getId())
                         .valorGlicemia(glicemia.getValorGlicemia())
-                        .horario(glicemia.getHorario())
-                        .insulina(glicemia.getInsulina())
+                        .horario(glicemia.getHorario() != null ? glicemia.getHorario().getId() : null)
+                        .insulina(glicemia.getInsulina() != null ? glicemia.getInsulina().getId() : null)
                         .comentario(glicemia.getComentario())
                         .createdAt(glicemia.getCreatedAt())
                         .build()

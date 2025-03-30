@@ -44,8 +44,8 @@ public class AtualizarGlicemiaService implements IAtualizarGlicemiaService {
         return GlicemiaResponseDTO.builder()
                 .id(glicemia.getId())
                 .valorGlicemia(glicemia.getValorGlicemia())
-                .horario(glicemia.getHorario())
-                .insulina(glicemia.getInsulina() != null ? glicemia.getInsulina() : null)
+                .horario(glicemia.getHorario().getId())
+                .insulina(glicemia.getInsulina() != null ? glicemia.getInsulina().getId() : null)
                 .comentario(glicemia.getComentario())
                 .createdAt(glicemia.getCreatedAt())
                 .build();

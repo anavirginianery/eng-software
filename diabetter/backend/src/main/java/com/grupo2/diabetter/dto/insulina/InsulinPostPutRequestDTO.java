@@ -21,5 +21,4 @@ public class InsulinPostPutRequestDTO {
     private float unidades;
     private UUID horarioId;
     private UUID glicemia;
-    private LocalDateTime dataAplicacao;
 }

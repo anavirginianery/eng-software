@@ -3,11 +3,14 @@ package com.grupo2.diabetter.controller;
 import com.grupo2.diabetter.dto.insulina.InsulinDeleteResponseDTO;
 import com.grupo2.diabetter.dto.insulina.InsulinPostPutRequestDTO;
 import com.grupo2.diabetter.dto.insulina.InsulinResponseDTO;
+import com.grupo2.diabetter.dto.insulina.IntervaloDataDTO;
 import com.grupo2.diabetter.service.insulina.interfaces.ICriarInsulinaService;
 import com.grupo2.diabetter.service.insulina.interfaces.IRecuperarInsulinaService;
 import com.grupo2.diabetter.service.insulina.interfaces.IListarInsulinaService;
 import com.grupo2.diabetter.service.insulina.interfaces.IAtualizarInsulinaService;
 import com.grupo2.diabetter.service.insulina.interfaces.IDeletarInsulinaService;
+import com.grupo2.diabetter.service.insulina.interfaces.IListarInsulinaPorIntervalo;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +24,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -42,6 +47,9 @@ public class InsulinController {
 
     @Autowired
     private IDeletarInsulinaService deletarInsulinService;
+
+    @Autowired
+    private IListarInsulinaPorIntervalo listarInsulinasPorIntervalo;
 
     @PostMapping
     public ResponseEntity<InsulinResponseDTO> criarInsulina(@RequestBody InsulinPostPutRequestDTO requestDTO) {
@@ -65,6 +73,11 @@ public class InsulinController {
     public ResponseEntity<List<InsulinResponseDTO>> listarInsulinaPorHorario(@PathVariable UUID horarioId) {
         List<InsulinResponseDTO> response = listarInsulinService.listarInsulinaPorHorario(horarioId);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/insulinas-por-intervalo")
+    public Map<LocalDate, Double> listarInsulinas(@RequestBody @Valid IntervaloDataDTO dto) {
+        return listarInsulinasPorIntervalo.listarInsulinasPorIntervalo(dto);
     }
 
     @PutMapping("/{id}")

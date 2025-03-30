@@ -12,6 +12,8 @@ import com.grupo2.diabetter.service.glicemia.interfaces.ICriarGlicemiaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 public class CriarGlicemiaService implements ICriarGlicemiaService {
 
@@ -44,6 +46,7 @@ public class CriarGlicemiaService implements ICriarGlicemiaService {
                 .horario(horario)
                 .insulina(insulina)
                 .comentario(dto.getComentario())
+                .createdAt(LocalDateTime.now())
                 .build();
 
         glicemiaRepository.save(glicemia);
@@ -51,8 +54,8 @@ public class CriarGlicemiaService implements ICriarGlicemiaService {
         GlicemiaResponseDTO glicemiaResponseDTO = GlicemiaResponseDTO.builder()
                 .id(glicemia.getId())
                 .valorGlicemia(glicemia.getValorGlicemia())
-                .horario(glicemia.getHorario())
-                .insulina(glicemia.getInsulina() != null ? glicemia.getInsulina() : null)
+                .horario(glicemia.getHorario().getId())
+                .insulina(glicemia.getInsulina() != null ? glicemia.getInsulina().getId() : null)
                 .comentario(glicemia.getComentario())
                 .createdAt(glicemia.getCreatedAt())
                 .build();

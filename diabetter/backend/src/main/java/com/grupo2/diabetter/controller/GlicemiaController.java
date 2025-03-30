@@ -2,12 +2,13 @@ package com.grupo2.diabetter.controller;
 
 import com.grupo2.diabetter.dto.glicemia.GlicemiaPostPutRequestDto;
 import com.grupo2.diabetter.dto.glicemia.GlicemiaResponseDTO;
+import com.grupo2.diabetter.dto.glicemia.IntervaloDataDTO;
 import com.grupo2.diabetter.service.glicemia.interfaces.ICriarGlicemiaService;
 import com.grupo2.diabetter.service.glicemia.interfaces.IAtualizarGlicemiaService;
 import com.grupo2.diabetter.service.glicemia.interfaces.IDeletarGlicemiaService;
 import com.grupo2.diabetter.service.glicemia.interfaces.IListarGlicemiasService;
 import com.grupo2.diabetter.service.glicemia.interfaces.IRecuperarGlicemiaService;
-
+import com.grupo2.diabetter.service.glicemia.interfaces.IListarGlicemiaPorIntervalo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,7 +24,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import jakarta.validation.Valid;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -40,6 +43,8 @@ public class GlicemiaController {
     private IRecuperarGlicemiaService recuperarGlicemiaService;
     @Autowired
     private IDeletarGlicemiaService deletarGlicemiaService;
+    @Autowired
+    private IListarGlicemiaPorIntervalo listarGlicemiasPorIntervalo;
 
     @GetMapping
     public ResponseEntity<List<GlicemiaResponseDTO>> listarGlicemias() {
@@ -53,6 +58,10 @@ public class GlicemiaController {
         return ResponseEntity.status(HttpStatus.OK).body(glicemias);
     }
 
+    @PostMapping("/glicemias-por-intervalo")
+    public Map<LocalDate, Double> listarGlicemias(@RequestBody @Valid IntervaloDataDTO dto) {
+        return listarGlicemiasPorIntervalo.listarGlicemiasPorIntervalo(dto);
+    }
 
     // Não deveria retornar um DTO?
     @PostMapping

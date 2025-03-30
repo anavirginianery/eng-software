@@ -55,8 +55,8 @@ public class AtualizarInsulinService implements IAtualizarInsulinaService {
                 .tipoInsulina(insulinAtualizada.getTipoInsulina())
                 .unidades(insulinAtualizada.getUnidades())
                 .horarioId(insulinAtualizada.getHorario().getId())
-                .horario(insulinAtualizada.getHorario())
-                .glicemia(insulinAtualizada.getGlicemia() != null ? insulinAtualizada.getGlicemia() : null)
+                .horario(insulinAtualizada.getHorario().getId())
+                .glicemia(insulinAtualizada.getGlicemia() != null ? insulinAtualizada.getGlicemia().getId() : null)
                 .dataAplicacao(insulinAtualizada.getDataAplicacao())
                 .build();
     }

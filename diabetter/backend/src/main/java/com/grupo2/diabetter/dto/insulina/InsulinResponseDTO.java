@@ -16,7 +16,7 @@ public class InsulinResponseDTO {
     private UUID horarioId;
     private TipoInsulina tipoInsulina;
     private float unidades;
-    private Glicemia glicemia;
-    private Horario horario;
+    private UUID glicemia;
+    private UUID horario;
     private LocalDateTime dataAplicacao;
 }

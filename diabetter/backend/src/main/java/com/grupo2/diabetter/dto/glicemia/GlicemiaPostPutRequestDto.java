@@ -28,8 +28,6 @@ public class GlicemiaPostPutRequestDto {
 
     private UUID horario;
 
-    private LocalDateTime createdAt;
-
     private UUID insulina;
 
     private String comentario;
