@@ -123,7 +123,7 @@ export default function KeyFilter() {
 
   if (perfilSalvo && !editMode) {
     return (
-      <div className="bg-white rounded-lg shadow-lg p-6">
+      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-4xl mx-auto my-4">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-800">Seu Perfil</h2>
           <button
@@ -171,7 +171,7 @@ export default function KeyFilter() {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6">
+    <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-4xl mx-auto my-4">
       <h2 className="text-2xl font-bold text-gray-800 mb-6">
         {editMode ? "Editar Perfil" : "Complete seu Perfil"}
       </h2>

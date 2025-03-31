@@ -10,9 +10,10 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { Eye } from "lucide-react";
+import { Eye, Download } from "lucide-react";
 import { db } from "@/config/firebase";
 import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
+import jsPDF from "jspdf";
 
 type TimeFrame = "dia" | "semana" | "mês" | "ano" | "geral";
 
@@ -173,6 +174,49 @@ export default function Dashboard() {
     insulina: registro.insulina
   }));
 
+  const exportarParaPDF = () => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    
+    // Título
+    doc.setFontSize(20);
+    doc.text("Relatório de Medições", pageWidth / 2, 20, { align: "center" });
+    
+    // Período selecionado
+    doc.setFontSize(12);
+    doc.text(`Período: ${selectedTime.charAt(0).toUpperCase() + selectedTime.slice(1)}`, 20, 30);
+    
+    // Horário selecionado
+    if (selectedHour) {
+      doc.text(`Horário: ${selectedHour}`, 20, 40);
+    }
+    
+    // Data de geração
+    const dataAtual = new Date().toLocaleDateString('pt-BR');
+    doc.text(`Gerado em: ${dataAtual}`, 20, 50);
+    
+    // Dados
+    doc.setFontSize(10);
+    let yPos = 70;
+    
+    dadosGrafico.forEach((dado, index) => {
+      if (yPos > pageHeight - 20) {
+        doc.addPage();
+        yPos = 20;
+      }
+      
+      doc.text(`Data: ${dado.name}`, 20, yPos);
+      doc.text(`Glicemia: ${dado.glicemia} mg/dL`, 20, yPos + 7);
+      doc.text(`Insulina: ${dado.insulina} UI`, 20, yPos + 14);
+      
+      yPos += 30;
+    });
+    
+    // Salvar o PDF
+    doc.save(`relatorio-medicoes-${dataAtual}.pdf`);
+  };
+
   if (loading) {
     return (
       <main className="px-4 sm:px-6 lg:px-8 py-6 bg-gradient-to-t from-[#B4E4E2] to-[#E7F5F4] min-h-screen">
@@ -217,7 +261,7 @@ export default function Dashboard() {
           <div className="flex-1 flex flex-col p-3">
             <div className="flex flex-col flex-1">
               {/* Controls Section */}
-              <div className="flex items-center mb-2">
+              <div className="flex items-center justify-between mb-2">
                 <div className="w-full overflow-x-auto">
                   <div className="flex gap-2 min-w-max">
                     <button
@@ -247,6 +291,13 @@ export default function Dashboard() {
                     ))}
                   </div>
                 </div>
+                <button
+                  onClick={exportarParaPDF}
+                  className="ml-4 inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-[#337F7B] rounded-md hover:bg-[#2A6A67] transition-colors"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Exportar
+                </button>
               </div>
 
               {/* Chart Section */}
