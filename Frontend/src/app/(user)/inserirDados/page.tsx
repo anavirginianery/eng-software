@@ -6,6 +6,8 @@ import { useState } from "react";
 export default function InserirDados() {
   const [quantidade, setQuantidade] = useState("");
   const [horario, setHorario] = useState("");
+  const [glicemia, setGlicemia] = useState("");
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,6 +85,19 @@ export default function InserirDados() {
             </div>
 
             <form className="px-4" onSubmit={handleSubmit}>
+            <div className="mb-8">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Glicemia
+              </label>
+              <input
+                type="number"
+                value={glicemia}
+                onChange={(e) => setGlicemia(e.target.value)}
+                placeholder="Digite sua glicemia (mg/dL)"
+                className="w-full p-3 bg-[#E5E5E5] rounded-md border-none focus:ring-2 focus:ring-[#38B2AC] transition-all"
+                required
+              />
+            </div>
               <div className="mb-8">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Insulina
