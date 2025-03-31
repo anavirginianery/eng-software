@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   LineChart,
   Line,
@@ -10,35 +10,222 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { Eye } from "lucide-react";
+import { Eye, Download } from "lucide-react";
+import { db } from "@/config/firebase";
+import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
+import jsPDF from "jspdf";
 
 type TimeFrame = "dia" | "semana" | "mês" | "ano" | "geral";
 
-const data = [
-  { name: "Segunda", glicemia: 150 },
-  { name: "Terça", glicemia: 350 },
-  { name: "Quarta", glicemia: 190 },
-  { name: "Quinta", glicemia: 150 },
-  { name: "Sexta", glicemia: 300 },
-  { name: "Sábado", glicemia: 280 },
-  { name: "Domingo", glicemia: 220 },
-];
+interface RegistroMedicao {
+  id: string;
+  userId: string;
+  insulina: number;
+  glicemia: number;
+  horario: string;
+  data: Date;
+  timestamp: number;
+  nomeUsuario: string;
+}
 
-const timeButtons = [
-  { label: "Todos", value: "" },
-  { label: "08:00", value: "08:00" },
-  { label: "11:00", value: "11:00" },
-  { label: "14:00", value: "14:00" },
-  { label: "16:00", value: "16:00" },
-  { label: "19:00", value: "19:00" },
-  { label: "22:00", value: "22:00" },
-];
+interface HorarioCadastrado {
+  horario: string;
+}
 
 const timeFrames: TimeFrame[] = ["dia", "semana", "mês", "ano", "geral"];
 
 export default function Dashboard() {
   const [selectedTime, setSelectedTime] = useState<TimeFrame>("semana");
   const [selectedHour, setSelectedHour] = useState<string>("");
+  const [registros, setRegistros] = useState<RegistroMedicao[]>([]);
+  const [horariosCadastrados, setHorariosCadastrados] = useState<HorarioCadastrado[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const buscarDados = async () => {
+      try {
+        const usuarioLocal = localStorage.getItem("usuario");
+        if (!usuarioLocal) {
+          console.error("Usuário não encontrado no localStorage");
+          alert("Usuário não encontrado. Por favor, faça login novamente.");
+          return;
+        }
+
+        const usuarioData = JSON.parse(usuarioLocal);
+        console.log("Dados do usuário:", usuarioData);
+        
+        if (!usuarioData.uid) {
+          console.error("UID do usuário não encontrado");
+          alert("ID do usuário não encontrado. Por favor, faça login novamente.");
+          return;
+        }
+
+        // Buscar horários cadastrados do usuário
+        try {
+          const userDoc = await getDoc(doc(db, "usuarios", usuarioData.uid));
+          console.log("Documento do usuário:", userDoc.exists() ? userDoc.data() : "Não encontrado");
+          
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            const horarios = userData.horarios_afericao || [];
+            console.log("Horários encontrados:", horarios);
+            setHorariosCadastrados(horarios.map((h: string) => ({ horario: h })));
+          } else {
+            console.warn("Documento do usuário não encontrado no Firestore");
+            setHorariosCadastrados([]);
+          }
+        } catch (error) {
+          console.error("Erro ao buscar dados do usuário:", error);
+          setHorariosCadastrados([]);
+        }
+
+        // Calcular data inicial baseado no período selecionado
+        const hoje = new Date();
+        let dataInicial = new Date();
+        
+        switch (selectedTime) {
+          case "dia":
+            dataInicial.setHours(0, 0, 0, 0);
+            break;
+          case "semana":
+            dataInicial.setDate(hoje.getDate() - 7);
+            break;
+          case "mês":
+            dataInicial.setMonth(hoje.getMonth() - 1);
+            break;
+          case "ano":
+            dataInicial.setFullYear(hoje.getFullYear() - 1);
+            break;
+          case "geral":
+            dataInicial = new Date(0); // Data inicial do timestamp
+            break;
+        }
+
+        console.log("Data inicial para busca:", dataInicial);
+
+        // Buscar registros de medição
+        const medicoesRef = collection(db, "medicoes");
+        const q = query(
+          medicoesRef,
+          where("userId", "==", usuarioData.uid),
+          where("timestamp", ">=", dataInicial.getTime())
+        );
+
+        console.log("Query de medições:", q);
+
+        const querySnapshot = await getDocs(q);
+        console.log("Número de documentos encontrados:", querySnapshot.size);
+        
+        const medicoes: RegistroMedicao[] = [];
+        
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          console.log("Dados do documento:", data);
+          try {
+            medicoes.push({
+              id: doc.id,
+              userId: data.userId,
+              insulina: data.insulina,
+              glicemia: data.glicemia,
+              horario: data.horario,
+              data: data.data.toDate(),
+              timestamp: data.timestamp,
+              nomeUsuario: data.nomeUsuario
+            });
+          } catch (error) {
+            console.error("Erro ao processar documento:", doc.id, error);
+          }
+        });
+
+        console.log("Medições processadas:", medicoes);
+        setRegistros(medicoes);
+      } catch (error) {
+        console.error("Erro detalhado ao buscar dados:", error);
+        alert(`Erro ao carregar os dados do dashboard: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    buscarDados();
+  }, [selectedTime]);
+
+  const filtrarDados = () => {
+    let dadosFiltrados = [...registros];
+    
+    if (selectedHour) {
+      dadosFiltrados = dadosFiltrados.filter(registro => registro.horario === selectedHour);
+    }
+
+    // Ordenar por data
+    dadosFiltrados.sort((a, b) => a.timestamp - b.timestamp);
+
+    return dadosFiltrados;
+  };
+
+  const dadosGrafico = filtrarDados().map(registro => ({
+    name: registro.data.toLocaleDateString('pt-BR', { 
+      day: '2-digit',
+      month: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    }),
+    glicemia: registro.glicemia,
+    insulina: registro.insulina
+  }));
+
+  const exportarParaPDF = () => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    
+    // Título
+    doc.setFontSize(20);
+    doc.text("Relatório de Medições", pageWidth / 2, 20, { align: "center" });
+    
+    // Período selecionado
+    doc.setFontSize(12);
+    doc.text(`Período: ${selectedTime.charAt(0).toUpperCase() + selectedTime.slice(1)}`, 20, 30);
+    
+    // Horário selecionado
+    if (selectedHour) {
+      doc.text(`Horário: ${selectedHour}`, 20, 40);
+    }
+    
+    // Data de geração
+    const dataAtual = new Date().toLocaleDateString('pt-BR');
+    doc.text(`Gerado em: ${dataAtual}`, 20, 50);
+    
+    // Dados
+    doc.setFontSize(10);
+    let yPos = 70;
+    
+    dadosGrafico.forEach((dado, index) => {
+      if (yPos > pageHeight - 20) {
+        doc.addPage();
+        yPos = 20;
+      }
+      
+      doc.text(`Data: ${dado.name}`, 20, yPos);
+      doc.text(`Glicemia: ${dado.glicemia} mg/dL`, 20, yPos + 7);
+      doc.text(`Insulina: ${dado.insulina} UI`, 20, yPos + 14);
+      
+      yPos += 30;
+    });
+    
+    // Salvar o PDF
+    doc.save(`relatorio-medicoes-${dataAtual}.pdf`);
+  };
+
+  if (loading) {
+    return (
+      <main className="px-4 sm:px-6 lg:px-8 py-6 bg-gradient-to-t from-[#B4E4E2] to-[#E7F5F4] min-h-screen">
+        <div className="flex items-center justify-center h-full">
+          <div className="text-gray-600">Carregando dados...</div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="px-4 sm:px-6 lg:px-8 py-6 bg-gradient-to-t from-[#B4E4E2] to-[#E7F5F4] min-h-screen">
@@ -74,32 +261,50 @@ export default function Dashboard() {
           <div className="flex-1 flex flex-col p-3">
             <div className="flex flex-col flex-1">
               {/* Controls Section */}
-              <div className="flex items-center mb-2">
+              <div className="flex items-center justify-between mb-2">
                 <div className="w-full overflow-x-auto">
                   <div className="flex gap-2 min-w-max">
-                    {timeButtons.map((button) => (
+                    <button
+                      onClick={() => setSelectedHour("")}
+                      className={`px-3 py-1.5 text-sm font-medium transition-colors rounded-md min-w-[70px]
+                        ${
+                          selectedHour === ""
+                            ? "bg-[#337F7B] text-white"
+                            : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                        }`}
+                    >
+                      Todos
+                    </button>
+                    {horariosCadastrados.map((horario) => (
                       <button
-                        key={button.value}
-                        onClick={() => setSelectedHour(button.value)}
+                        key={horario.horario}
+                        onClick={() => setSelectedHour(horario.horario)}
                         className={`px-3 py-1.5 text-sm font-medium transition-colors rounded-md min-w-[70px]
                           ${
-                            selectedHour === button.value
+                            selectedHour === horario.horario
                               ? "bg-[#337F7B] text-white"
                               : "bg-gray-100 hover:bg-gray-200 text-gray-700"
                           }`}
                       >
-                        {button.label}
+                        {horario.horario}
                       </button>
                     ))}
                   </div>
                 </div>
+                <button
+                  onClick={exportarParaPDF}
+                  className="ml-4 inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-[#337F7B] rounded-md hover:bg-[#2A6A67] transition-colors"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Exportar
+                </button>
               </div>
 
               {/* Chart Section */}
               <div className="flex-1 min-h-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart
-                    data={data}
+                    data={dadosGrafico}
                     margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
@@ -132,6 +337,14 @@ export default function Dashboard() {
                       stroke="#38B2AC"
                       strokeWidth={2}
                       dot={{ fill: "#38B2AC", strokeWidth: 2, r: 3 }}
+                      activeDot={{ r: 5 }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="insulina"
+                      stroke="#F59E0B"
+                      strokeWidth={2}
+                      dot={{ fill: "#F59E0B", strokeWidth: 2, r: 3 }}
                       activeDot={{ r: 5 }}
                     />
                   </LineChart>

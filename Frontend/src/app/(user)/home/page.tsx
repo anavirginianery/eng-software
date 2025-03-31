@@ -1,18 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Eye } from "lucide-react";
 import { LineChart, Line, ResponsiveContainer } from "recharts";
-
-const timeButtons = [
-  { label: "Todos", value: "" },
-  { label: "08:00", value: "08:00" },
-  { label: "11:00", value: "11:00" },
-  { label: "14:00", value: "14:00" },
-  { label: "16:00", value: "16:00" },
-  { label: "19:00", value: "19:00" },
-  { label: "22:00", value: "22:00" },
-];
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/config/firebase";
+import { collection, query, where, getDocs } from "firebase/firestore";
 
 const generateMockData = () => {
   return Array.from({ length: 7 }, (_, i) => ({
@@ -66,39 +59,31 @@ const CircularProgress = ({
 
 const MetricCard = ({
   title,
-  diaValue,
   acValue,
   circleValue,
   bgColor,
   lineColor,
   progressColor,
+  data,
 }: {
   title: string;
-  diaValue: number;
   acValue: number;
   circleValue: number;
   bgColor: string;
   lineColor: string;
   progressColor: string;
+  data: any[];
 }) => {
-  const data = generateMockData();
-
   return (
     <div
-      className={` px-10 sm:px-6 lg:px-8 py-6 ${bgColor} rounded-xl shadow-sm relative`}
+      className={`px-10 sm:px-6 lg:px-8 py-6 ${bgColor} rounded-xl shadow-sm relative`}
     >
       <div className="flex items-center justify-between mb-6">
         <div className="flex-1">
           <h3 className="text-gray-700 font-medium mb-4">{title}</h3>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <span className="text-sm text-gray-600">Dia</span>
-              <div className="text-2xl font-bold text-gray-900">{diaValue}</div>
-            </div>
-            <div>
-              <span className="text-sm text-gray-600">AC</span>
-              <div className="text-2xl font-bold text-gray-900">{acValue}</div>
-            </div>
+          <div>
+            <span className="text-sm text-gray-600">AC</span>
+            <div className="text-2xl font-bold text-gray-900">{acValue}</div>
           </div>
         </div>
         <div className="ml-4">
@@ -124,6 +109,103 @@ const MetricCard = ({
 
 export default function Home() {
   const [selectedHour, setSelectedHour] = useState<string>("");
+  const [timeButtons, setTimeButtons] = useState<{ label: string; value: string }[]>([
+    { label: "Todos", value: "" }
+  ]);
+  const [registros, setRegistros] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const carregarDados = async () => {
+      try {
+        const usuarioLocal = localStorage.getItem("usuario");
+        if (!usuarioLocal) return;
+
+        const usuarioData = JSON.parse(usuarioLocal);
+        const userDoc = await getDoc(doc(db, "usuarios", usuarioData.uid));
+        
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          const horarios = userData.horarios_afericao || [];
+          
+          const buttons = [
+            { label: "Todos", value: "" },
+            ...horarios.map((horario: string) => ({
+              label: horario,
+              value: horario
+            }))
+          ];
+          
+          setTimeButtons(buttons);
+
+          // Buscar registros de medição
+          const medicoesRef = collection(db, "medicoes");
+          const q = query(
+            medicoesRef,
+            where("userId", "==", usuarioData.uid)
+          );
+
+          const querySnapshot = await getDocs(q);
+          const medicoes = querySnapshot.docs.map(doc => ({
+            ...doc.data(),
+            id: doc.id
+          }));
+
+          setRegistros(medicoes);
+        }
+      } catch (error) {
+        console.error("Erro ao carregar dados:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    carregarDados();
+  }, []);
+
+  const filtrarDados = () => {
+    let dadosFiltrados = [...registros];
+    
+    if (selectedHour) {
+      dadosFiltrados = dadosFiltrados.filter(registro => registro.horario === selectedHour);
+    }
+
+    return dadosFiltrados;
+  };
+
+  const calcularMediaGlicemia = () => {
+    const dados = filtrarDados();
+    if (dados.length === 0) return 0;
+    const soma = dados.reduce((acc, curr) => acc + curr.glicemia, 0);
+    return Math.round(soma / dados.length);
+  };
+
+  const calcularMediaInsulina = () => {
+    const dados = filtrarDados();
+    if (dados.length === 0) return 0;
+    const soma = dados.reduce((acc, curr) => acc + curr.insulina, 0);
+    return Math.round(soma / dados.length);
+  };
+
+  const dadosGlicemia = filtrarDados().map(registro => ({
+    name: new Date(registro.timestamp).toLocaleDateString('pt-BR'),
+    value: registro.glicemia
+  }));
+
+  const dadosInsulina = filtrarDados().map(registro => ({
+    name: new Date(registro.timestamp).toLocaleDateString('pt-BR'),
+    value: registro.insulina
+  }));
+
+  if (loading) {
+    return (
+      <main className="p-4 sm:p-8 bg-gradient-to-t from-[#B4E4E2] to-[#E7F5F4] min-h-screen">
+        <div className="flex items-center justify-center h-full">
+          <div className="text-gray-600">Carregando dados...</div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="p-4 sm:p-8 bg-gradient-to-t from-[#B4E4E2] to-[#E7F5F4] min-h-screen">
@@ -158,39 +240,21 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <MetricCard
             title="Média Glicemia"
-            diaValue={1000}
-            acValue={500}
-            circleValue={200}
+            acValue={calcularMediaGlicemia()}
+            circleValue={calcularMediaGlicemia()}
             bgColor="bg-gradient-to-br from-green-50 to-white"
             lineColor="#10B981"
             progressColor="text-emerald-500"
+            data={dadosGlicemia}
           />
           <MetricCard
-            title="Desvio Padrão"
-            diaValue={1000}
-            acValue={500}
-            circleValue={59}
-            bgColor="bg-gradient-to-br from-pink-50 to-white"
-            lineColor="#EC4899"
-            progressColor="text-pink-500"
-          />
-          <MetricCard
-            title="CV Geral"
-            diaValue={1000}
-            acValue={500}
-            circleValue={200}
+            title="Média Insulina"
+            acValue={calcularMediaInsulina()}
+            circleValue={calcularMediaInsulina()}
             bgColor="bg-gradient-to-br from-blue-50 to-white"
             lineColor="#3B82F6"
             progressColor="text-blue-500"
-          />
-          <MetricCard
-            title="HbA1c"
-            diaValue={1000}
-            acValue={500}
-            circleValue={200}
-            bgColor="bg-gradient-to-br from-yellow-50 to-white"
-            lineColor="#F59E0B"
-            progressColor="text-yellow-500"
+            data={dadosInsulina}
           />
         </div>
       </div>

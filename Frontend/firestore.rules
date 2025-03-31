@@ -1,0 +1,44 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /usuarios/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      // Permite que o usuário atualize seus próprios dados
+      allow update: if request.auth != null 
+        && request.auth.uid == userId
+        && request.resource.data.keys().hasAll(['peso', 'altura', 'tipoDiabetes', 'tipoInsulina', 'horarios_afericao'])
+        && request.resource.data.peso is number
+        && request.resource.data.altura is number;
+    }
+
+    match /medicoes/{medicaoId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      
+      // Permite criar novas medições com validação dos campos
+      allow create: if request.auth != null 
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.keys().hasAll(['glicemia', 'insulina', 'horario', 'timestamp'])
+        && request.resource.data.glicemia is number
+        && request.resource.data.glicemia > 0
+        && request.resource.data.insulina is number
+        && request.resource.data.insulina >= 0
+        && request.resource.data.horario is string
+        && request.resource.data.timestamp is number;
+
+      // Permite atualizar medições existentes
+      allow update: if request.auth != null 
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.keys().hasAll(['glicemia', 'insulina', 'horario', 'timestamp'])
+        && request.resource.data.glicemia is number
+        && request.resource.data.glicemia > 0
+        && request.resource.data.insulina is number
+        && request.resource.data.insulina >= 0;
+
+      // Permite deletar apenas suas próprias medições
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+  }
+} 
