@@ -1,18 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Eye } from "lucide-react";
 import { LineChart, Line, ResponsiveContainer } from "recharts";
-
-const timeButtons = [
-  { label: "Todos", value: "" },
-  { label: "08:00", value: "08:00" },
-  { label: "11:00", value: "11:00" },
-  { label: "14:00", value: "14:00" },
-  { label: "16:00", value: "16:00" },
-  { label: "19:00", value: "19:00" },
-  { label: "22:00", value: "22:00" },
-];
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/config/firebase";
 
 const generateMockData = () => {
   return Array.from({ length: 7 }, (_, i) => ({
@@ -124,6 +116,40 @@ const MetricCard = ({
 
 export default function Home() {
   const [selectedHour, setSelectedHour] = useState<string>("");
+  const [timeButtons, setTimeButtons] = useState<{ label: string; value: string }[]>([
+    { label: "Todos", value: "" }
+  ]);
+
+  useEffect(() => {
+    const carregarHorarios = async () => {
+      try {
+        const usuarioLocal = localStorage.getItem("usuario");
+        if (!usuarioLocal) return;
+
+        const usuarioData = JSON.parse(usuarioLocal);
+        const userDoc = await getDoc(doc(db, "usuarios", usuarioData.uid));
+        
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          const horarios = userData.horarios_afericao || [];
+          
+          const buttons = [
+            { label: "Todos", value: "" },
+            ...horarios.map((horario: string) => ({
+              label: horario,
+              value: horario
+            }))
+          ];
+          
+          setTimeButtons(buttons);
+        }
+      } catch (error) {
+        console.error("Erro ao carregar horários:", error);
+      }
+    };
+
+    carregarHorarios();
+  }, []);
 
   return (
     <main className="p-4 sm:p-8 bg-gradient-to-t from-[#B4E4E2] to-[#E7F5F4] min-h-screen">
