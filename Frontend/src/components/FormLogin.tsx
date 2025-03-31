@@ -34,8 +34,14 @@ export default function FormLogin() {
       }
 
       const usuario = await response.json();
-      localStorage.setItem("usuario", JSON.stringify(usuario));
-      router.push("/dashboard");
+      localStorage.setItem("usuario", JSON.stringify({
+        id: usuario.id,
+        nome: usuario.nome,
+        email: usuario.email,
+        password,
+      }));
+      
+      router.push("/");
     } catch (error) {
       console.error("Erro ao fazer login:", error);
       alert("Erro ao fazer login. Tente novamente.");
