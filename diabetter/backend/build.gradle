@@ -1,0 +1,121 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.4.1'
+	id 'io.spring.dependency-management' version '1.1.7'
+	id 'jacoco'
+	id 'checkstyle'
+	id 'com.github.spotbugs' version '5.0.13'
+	id 'pmd'
+
+}
+
+group = 'com.grupo2'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+checkstyle {
+    toolVersion = '10.12.1'
+    configFile = file("config/checkstyle.xml")
+    ignoreFailures = false
+    showViolations = true
+}
+
+pmd {
+    toolVersion = '6.55.0'
+    ruleSets = ["java-quickstart"]
+    ignoreFailures = true
+}
+
+
+jacoco {
+    toolVersion = "0.8.10"
+}
+
+jacocoTestReport {
+    dependsOn test // Garante que os testes sejam executados antes do relatório
+    reports {
+        xml.required = true // Gera o arquivo XML para o Coverage Gutters
+        csv.required = false
+        html.required = true
+    }
+}
+
+test {
+    finalizedBy jacocoTestReport // Gera o relatório após os testes
+    useJUnitPlatform()
+}
+
+repositories {
+	mavenCentral()
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa' // Add JPA for Jakarta Persistence
+	implementation 'com.h2database:h2' // H2 Database for testing
+	implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'  // Jakarta Persistence
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf' // Optional for view rendering if needed
+	implementation 'org.springframework.boot:spring-boot-starter-validation' 
+	runtimeOnly 'org.postgresql:postgresql'
+	annotationProcessor 'org.projectlombok:lombok'
+	compileOnly 'org.projectlombok:lombok:1.18.24'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.2'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	implementation 'com.google.firebase:firebase-admin:8.0.0'
+	checkstyle 'com.puppycrawl.tools:checkstyle:10.12.1'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.0'
+
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+tasks.named("checkstyleTest").configure {
+	enabled = false
+}
+
+spotbugs {
+    toolVersion = '4.7.3'
+    ignoreFailures = true
+    showProgress = true
+    effort = 'max'
+    reportLevel = 'low'
+}
+
+spotbugsMain {
+    reports {
+        html {
+            enabled = true
+            destination = file("$buildDir/reports/spotbugs/main.html")
+        }
+        xml {
+            enabled = false
+        }
+    }
+}
+
+spotbugsTest {
+    reports {
+        html {
+            enabled = true
+            destination = file("$buildDir/reports/spotbugs/test.html")
+        }
+        xml {
+            enabled = false
+        }
+    }
+}
