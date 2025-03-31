@@ -3,6 +3,9 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { register } from "../services/authService";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "../config/firebase";
 
 export default function FormCadastro() {
   const router = useRouter();
@@ -25,28 +28,28 @@ export default function FormCadastro() {
     }
 
     try {
-      const response = await fetch("/api/usuarios", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      const user = await register(email, senha, nome);
+      if (user) {
+        // Salva os dados adicionais no Firestore
+        await setDoc(doc(db, "usuarios", user.uid), {
           nome,
           email,
-          password: senha,
           dataNasc: dataNascimento,
           genero: genero.toUpperCase(),
-        }),
-      });
+          dataCriacao: new Date()
+        });
 
-      if (!response.ok) {
-        throw new Error("Erro na resposta da API");
+        localStorage.setItem("usuario", JSON.stringify({
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName,
+          dataNasc: dataNascimento,
+          genero: genero
+        }));
+        
+        router.push("/dashboard");
       }
-
-      const data = await response.json();
-      localStorage.setItem("usuario", JSON.stringify(data));
-      router.push("/dashboard");      
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao cadastrar:", error);
       alert("Erro ao cadastrar. Verifique os dados ou tente novamente.");
     }

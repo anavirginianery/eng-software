@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { login } from "../services/authService";
 
 export default function FormLogin() {
   const [email, setEmail] = useState("");
@@ -18,27 +19,18 @@ export default function FormLogin() {
     }
 
     try {
-      const response = await fetch("/api/usuarios/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          return alert("Email ou senha inválidos");
-        }
-        throw new Error("Erro na resposta da API");
+      const user = await login(email, password);
+      if (user) {
+        localStorage.setItem("usuario", JSON.stringify({
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName
+        }));
+        router.push("/dashboard");
       }
-
-      const usuario = await response.json();
-      localStorage.setItem("usuario", JSON.stringify(usuario));
-      router.push("/dashboard");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao fazer login:", error);
-      alert("Erro ao fazer login. Tente novamente.");
+      alert("Email ou senha inválidos. Tente novamente.");
     }
   };
 
