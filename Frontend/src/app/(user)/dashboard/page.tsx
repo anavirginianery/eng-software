@@ -52,7 +52,6 @@ export default function Dashboard() {
         }
 
         const usuarioData = JSON.parse(usuarioLocal);
-        console.log("Dados do usuário:", usuarioData);
         
         if (!usuarioData.uid) {
           console.error("UID do usuário não encontrado");
@@ -63,12 +62,10 @@ export default function Dashboard() {
         // Buscar horários cadastrados do usuário
         try {
           const userDoc = await getDoc(doc(db, "usuarios", usuarioData.uid));
-          console.log("Documento do usuário:", userDoc.exists() ? userDoc.data() : "Não encontrado");
           
           if (userDoc.exists()) {
             const userData = userDoc.data();
             const horarios = userData.horarios_afericao || [];
-            console.log("Horários encontrados:", horarios);
             setHorariosCadastrados(horarios.map((h: string) => ({ horario: h })));
           } else {
             console.warn("Documento do usuário não encontrado no Firestore");
@@ -101,7 +98,6 @@ export default function Dashboard() {
             break;
         }
 
-        console.log("Data inicial para busca:", dataInicial);
 
         // Buscar registros de medição
         const medicoesRef = collection(db, "medicoes");
@@ -111,16 +107,13 @@ export default function Dashboard() {
           where("timestamp", ">=", dataInicial.getTime())
         );
 
-        console.log("Query de medições:", q);
 
         const querySnapshot = await getDocs(q);
-        console.log("Número de documentos encontrados:", querySnapshot.size);
         
         const medicoes: RegistroMedicao[] = [];
         
         querySnapshot.forEach((doc) => {
           const data = doc.data();
-          console.log("Dados do documento:", data);
           try {
             medicoes.push({
               id: doc.id,
@@ -137,7 +130,6 @@ export default function Dashboard() {
           }
         });
 
-        console.log("Medições processadas:", medicoes);
         setRegistros(medicoes);
       } catch (error) {
         console.error("Erro detalhado ao buscar dados:", error);

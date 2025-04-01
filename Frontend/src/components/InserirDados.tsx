@@ -15,7 +15,6 @@ export default function Form() {
     setLoading(true);
 
     try {
-      // Verifica se tem usuário logado
       const usuarioLocal = localStorage.getItem("usuario");
       if (!usuarioLocal) {
         alert("Usuário não encontrado. Por favor, faça login novamente.");
@@ -28,7 +27,6 @@ export default function Form() {
         return;
       }
 
-      // Verifica se já existe medição para este horário hoje
       const hoje = new Date();
       hoje.setHours(0, 0, 0, 0);
       
@@ -46,7 +44,6 @@ export default function Form() {
         return;
       }
 
-      // Prepara os dados para salvar
       const dadosMedicao = {
         userId: usuarioData.uid,
         insulina: Number(insulina),
@@ -57,15 +54,10 @@ export default function Form() {
         nomeUsuario: usuarioData.nome || "Usuário"
       };
 
-      console.log("Tentando salvar dados:", dadosMedicao);
-
-      // Salva os dados
       const docRef = await addDoc(collection(db, "medicoes"), dadosMedicao);
-      console.log("Documento salvo com ID:", docRef.id);
 
       alert("Dados salvos com sucesso!");
       
-      // Limpa o formulário
       setInsulina("");
       setGlicemia("");
       setHorario("");
