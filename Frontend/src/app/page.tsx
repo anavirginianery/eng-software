@@ -3,24 +3,14 @@
 import { Footer } from "@/components/Footer";
 import Header from "@/components/Header";
 import Image from "next/image";
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    const user = localStorage.getItem("usuario");
-    setIsLoggedIn(!!user);
-  }, []);
 
   const handleComecarAgora = () => {
-    if (isLoggedIn) {
-      router.push("/dashboard");
-    } else {
-      router.push("/cadastro");
-    }
+    router.push("/cadastro");
   };
 
   return (

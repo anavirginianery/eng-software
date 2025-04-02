@@ -33,7 +33,7 @@ const UserSidebar: React.FC<SidebarProps> = ({ className = "" }) => {
 
   const MobileHeader = () => (
     <header className="fixed top-0 left-0 right-0 z-20 flex items-center justify-between h-16 px-4 bg-[#FFFFFF] border-b border-gray-300 lg:hidden">
-      <Link href="/">
+      <Link href="/home">
         <Image
           src="/img/logo.png"
           alt="Logo"

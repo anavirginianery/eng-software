@@ -26,7 +26,7 @@ export default function FormLogin() {
           email: user.email,
           displayName: user.displayName
         }));
-        router.push("/dashboard");
+        router.push("/home");
       }
     } catch (error: any) {
       console.error("Erro ao fazer login:", error);

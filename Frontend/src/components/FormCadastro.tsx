@@ -47,7 +47,7 @@ export default function FormCadastro() {
           genero: genero
         }));
         
-        router.push("/dashboard");
+        router.push("/home");
       }
     } catch (error: any) {
       console.error("Erro ao cadastrar:", error);
