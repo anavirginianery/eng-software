@@ -21,11 +21,6 @@ export default function FormLogin() {
     try {
       const user = await login(email, password);
       if (user) {
-        localStorage.setItem("usuario", JSON.stringify({
-          uid: user.uid,
-          email: user.email,
-          displayName: user.displayName
-        }));
         router.push("/home");
       }
     } catch (error: any) {

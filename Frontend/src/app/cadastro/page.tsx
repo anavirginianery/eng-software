@@ -5,15 +5,20 @@ import Header from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 export default function Cadastro() {
   const router = useRouter();
 
   useEffect(() => {
-    const usuario = localStorage.getItem("usuario");
-    if (usuario) {
-      router.push("/home");
-    }
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        router.push("/home");
+      }
+    });
+
+    return () => unsubscribe();
   }, [router]);
   
   return (

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { db } from "@/config/firebase";
 import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 
 export default function Form() {
   const [insulina, setInsulina] = useState("");
@@ -16,15 +17,11 @@ export default function Form() {
 
     try {
       // Verifica se tem usuário logado
-      const usuarioLocal = localStorage.getItem("usuario");
-      if (!usuarioLocal) {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      
+      if (!user) {
         alert("Usuário não encontrado. Por favor, faça login novamente.");
-        return;
-      }
-
-      const usuarioData = JSON.parse(usuarioLocal);
-      if (!usuarioData.uid) {
-        alert("ID do usuário não encontrado. Por favor, faça login novamente.");
         return;
       }
 
@@ -35,7 +32,7 @@ export default function Form() {
       const medicoesRef = collection(db, "medicoes");
       const q = query(
         medicoesRef,
-        where("userId", "==", usuarioData.uid),
+        where("userId", "==", user.uid),
         where("horario", "==", horario),
         where("timestamp", ">=", hoje.getTime())
       );
@@ -48,13 +45,23 @@ export default function Form() {
 
       // Prepara os dados para salvar
       const dadosMedicao = {
-        userId: usuarioData.uid,
+        userId: user.uid,
         insulina: Number(insulina),
         glicemia: Number(glicemia),
         horario,
-        data: new Date(),
-        timestamp: new Date().getTime(),
-        nomeUsuario: usuarioData.nome || "Usuário"
+        data: (() => {
+          const hoje = new Date();
+          const [hours, minutes] = horario.split(':');
+          hoje.setHours(Number(hours), Number(minutes), 0, 0);
+          return hoje;
+        })(),
+        timestamp: (() => {
+          const hoje = new Date();
+          const [hours, minutes] = horario.split(':');
+          hoje.setHours(Number(hours), Number(minutes), 0, 0);
+          return hoje.getTime();
+        })(),
+        nomeUsuario: user.displayName || "Usuário"
       };
 
       console.log("Tentando salvar dados:", dadosMedicao);
@@ -70,9 +77,10 @@ export default function Form() {
       setGlicemia("");
       setHorario("");
       
-    } catch (error: any) {
+    } catch (error: Error | unknown) {
       console.error("Erro detalhado ao salvar dados:", error);
-      alert(`Erro ao salvar os dados: ${error.message || "Tente novamente."}`);
+      const errorMessage = error instanceof Error ? error.message : "Tente novamente.";
+      alert(`Erro ao salvar os dados: ${errorMessage}`);
     } finally {
       setLoading(false);
     }

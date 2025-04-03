@@ -14,6 +14,7 @@ import { Eye, Download } from "lucide-react";
 import { db } from "@/config/firebase";
 import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
 import jsPDF from "jspdf";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 type TimeFrame = "dia" | "semana" | "mês" | "ano" | "geral";
 
@@ -44,105 +45,103 @@ export default function Dashboard() {
   useEffect(() => {
     const buscarDados = async () => {
       try {
-        const usuarioLocal = localStorage.getItem("usuario");
-        if (!usuarioLocal) {
-          console.error("Usuário não encontrado no localStorage");
-          alert("Usuário não encontrado. Por favor, faça login novamente.");
-          return;
-        }
-
-        const usuarioData = JSON.parse(usuarioLocal);
-        console.log("Dados do usuário:", usuarioData);
+        const auth = getAuth();
         
-        if (!usuarioData.uid) {
-          console.error("UID do usuário não encontrado");
-          alert("ID do usuário não encontrado. Por favor, faça login novamente.");
-          return;
-        }
+        // Wait for auth state to be initialized
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+          if (!user) {
+            console.error("Usuário não autenticado");
+            return;
+          }
 
-        // Buscar horários cadastrados do usuário
-        try {
-          const userDoc = await getDoc(doc(db, "usuarios", usuarioData.uid));
-          console.log("Documento do usuário:", userDoc.exists() ? userDoc.data() : "Não encontrado");
+          console.log("Dados do usuário:", user);
           
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
-            const horarios = userData.horarios_afericao || [];
-            console.log("Horários encontrados:", horarios);
-            setHorariosCadastrados(horarios.map((h: string) => ({ horario: h })));
-          } else {
-            console.warn("Documento do usuário não encontrado no Firestore");
+          // Buscar horários cadastrados do usuário
+          try {
+            const userDoc = await getDoc(doc(db, "usuarios", user.uid));
+            console.log("Documento do usuário:", userDoc.exists() ? userDoc.data() : "Não encontrado");
+            
+            if (userDoc.exists()) {
+              const userData = userDoc.data();
+              const horarios = userData.horarios_afericao || [];
+              console.log("Horários encontrados:", horarios);
+              setHorariosCadastrados(horarios.map((h: string) => ({ horario: h })));
+            } else {
+              console.warn("Documento do usuário não encontrado no Firestore");
+              setHorariosCadastrados([]);
+            }
+          } catch (error) {
+            console.error("Erro ao buscar dados do usuário:", error);
             setHorariosCadastrados([]);
           }
-        } catch (error) {
-          console.error("Erro ao buscar dados do usuário:", error);
-          setHorariosCadastrados([]);
-        }
 
-        // Calcular data inicial baseado no período selecionado
-        const hoje = new Date();
-        let dataInicial = new Date();
-        
-        switch (selectedTime) {
-          case "dia":
-            dataInicial.setHours(0, 0, 0, 0);
-            break;
-          case "semana":
-            dataInicial.setDate(hoje.getDate() - 7);
-            break;
-          case "mês":
-            dataInicial.setMonth(hoje.getMonth() - 1);
-            break;
-          case "ano":
-            dataInicial.setFullYear(hoje.getFullYear() - 1);
-            break;
-          case "geral":
-            dataInicial = new Date(0); // Data inicial do timestamp
-            break;
-        }
-
-        console.log("Data inicial para busca:", dataInicial);
-
-        // Buscar registros de medição
-        const medicoesRef = collection(db, "medicoes");
-        const q = query(
-          medicoesRef,
-          where("userId", "==", usuarioData.uid),
-          where("timestamp", ">=", dataInicial.getTime())
-        );
-
-        console.log("Query de medições:", q);
-
-        const querySnapshot = await getDocs(q);
-        console.log("Número de documentos encontrados:", querySnapshot.size);
-        
-        const medicoes: RegistroMedicao[] = [];
-        
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          console.log("Dados do documento:", data);
-          try {
-            medicoes.push({
-              id: doc.id,
-              userId: data.userId,
-              insulina: data.insulina,
-              glicemia: data.glicemia,
-              horario: data.horario,
-              data: data.data.toDate(),
-              timestamp: data.timestamp,
-              nomeUsuario: data.nomeUsuario
-            });
-          } catch (error) {
-            console.error("Erro ao processar documento:", doc.id, error);
+          // Calcular data inicial baseado no período selecionado
+          const hoje = new Date();
+          let dataInicial = new Date();
+          
+          switch (selectedTime) {
+            case "dia":
+              dataInicial.setHours(0, 0, 0, 0);
+              break;
+            case "semana":
+              dataInicial.setDate(hoje.getDate() - 7);
+              break;
+            case "mês":
+              dataInicial.setMonth(hoje.getMonth() - 1);
+              break;
+            case "ano":
+              dataInicial.setFullYear(hoje.getFullYear() - 1);
+              break;
+            case "geral":
+              dataInicial = new Date(0); // Data inicial do timestamp
+              break;
           }
+
+          console.log("Data inicial para busca:", dataInicial);
+
+          // Buscar registros de medição
+          const medicoesRef = collection(db, "medicoes");
+          const q = query(
+            medicoesRef,
+            where("userId", "==", user.uid),
+            where("timestamp", ">=", dataInicial.getTime())
+          );
+
+          console.log("Query de medições:", q);
+
+          const querySnapshot = await getDocs(q);
+          console.log("Número de documentos encontrados:", querySnapshot.size);
+          
+          const medicoes: RegistroMedicao[] = [];
+          
+          querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            console.log("Dados do documento:", data);
+            try {
+              medicoes.push({
+                id: doc.id,
+                userId: data.userId,
+                insulina: data.insulina,
+                glicemia: data.glicemia,
+                horario: data.horario,
+                data: data.data.toDate(),
+                timestamp: data.timestamp,
+                nomeUsuario: data.nomeUsuario
+              });
+            } catch (error) {
+              console.error("Erro ao processar documento:", doc.id, error);
+            }
+          });
+
+          console.log("Medições processadas:", medicoes);
+          setRegistros(medicoes);
+          setLoading(false);
         });
 
-        console.log("Medições processadas:", medicoes);
-        setRegistros(medicoes);
+        // Cleanup subscription
+        return () => unsubscribe();
       } catch (error) {
         console.error("Erro detalhado ao buscar dados:", error);
-        alert(`Erro ao carregar os dados do dashboard: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
-      } finally {
         setLoading(false);
       }
     };
@@ -200,7 +199,7 @@ export default function Dashboard() {
     doc.setFontSize(10);
     let yPos = 70;
     
-    dadosGrafico.forEach((dado, index) => {
+    dadosGrafico.forEach((dado) => {
       if (yPos > pageHeight - 20) {
         doc.addPage();
         yPos = 20;
@@ -305,7 +304,7 @@ export default function Dashboard() {
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart
                     data={dadosGrafico}
-                    margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                    margin={{ top: 10, right: 50, left: 0, bottom: 0 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
                     <XAxis
@@ -315,11 +314,23 @@ export default function Dashboard() {
                       fontSize={12}
                     />
                     <YAxis
-                      stroke="#4B5563"
+                      yAxisId="glicemia"
+                      stroke="#38B2AC"
                       tick={{ fill: "#4B5563" }}
                       domain={[0, 400]}
                       ticks={[0, 100, 200, 300, 400]}
                       fontSize={12}
+                      label={{ value: 'Glicemia (mg/dL)', angle: -90, position: 'insideLeft' }}
+                    />
+                    <YAxis
+                      yAxisId="insulina"
+                      orientation="right"
+                      stroke="#F59E0B"
+                      tick={{ fill: "#4B5563" }}
+                      domain={[0, 20]}
+                      ticks={[0, 5, 10, 15, 20]}
+                      fontSize={12}
+                      label={{ value: 'Insulina (UI)', angle: 90, position: 'insideRight' }}
                     />
                     <Tooltip
                       contentStyle={{
@@ -338,6 +349,8 @@ export default function Dashboard() {
                       strokeWidth={2}
                       dot={{ fill: "#38B2AC", strokeWidth: 2, r: 3 }}
                       activeDot={{ r: 5 }}
+                      yAxisId="glicemia"
+                      connectNulls={true}
                     />
                     <Line
                       type="monotone"
@@ -346,6 +359,8 @@ export default function Dashboard() {
                       strokeWidth={2}
                       dot={{ fill: "#F59E0B", strokeWidth: 2, r: 3 }}
                       activeDot={{ r: 5 }}
+                      yAxisId="insulina"
+                      connectNulls={true}
                     />
                   </LineChart>
                 </ResponsiveContainer>

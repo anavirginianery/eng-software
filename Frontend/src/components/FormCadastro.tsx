@@ -15,9 +15,12 @@ export default function FormCadastro() {
   const [confirmarSenha, setConfirmarSenha] = useState("");
   const [dataNascimento, setDataNascimento] = useState("");
   const [genero, setGenero] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleCadastro = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (isSubmitting) return;
 
     if (!email.includes("@")) {
       return alert("Por favor, insira um email válido.");
@@ -27,6 +30,7 @@ export default function FormCadastro() {
       return alert("As senhas não coincidem.");
     }
 
+    setIsSubmitting(true);
     try {
       const user = await register(email, senha, nome);
       if (user) {
@@ -36,22 +40,17 @@ export default function FormCadastro() {
           email,
           dataNasc: dataNascimento,
           genero: genero.toUpperCase(),
-          dataCriacao: new Date()
+          dataCriacao: new Date(),
+          cadastroCompleto: false
         });
-
-        localStorage.setItem("usuario", JSON.stringify({
-          uid: user.uid,
-          email: user.email,
-          displayName: user.displayName,
-          dataNasc: dataNascimento,
-          genero: genero
-        }));
         
         router.push("/home");
       }
     } catch (error: any) {
       console.error("Erro ao cadastrar:", error);
       alert("Erro ao cadastrar. Verifique os dados ou tente novamente.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -152,9 +151,12 @@ export default function FormCadastro() {
 
           <button
             type="submit"
-            className="w-full p-2.5 bg-[#38B2AC] text-white rounded-md hover:bg-[#2C9A94] transition-colors cursor-pointer"
+            disabled={isSubmitting}
+            className={`w-full p-2.5 bg-[#38B2AC] text-white rounded-md transition-colors cursor-pointer ${
+              isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#2C9A94]'
+            }`}
           >
-            Cadastrar
+            {isSubmitting ? 'Cadastrando...' : 'Cadastrar'}
           </button>
         </form>
       </div>

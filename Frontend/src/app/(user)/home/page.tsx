@@ -6,13 +6,21 @@ import { LineChart, Line, ResponsiveContainer } from "recharts";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/config/firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
 
-const generateMockData = () => {
-  return Array.from({ length: 7 }, (_, i) => ({
-    name: i,
-    value: Math.floor(Math.random() * 300) + 100,
-  }));
-};
+interface Registro {
+  id: string;
+  glicemia: number;
+  insulina?: number;
+  horario: string;
+  timestamp: number;
+}
+
+interface ChartData {
+  name: string;
+  value: number;
+}
 
 const CircularProgress = ({
   value,
@@ -72,7 +80,7 @@ const MetricCard = ({
   bgColor: string;
   lineColor: string;
   progressColor: string;
-  data: any[];
+  data: ChartData[];
 }) => {
   return (
     <div
@@ -112,50 +120,67 @@ export default function Home() {
   const [timeButtons, setTimeButtons] = useState<{ label: string; value: string }[]>([
     { label: "Todos", value: "" }
   ]);
-  const [registros, setRegistros] = useState<any[]>([]);
+  const [registros, setRegistros] = useState<Registro[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const carregarDados = async () => {
       try {
-        const usuarioLocal = localStorage.getItem("usuario");
-        if (!usuarioLocal) return;
-
-        const usuarioData = JSON.parse(usuarioLocal);
-        const userDoc = await getDoc(doc(db, "usuarios", usuarioData.uid));
+        const auth = getAuth();
         
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          const horarios = userData.horarios_afericao || [];
-          
-          const buttons = [
-            { label: "Todos", value: "" },
-            ...horarios.map((horario: string) => ({
-              label: horario,
-              value: horario
-            }))
-          ];
-          
-          setTimeButtons(buttons);
+        // Wait for auth state to be initialized
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+          if (!user) {
+            console.error("Usuário não autenticado");
+            return;
+          }
 
-          // Buscar registros de medição
-          const medicoesRef = collection(db, "medicoes");
-          const q = query(
-            medicoesRef,
-            where("userId", "==", usuarioData.uid)
-          );
+          try {
+            const userDoc = await getDoc(doc(db, "usuarios", user.uid));
+            
+            if (userDoc.exists()) {
+              const userData = userDoc.data();
+              const horarios = userData.horarios_afericao || [];
+              
+              const buttons = [
+                { label: "Todos", value: "" },
+                ...horarios.map((horario: string) => ({
+                  label: horario,
+                  value: horario
+                }))
+              ];
+              
+              setTimeButtons(buttons);
 
-          const querySnapshot = await getDocs(q);
-          const medicoes = querySnapshot.docs.map(doc => ({
-            ...doc.data(),
-            id: doc.id
-          }));
+              // Buscar registros de medição
+              const medicoesRef = collection(db, "medicoes");
+              const q = query(
+                medicoesRef,
+                where("userId", "==", user.uid)
+              );
 
-          setRegistros(medicoes);
-        }
+              const querySnapshot = await getDocs(q);
+              const medicoes = querySnapshot.docs.map(doc => ({
+                id: doc.id,
+                glicemia: doc.data().glicemia,
+                insulina: doc.data().insulina,
+                horario: doc.data().horario,
+                timestamp: doc.data().timestamp
+              }));
+
+              setRegistros(medicoes);
+            }
+          } catch (error) {
+            console.error("Erro ao carregar dados:", error);
+          } finally {
+            setLoading(false);
+          }
+        });
+
+        // Cleanup subscription
+        return () => unsubscribe();
       } catch (error) {
         console.error("Erro ao carregar dados:", error);
-      } finally {
         setLoading(false);
       }
     };
@@ -182,9 +207,12 @@ export default function Home() {
 
   const calcularMediaInsulina = () => {
     const dados = filtrarDados();
-    if (dados.length === 0) return 0;
-    const soma = dados.reduce((acc, curr) => acc + curr.insulina, 0);
-    return Math.round(soma / dados.length);
+    const dadosComInsulina = dados.filter((registro): registro is Registro & { insulina: number } => 
+      registro.insulina !== undefined && registro.insulina !== null
+    );
+    if (dadosComInsulina.length === 0) return 0;
+    const soma = dadosComInsulina.reduce((acc, curr) => acc + curr.insulina, 0);
+    return Math.round(soma / dadosComInsulina.length);
   };
 
   const dadosGlicemia = filtrarDados().map(registro => ({
@@ -192,10 +220,14 @@ export default function Home() {
     value: registro.glicemia
   }));
 
-  const dadosInsulina = filtrarDados().map(registro => ({
-    name: new Date(registro.timestamp).toLocaleDateString('pt-BR'),
-    value: registro.insulina
-  }));
+  const dadosInsulina = filtrarDados()
+    .filter((registro): registro is Registro & { insulina: number } => 
+      registro.insulina !== undefined && registro.insulina !== null
+    )
+    .map(registro => ({
+      name: new Date(registro.timestamp).toLocaleDateString('pt-BR'),
+      value: registro.insulina
+    }));
 
   if (loading) {
     return (
