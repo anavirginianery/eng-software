@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+<testsuite package="org.eslint" time="0" tests="15" errors="15" name="/home/gabriela/sos/eng-software/Frontend/src/app/(user)/dashboard/page.tsx">
+<testcase time="0" name="org.eslint.no-console" classname="/home/gabriela/sos/eng-software/Frontend/src/app/(user)/dashboard/page"><failure message="Unexpected console statement."><![CDATA[line 49, col 11, Warning - Unexpected console statement. (no-console)]]></failure></testcase>
+<testcase time="0" name="org.eslint.no-console" classname="/home/gabriela/sos/eng-software/Frontend/src/app/(user)/dashboard/page"><failure message="Unexpected console statement."><![CDATA[line 55, col 9, Warning - Unexpected console statement. (no-console)]]></failure></testcase>
+<testcase time="0" name="org.eslint.no-console" classname="/home/gabriela/sos/eng-software/Frontend/src/app/(user)/dashboard/page"><failure message="Unexpected console statement."><![CDATA[line 58, col 11, Warning - Unexpected console statement. (no-console)]]></failure></testcase>
+<testcase time="0" name="org.eslint.no-console" classname="/home/gabriela/sos/eng-software/Frontend/src/app/(user)/dashboard/page"><failure message="Unexpected console statement."><![CDATA[line 66, col 11, Warning - Unexpected console statement. (no-console)]]></failure></testcase>
+<testcase time="0" name="org.eslint.no-console" classname="/home/gabriela/sos/eng-software/Frontend/src/app/(user)/dashboard/page"><failure message="Unexpected console statement."><![CDATA[line 71, col 13, Warning - Unexpected console statement. (no-console)]]></failure></testcase>
+<testcase time="0" name="org.eslint.no-console" classname="/home/gabriela/sos/eng-software/Frontend/src/app/(user)/dashboard/page"><failure message="Unexpected console statement."><![CDATA[line 74, col 13, Warning - Unexpected console statement. (no-console)]]></failure></testcase>
+<testcase time="0" name="org.eslint.no-console" classname="/home/gabriela/sos/eng-software/Frontend/src/app/(user)/dashboard/page"><failure message="Unexpected console statement."><![CDATA[line 78, col 11, Warning - Unexpected console statement. (no-console)]]></failure></testcase>
+<testcase time="0" name="org.eslint.no-console" classname="/home/gabriela/sos/eng-software/Frontend/src/app/(user)/dashboard/page"><failure message="Unexpected console statement."><![CDATA[line 104, col 9, Warning - Unexpected console statement. (no-console)]]></failure></testcase>
+<testcase time="0" name="org.eslint.no-console" classname="/home/gabriela/sos/eng-software/Frontend/src/app/(user)/dashboard/page"><failure message="Unexpected console statement."><![CDATA[line 114, col 9, Warning - Unexpected console statement. (no-console)]]></failure></testcase>
+<testcase time="0" name="org.eslint.no-console" classname="/home/gabriela/sos/eng-software/Frontend/src/app/(user)/dashboard/page"><failure message="Unexpected console statement."><![CDATA[line 117, col 9, Warning - Unexpected console statement. (no-console)]]></failure></testcase>
+<testcase time="0" name="org.eslint.no-console" classname="/home/gabriela/sos/eng-software/Frontend/src/app/(user)/dashboard/page"><failure message="Unexpected console statement."><![CDATA[line 123, col 11, Warning - Unexpected console statement. (no-console)]]></failure></testcase>
+<testcase time="0" name="org.eslint.no-console" classname="/home/gabriela/sos/eng-software/Frontend/src/app/(user)/dashboard/page"><failure message="Unexpected console statement."><![CDATA[line 136, col 13, Warning - Unexpected console statement. (no-console)]]></failure></testcase>
+<testcase time="0" name="org.eslint.no-console" classname="/home/gabriela/sos/eng-software/Frontend/src/app/(user)/dashboard/page"><failure message="Unexpected console statement."><![CDATA[line 140, col 9, Warning - Unexpected console statement. (no-console)]]></failure></testcase>
+<testcase time="0" name="org.eslint.no-console" classname="/home/gabriela/sos/eng-software/Frontend/src/app/(user)/dashboard/page"><failure message="Unexpected console statement."><![CDATA[line 143, col 9, Warning - Unexpected console statement. (no-console)]]></failure></testcase>
+<testcase time="0" name="org.eslint.@typescript-eslint/no-unused-vars" classname="/home/gabriela/sos/eng-software/Frontend/src/app/(user)/dashboard/page"><failure message="&apos;index&apos; is defined but never used."><![CDATA[line 203, col 33, Warning - &apos;index&apos; is defined but never used. (@typescript-eslint/no-unused-vars)]]></failure></testcase>
+</testsuite>
+<testsuite package="org.eslint" time="0" tests="1" errors="0" name="/home/gabriela/sos/eng-software/Frontend/src/app/(user)/form/page.tsx">
+<testcase time="0" name="/home/gabriela/sos/eng-software/Frontend/src/app/(user)/form/page.tsx" classname="/home/gabriela/sos/eng-software/Frontend/src/app/(user)/form/page" />
+</testsuite>
+<testsuite package="org.eslint" time="0" tests="4" errors="4" name="/home/gabriela/sos/eng-software/Frontend/src/app/(user)/home/page.tsx">
+<testcase time="0" name="org.eslint.@typescript-eslint/no-unused-vars" classname="/home/gabriela/sos/eng-software/Frontend/src/app/(user)/home/page"><failure message="&apos;generateMockData&apos; is assigned a value but never used."><![CDATA[line 10, col 7, Warning - &apos;generateMockData&apos; is assigned a value but never used. (@typescript-eslint/no-unused-vars)]]></failure></testcase>
+<testcase time="0" name="org.eslint.@typescript-eslint/no-explicit-any" classname="/home/gabriela/sos/eng-software/Frontend/src/app/(user)/home/page"><failure message="Unexpected any. Specify a different type."><![CDATA[line 75, col 9, Error - Unexpected any. Specify a different type. (@typescript-eslint/no-explicit-any)]]></failure></testcase>
+<testcase time="0" name="org.eslint.@typescript-eslint/no-explicit-any" classname="/home/gabriela/sos/eng-software/Frontend/src/app/(user)/home/page"><failure message="Unexpected any. Specify a different type."><![CDATA[line 115, col 46, Error - Unexpected any. Specify a different type. (@typescript-eslint/no-explicit-any)]]></failure></testcase>
+<testcase time="0" name="org.eslint.no-console" classname="/home/gabriela/sos/eng-software/Frontend/src/app/(user)/home/page"><failure message="Unexpected console statement."><![CDATA[line 157, col 9, Warning - Unexpected console statement. (no-console)]]></failure></testcase>
+</testsuite>
+<testsuite package="org.eslint" time="0" tests="3" errors="3" name="/home/gabriela/sos/eng-software/Frontend/src/app/(user)/inserirDados/page.tsx">
+<testcase time="0" name="org.eslint.@typescript-eslint/no-explicit-any" classname="/home/gabriela/sos/eng-software/Frontend/src/app/(user)/inserirDados/page"><failure message="Unexpected any. Specify a different type."><![CDATA[line 16, col 42, Error - Unexpected any. Specify a different type. (@typescript-eslint/no-explicit-any)]]></failure></testcase>
+<testcase time="0" name="org.eslint.no-console" classname="/home/gabriela/sos/eng-software/Frontend/src/app/(user)/inserirDados/page"><failure message="Unexpected console statement."><![CDATA[line 44, col 9, Warning - Unexpected console statement. (no-console)]]></failure></testcase>
+<testcase time="0" name="org.eslint.no-console" classname="/home/gabriela/sos/eng-software/Frontend/src/app/(user)/inserirDados/page"><failure message="Unexpected console statement."><![CDATA[line 112, col 7, Warning - Unexpected console statement. (no-console)]]></failure></testcase>
+</testsuite>
+<testsuite package="org.eslint" time="0" tests="1" errors="0" name="/home/gabriela/sos/eng-software/Frontend/src/app/(user)/layout.tsx">
+<testcase time="0" name="/home/gabriela/sos/eng-software/Frontend/src/app/(user)/layout.tsx" classname="/home/gabriela/sos/eng-software/Frontend/src/app/(user)/layout" />
+</testsuite>
+<testsuite package="org.eslint" time="0" tests="1" errors="0" name="/home/gabriela/sos/eng-software/Frontend/src/app/cadastro/page.tsx">
+<testcase time="0" name="/home/gabriela/sos/eng-software/Frontend/src/app/cadastro/page.tsx" classname="/home/gabriela/sos/eng-software/Frontend/src/app/cadastro/page" />
+</testsuite>
+<testsuite package="org.eslint" time="0" tests="1" errors="0" name="/home/gabriela/sos/eng-software/Frontend/src/app/layout.tsx">
+<testcase time="0" name="/home/gabriela/sos/eng-software/Frontend/src/app/layout.tsx" classname="/home/gabriela/sos/eng-software/Frontend/src/app/layout" />
+</testsuite>
+<testsuite package="org.eslint" time="0" tests="1" errors="0" name="/home/gabriela/sos/eng-software/Frontend/src/app/login/page.tsx">
+<testcase time="0" name="/home/gabriela/sos/eng-software/Frontend/src/app/login/page.tsx" classname="/home/gabriela/sos/eng-software/Frontend/src/app/login/page" />
+</testsuite>
+<testsuite package="org.eslint" time="0" tests="1" errors="0" name="/home/gabriela/sos/eng-software/Frontend/src/app/page.tsx">
+<testcase time="0" name="/home/gabriela/sos/eng-software/Frontend/src/app/page.tsx" classname="/home/gabriela/sos/eng-software/Frontend/src/app/page" />
+</testsuite>
+<testsuite package="org.eslint" time="0" tests="1" errors="0" name="/home/gabriela/sos/eng-software/Frontend/src/components/Footer.tsx">
+<testcase time="0" name="/home/gabriela/sos/eng-software/Frontend/src/components/Footer.tsx" classname="/home/gabriela/sos/eng-software/Frontend/src/components/Footer" />
+</testsuite>
+<testsuite package="org.eslint" time="0" tests="2" errors="2" name="/home/gabriela/sos/eng-software/Frontend/src/components/FormCadastro.tsx">
+<testcase time="0" name="org.eslint.@typescript-eslint/no-explicit-any" classname="/home/gabriela/sos/eng-software/Frontend/src/components/FormCadastro"><failure message="Unexpected any. Specify a different type."><![CDATA[line 52, col 21, Error - Unexpected any. Specify a different type. (@typescript-eslint/no-explicit-any)]]></failure></testcase>
+<testcase time="0" name="org.eslint.no-console" classname="/home/gabriela/sos/eng-software/Frontend/src/components/FormCadastro"><failure message="Unexpected console statement."><![CDATA[line 53, col 7, Warning - Unexpected console statement. (no-console)]]></failure></testcase>
+</testsuite>
+<testsuite package="org.eslint" time="0" tests="2" errors="2" name="/home/gabriela/sos/eng-software/Frontend/src/components/FormLogin.tsx">
+<testcase time="0" name="org.eslint.@typescript-eslint/no-explicit-any" classname="/home/gabriela/sos/eng-software/Frontend/src/components/FormLogin"><failure message="Unexpected any. Specify a different type."><![CDATA[line 31, col 21, Error - Unexpected any. Specify a different type. (@typescript-eslint/no-explicit-any)]]></failure></testcase>
+<testcase time="0" name="org.eslint.no-console" classname="/home/gabriela/sos/eng-software/Frontend/src/components/FormLogin"><failure message="Unexpected console statement."><![CDATA[line 32, col 7, Warning - Unexpected console statement. (no-console)]]></failure></testcase>
+</testsuite>
+<testsuite package="org.eslint" time="0" tests="1" errors="0" name="/home/gabriela/sos/eng-software/Frontend/src/components/Header.tsx">
+<testcase time="0" name="/home/gabriela/sos/eng-software/Frontend/src/components/Header.tsx" classname="/home/gabriela/sos/eng-software/Frontend/src/components/Header" />
+</testsuite>
+<testsuite package="org.eslint" time="0" tests="4" errors="4" name="/home/gabriela/sos/eng-software/Frontend/src/components/InserirDados.tsx">
+<testcase time="0" name="org.eslint.no-console" classname="/home/gabriela/sos/eng-software/Frontend/src/components/InserirDados"><failure message="Unexpected console statement."><![CDATA[line 60, col 7, Warning - Unexpected console statement. (no-console)]]></failure></testcase>
+<testcase time="0" name="org.eslint.no-console" classname="/home/gabriela/sos/eng-software/Frontend/src/components/InserirDados"><failure message="Unexpected console statement."><![CDATA[line 64, col 7, Warning - Unexpected console statement. (no-console)]]></failure></testcase>
+<testcase time="0" name="org.eslint.@typescript-eslint/no-explicit-any" classname="/home/gabriela/sos/eng-software/Frontend/src/components/InserirDados"><failure message="Unexpected any. Specify a different type."><![CDATA[line 73, col 21, Error - Unexpected any. Specify a different type. (@typescript-eslint/no-explicit-any)]]></failure></testcase>
+<testcase time="0" name="org.eslint.no-console" classname="/home/gabriela/sos/eng-software/Frontend/src/components/InserirDados"><failure message="Unexpected console statement."><![CDATA[line 74, col 7, Warning - Unexpected console statement. (no-console)]]></failure></testcase>
+</testsuite>
+<testsuite package="org.eslint" time="0" tests="3" errors="3" name="/home/gabriela/sos/eng-software/Frontend/src/components/KeyFilter.tsx">
+<testcase time="0" name="org.eslint.@typescript-eslint/no-unused-vars" classname="/home/gabriela/sos/eng-software/Frontend/src/components/KeyFilter"><failure message="&apos;router&apos; is assigned a value but never used."><![CDATA[line 9, col 9, Warning - &apos;router&apos; is assigned a value but never used. (@typescript-eslint/no-unused-vars)]]></failure></testcase>
+<testcase time="0" name="org.eslint.no-console" classname="/home/gabriela/sos/eng-software/Frontend/src/components/KeyFilter"><failure message="Unexpected console statement."><![CDATA[line 54, col 7, Warning - Unexpected console statement. (no-console)]]></failure></testcase>
+<testcase time="0" name="org.eslint.no-console" classname="/home/gabriela/sos/eng-software/Frontend/src/components/KeyFilter"><failure message="Unexpected console statement."><![CDATA[line 115, col 7, Warning - Unexpected console statement. (no-console)]]></failure></testcase>
+</testsuite>
+<testsuite package="org.eslint" time="0" tests="1" errors="1" name="/home/gabriela/sos/eng-software/Frontend/src/components/LineChart.tsx">
+<testcase time="0" name="org.eslint.@typescript-eslint/consistent-type-imports" classname="/home/gabriela/sos/eng-software/Frontend/src/components/LineChart"><failure message="All imports in the declaration are only used as types. Use `import type`."><![CDATA[line 8, col 1, Warning - All imports in the declaration are only used as types. Use `import type`. (@typescript-eslint/consistent-type-imports)]]></failure></testcase>
+</testsuite>
+<testsuite package="org.eslint" time="0" tests="1" errors="0" name="/home/gabriela/sos/eng-software/Frontend/src/components/SideBar.tsx">
+<testcase time="0" name="/home/gabriela/sos/eng-software/Frontend/src/components/SideBar.tsx" classname="/home/gabriela/sos/eng-software/Frontend/src/components/SideBar" />
+</testsuite>
+<testsuite package="org.eslint" time="0" tests="1" errors="0" name="/home/gabriela/sos/eng-software/Frontend/src/components/types.ts">
+<testcase time="0" name="/home/gabriela/sos/eng-software/Frontend/src/components/types.ts" classname="/home/gabriela/sos/eng-software/Frontend/src/components/types" />
+</testsuite>
+<testsuite package="org.eslint" time="0" tests="1" errors="0" name="/home/gabriela/sos/eng-software/Frontend/src/config/firebase.ts">
+<testcase time="0" name="/home/gabriela/sos/eng-software/Frontend/src/config/firebase.ts" classname="/home/gabriela/sos/eng-software/Frontend/src/config/firebase" />
+</testsuite>
+<testsuite package="org.eslint" time="0" tests="5" errors="5" name="/home/gabriela/sos/eng-software/Frontend/src/services/authService.ts">
+<testcase time="0" name="org.eslint.@typescript-eslint/consistent-type-imports" classname="/home/gabriela/sos/eng-software/Frontend/src/services/authService"><failure message="Imports &quot;User&quot; are only used as type."><![CDATA[line 1, col 1, Warning - Imports &quot;User&quot; are only used as type. (@typescript-eslint/consistent-type-imports)]]></failure></testcase>
+<testcase time="0" name="org.eslint.@typescript-eslint/no-explicit-any" classname="/home/gabriela/sos/eng-software/Frontend/src/services/authService"><failure message="Unexpected any. Specify a different type."><![CDATA[line 27, col 19, Error - Unexpected any. Specify a different type. (@typescript-eslint/no-explicit-any)]]></failure></testcase>
+<testcase time="0" name="org.eslint.no-console" classname="/home/gabriela/sos/eng-software/Frontend/src/services/authService"><failure message="Unexpected console statement."><![CDATA[line 28, col 5, Warning - Unexpected console statement. (no-console)]]></failure></testcase>
+<testcase time="0" name="org.eslint.@typescript-eslint/no-explicit-any" classname="/home/gabriela/sos/eng-software/Frontend/src/services/authService"><failure message="Unexpected any. Specify a different type."><![CDATA[line 37, col 19, Error - Unexpected any. Specify a different type. (@typescript-eslint/no-explicit-any)]]></failure></testcase>
+<testcase time="0" name="org.eslint.no-console" classname="/home/gabriela/sos/eng-software/Frontend/src/services/authService"><failure message="Unexpected console statement."><![CDATA[line 38, col 5, Warning - Unexpected console statement. (no-console)]]></failure></testcase>
+</testsuite>
+<testsuite package="org.eslint" time="0" tests="1" errors="0" name="/home/gabriela/sos/eng-software/Frontend/src/types/html2pdf.d.ts">
+<testcase time="0" name="/home/gabriela/sos/eng-software/Frontend/src/types/html2pdf.d.ts" classname="/home/gabriela/sos/eng-software/Frontend/src/types/html2pdf.d" />
+</testsuite>
+</testsuites>

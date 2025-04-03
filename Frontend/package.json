@@ -6,7 +6,9 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint src/**/*.{ts,tsx}",
+    "lint:report": "eslint src/**/*.{ts,tsx} --format=html --output-file=reports/eslint-report.html",
+    "lint:stats": "eslint src/**/*.{ts,tsx} --format=pretty"
   },
   "dependencies": {
     "@types/chart.js": "^2.9.41",
@@ -17,7 +19,7 @@
     "html2pdf.js": "^0.10.3",
     "jspdf": "^3.0.1",
     "lucide-react": "^0.483.0",
-    "next": "15.2.1",
+    "next": "^15.2.4",
     "primeicons": "^7.0.0",
     "primereact": "^10.9.2",
     "react": "^19.0.0",
@@ -29,13 +31,24 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@eslint/js": "^9.23.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "eslint": "^9",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "eslint": "^8.57.1",
+    "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-next": "15.2.1",
+    "eslint-define-config": "^2.1.0",
+    "eslint-formatter-junit": "^8.40.0",
+    "eslint-html-reporter": "^0.7.4",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-promise": "^6.1.1",
+    "globals": "^16.0.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "typescript-eslint": "^8.29.0"
   }
 }

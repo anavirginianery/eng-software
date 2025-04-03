@@ -1,16 +1,52 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
+import { defineConfig } from "eslint-define-config";
+import globals from "globals";
+import js from "@eslint/js";
+import tseslint from "typescript-eslint";
+import eslintPluginImport from "eslint-plugin-import";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
-
-const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
-];
-
-export default eslintConfig;
+export default defineConfig([
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
+  {
+    files: ["src/**/*.ts", "src/**/*.tsx"],  // Alterado para src/**
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+      },
+      parserOptions: {
+        project: "./tsconfig.json",  // Certifique-se que está na raiz do projeto
+      },
+    },
+    plugins: {
+      "@typescript-eslint": tseslint.plugin,
+      "import": eslintPluginImport,
+    },
+    rules: {
+      "no-console": "warn",
+      "@typescript-eslint/no-unused-vars": "warn",
+      "import/no-unresolved": ["error", { 
+        ignore: ["^firebase/", "^@firebase/"] 
+      }],
+      "@typescript-eslint/consistent-type-imports": "warn",
+    },
+    settings: {
+      "import/resolver": {
+        typescript: {
+          project: "./tsconfig.json"  // Especifica o caminho do tsconfig
+        },
+        node: true,
+      },
+    },
+  },
+  {
+    ignores: [
+      "node_modules/",
+      "dist/",
+      ".firebase/",
+      "**/*.config.js",
+      "firebase-debug.log",
+      "firebase-export.json"
+    ],
+  },
+]);
