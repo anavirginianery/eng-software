@@ -1,18 +1,17 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { db } from "@/config/firebase";
+import { getAuth } from "firebase/auth";
 
 export default function KeyFilter() {
-  const router = useRouter();
 
   const [formData, setFormData] = useState({
     peso: "",
     altura: "",
     tipoDiabetes: "",
-    tipoInsulina: "",
+    tipoInsulina: [] as string[],
     comorbidades: [] as string[],
     horarios: [] as string[]
   });
@@ -28,14 +27,15 @@ export default function KeyFilter() {
 
   const carregarDadosPerfil = async () => {
     try {
-      const usuarioLocal = localStorage.getItem("usuario");
-      if (!usuarioLocal) {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      
+      if (!user) {
         alert("Usuário não encontrado");
         return;
       }
 
-      const usuarioData = JSON.parse(usuarioLocal);
-      const userDoc = await getDoc(doc(db, "usuarios", usuarioData.uid));
+      const userDoc = await getDoc(doc(db, "usuarios", user.uid));
       
       if (userDoc.exists()) {
         const userData = userDoc.data();
@@ -43,9 +43,9 @@ export default function KeyFilter() {
           peso: userData.peso || "",
           altura: userData.altura || "",
           tipoDiabetes: userData.tipoDiabetes || "",
-          tipoInsulina: userData.tipoInsulina || "",
-          comorbidades: userData.comorbidades || [],
-          horarios: userData.horarios_afericao || []
+          tipoInsulina: Array.isArray(userData.tipoInsulina) ? userData.tipoInsulina : [],
+          comorbidades: Array.isArray(userData.comorbidades) ? userData.comorbidades : [],
+          horarios: Array.isArray(userData.horarios_afericao) ? userData.horarios_afericao : []
         });
         setPerfilSalvo(true);
       }
@@ -87,25 +87,36 @@ export default function KeyFilter() {
     }));
   };
 
+  const handleInsulinaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      tipoInsulina: checked 
+        ? [...prev.tipoInsulina, value]
+        : prev.tipoInsulina.filter(i => i !== value)
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     try {
-      const usuarioLocal = localStorage.getItem("usuario");
-      if (!usuarioLocal) {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      
+      if (!user) {
         alert("Usuário não encontrado");
         return;
       }
-
-      const usuarioData = JSON.parse(usuarioLocal);
       
-      await setDoc(doc(db, "usuarios", usuarioData.uid), {
+      await setDoc(doc(db, "usuarios", user.uid), {
         peso: formData.peso,
         altura: formData.altura,
         tipoDiabetes: formData.tipoDiabetes,
         tipoInsulina: formData.tipoInsulina,
         comorbidades: formData.comorbidades,
-        horarios_afericao: formData.horarios
+        horarios_afericao: formData.horarios,
+        cadastroCompleto: true
       }, { merge: true });
 
       alert("Perfil salvo com sucesso!");
@@ -149,7 +160,16 @@ export default function KeyFilter() {
           </div>
           <div>
             <p className="text-sm font-medium text-gray-600 mb-1">Tipo de Insulina</p>
-            <p className="text-lg text-gray-800">{formData.tipoInsulina || "-"}</p>
+            <div className="flex flex-wrap gap-2">
+              {formData.tipoInsulina.map((insulina) => (
+                <span
+                  key={insulina}
+                  className="bg-[#38B2AC] text-white px-3 py-1 rounded-full text-sm"
+                >
+                  {insulina}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -232,21 +252,68 @@ export default function KeyFilter() {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Tipo de Insulina
             </label>
-            <select
-              name="tipoInsulina"
-              value={formData.tipoInsulina}
-              onChange={handleInputChange}
-              className="w-full p-3 bg-[#E5E5E5] rounded-md border-none focus:ring-2 focus:ring-[#38B2AC]"
-              required
-            >
-              <option value="">Selecione o tipo</option>
-              <option value="Ultrarrápida">Ultrarrápida</option>
-              <option value="Rápida">Rápida</option>
-              <option value="Intermediária">Intermediária</option>
-              <option value="Lenta">Lenta</option>
-              <option value="Basal">Basal</option>
-              <option value="Mista">Mista</option>
-            </select>
+            <div className="grid grid-cols-2 gap-2">
+              <label className="flex items-center space-x-2 p-2 bg-[#E5E5E5] rounded-md">
+                <input
+                  type="checkbox"
+                  value="Ultrarrápida"
+                  checked={formData.tipoInsulina.includes("Ultrarrápida")}
+                  onChange={handleInsulinaChange}
+                  className="h-4 w-4 text-[#38B2AC] focus:ring-[#38B2AC]"
+                />
+                <span>Ultrarrápida</span>
+              </label>
+              <label className="flex items-center space-x-2 p-2 bg-[#E5E5E5] rounded-md">
+                <input
+                  type="checkbox"
+                  value="Rápida"
+                  checked={formData.tipoInsulina.includes("Rápida")}
+                  onChange={handleInsulinaChange}
+                  className="h-4 w-4 text-[#38B2AC] focus:ring-[#38B2AC]"
+                />
+                <span>Rápida</span>
+              </label>
+              <label className="flex items-center space-x-2 p-2 bg-[#E5E5E5] rounded-md">
+                <input
+                  type="checkbox"
+                  value="Intermediária"
+                  checked={formData.tipoInsulina.includes("Intermediária")}
+                  onChange={handleInsulinaChange}
+                  className="h-4 w-4 text-[#38B2AC] focus:ring-[#38B2AC]"
+                />
+                <span>Intermediária</span>
+              </label>
+              <label className="flex items-center space-x-2 p-2 bg-[#E5E5E5] rounded-md">
+                <input
+                  type="checkbox"
+                  value="Lenta"
+                  checked={formData.tipoInsulina.includes("Lenta")}
+                  onChange={handleInsulinaChange}
+                  className="h-4 w-4 text-[#38B2AC] focus:ring-[#38B2AC]"
+                />
+                <span>Lenta</span>
+              </label>
+              <label className="flex items-center space-x-2 p-2 bg-[#E5E5E5] rounded-md">
+                <input
+                  type="checkbox"
+                  value="Basal"
+                  checked={formData.tipoInsulina.includes("Basal")}
+                  onChange={handleInsulinaChange}
+                  className="h-4 w-4 text-[#38B2AC] focus:ring-[#38B2AC]"
+                />
+                <span>Basal</span>
+              </label>
+              <label className="flex items-center space-x-2 p-2 bg-[#E5E5E5] rounded-md">
+                <input
+                  type="checkbox"
+                  value="Mista"
+                  checked={formData.tipoInsulina.includes("Mista")}
+                  onChange={handleInsulinaChange}
+                  className="h-4 w-4 text-[#38B2AC] focus:ring-[#38B2AC]"
+                />
+                <span>Mista</span>
+              </label>
+            </div>
           </div>
         </div>
 

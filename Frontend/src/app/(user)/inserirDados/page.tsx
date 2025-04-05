@@ -5,55 +5,66 @@ import { useState, useEffect } from "react";
 import { db } from "@/config/firebase";
 import { collection, addDoc, doc, getDoc, query, where, getDocs } from "firebase/firestore";
 import { useRouter } from "next/navigation";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+
+interface MedicaoData {
+  userId: string;
+  glicemia: number;
+  horario: string;
+  data: Date;
+  timestamp: number;
+  nomeUsuario: string;
+  insulina?: number;
+  tipoInsulina?: string;
+}
 
 export default function InserirDados() {
   const router = useRouter();
   const [insulina, setInsulina] = useState("");
+  const [tipoInsulina, setTipoInsulina] = useState("");
   const [glicemia, setGlicemia] = useState("");
   const [horario, setHorario] = useState("");
   const [horariosDisponiveis, setHorariosDisponiveis] = useState<string[]>([]);
+  const [tiposInsulinaDisponiveis, setTiposInsulinaDisponiveis] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-  const [usuario, setUsuario] = useState<any>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    const carregarDadosUsuario = async () => {
+    const auth = getAuth();
+    
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        router.push("/login");
+        return;
+      }
+
       try {
-        const usuarioLocal = localStorage.getItem("usuario");
-        if (!usuarioLocal) {
-          alert("Usuário não encontrado");
-          router.push("/login");
-          return;
-        }
-
-        const usuarioData = JSON.parse(usuarioLocal);
-        setUsuario(usuarioData);
-
-        const userDoc = await getDoc(doc(db, "usuarios", usuarioData.uid));
+        setUserId(user.uid);
+        const userDoc = await getDoc(doc(db, "usuarios", user.uid));
         
         if (userDoc.exists()) {
           const userData = userDoc.data();
           setHorariosDisponiveis(userData.horarios_afericao || []);
+          setTiposInsulinaDisponiveis(userData.tipoInsulina || []);
         } else {
-          alert("Dados do usuário não encontrados");
           router.push("/login");
           return;
         }
-        
-        setLoading(false);
       } catch (error) {
         console.error("Erro ao carregar dados:", error);
         alert("Erro ao carregar dados do usuário. Tente novamente.");
+      } finally {
         setLoading(false);
       }
-    };
+    });
 
-    carregarDadosUsuario();
-  }, []);
+    return () => unsubscribe();
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!usuario || !usuario.uid) {
+    if (!userId) {
       alert("Usuário não encontrado. Por favor, faça login novamente.");
       router.push("/login");
       return;
@@ -64,8 +75,13 @@ export default function InserirDados() {
       return;
     }
 
-    if (!glicemia || !insulina) {
-      alert("Por favor, preencha todos os campos");
+    if (!glicemia) {
+      alert("Por favor, preencha o campo de glicemia");
+      return;
+    }
+
+    if (insulina && !tipoInsulina) {
+      alert("Por favor, selecione o tipo de insulina");
       return;
     }
 
@@ -77,7 +93,7 @@ export default function InserirDados() {
       const medicoesRef = collection(db, "medicoes");
       const q = query(
         medicoesRef,
-        where("userId", "==", usuario.uid),
+        where("userId", "==", userId),
         where("horario", "==", horario)
       );
       
@@ -93,18 +109,37 @@ export default function InserirDados() {
       }
 
       // Salvar nova medição
-      await addDoc(collection(db, "medicoes"), {
-        userId: usuario.uid,
-        insulina: Number(insulina),
+      const auth = getAuth();
+      const medicaoData: MedicaoData = {
+        userId: userId,
         glicemia: Number(glicemia),
         horario,
-        data: new Date(),
-        timestamp: new Date().getTime(),
-        nomeUsuario: usuario.nome || "Usuário"
-      });
+        data: (() => {
+          const hoje = new Date();
+          const [hours, minutes] = horario.split(':');
+          hoje.setHours(Number(hours), Number(minutes), 0, 0);
+          return hoje;
+        })(),
+        timestamp: (() => {
+          const hoje = new Date();
+          const [hours, minutes] = horario.split(':');
+          hoje.setHours(Number(hours), Number(minutes), 0, 0);
+          return hoje.getTime();
+        })(),
+        nomeUsuario: auth.currentUser?.displayName || "Usuário"
+      };
+
+      // Adicionar insulina apenas se foi preenchida
+      if (insulina) {
+        medicaoData.insulina = Number(insulina);
+        medicaoData.tipoInsulina = tipoInsulina;
+      }
+
+      await addDoc(collection(db, "medicoes"), medicaoData);
 
       alert("Dados inseridos com sucesso!");
       setInsulina("");
+      setTipoInsulina("");
       setGlicemia("");
       setHorario("");
       router.push("/dashboard");
@@ -174,7 +209,7 @@ export default function InserirDados() {
 
               <div className="mb-8">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Insulina
+                  Insulina (opcional)
                 </label>
                 <input
                   type="number"
@@ -182,9 +217,29 @@ export default function InserirDados() {
                   onChange={(e) => setInsulina(e.target.value)}
                   placeholder="Digite a quantidade de insulina"
                   className="w-full p-3 bg-[#E5E5E5] rounded-md border-none focus:ring-2 focus:ring-[#38B2AC] transition-all"
-                  required
                 />
               </div>
+
+              {insulina && (
+                <div className="mb-8">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Tipo de Insulina
+                  </label>
+                  <select
+                    value={tipoInsulina}
+                    onChange={(e) => setTipoInsulina(e.target.value)}
+                    className="w-full p-3 bg-[#E5E5E5] rounded-md border-none focus:ring-2 focus:ring-[#38B2AC] transition-all"
+                    required={!!insulina}
+                  >
+                    <option value="">Selecione o tipo de insulina</option>
+                    {tiposInsulinaDisponiveis.map((tipo) => (
+                      <option key={tipo} value={tipo}>
+                        {tipo}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <div className="mb-8">
                 <label className="block text-sm font-medium text-gray-700 mb-2">

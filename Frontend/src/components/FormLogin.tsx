@@ -21,12 +21,7 @@ export default function FormLogin() {
     try {
       const user = await login(email, password);
       if (user) {
-        localStorage.setItem("usuario", JSON.stringify({
-          uid: user.uid,
-          email: user.email,
-          displayName: user.displayName
-        }));
-        router.push("/dashboard");
+        router.push("/home");
       }
     } catch (error: any) {
       console.error("Erro ao fazer login:", error);

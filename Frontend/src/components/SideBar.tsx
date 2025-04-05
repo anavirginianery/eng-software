@@ -13,6 +13,7 @@ import {
   X,
   Menu,
 } from "lucide-react";
+import { getAuth, signOut } from "firebase/auth";
 
 interface SidebarProps {
   className?: string;
@@ -26,14 +27,19 @@ const UserSidebar: React.FC<SidebarProps> = ({ className = "" }) => {
   const isActive = (path: string) => pathname.startsWith(path);
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
-  const handleLogout = () => {
-    localStorage.removeItem("usuario");
-    router.push("/");
+  const handleLogout = async () => {
+    try {
+      const auth = getAuth();
+      await signOut(auth);
+      router.push("/");
+    } catch (error) {
+      console.error("Erro ao fazer logout:", error);
+    }
   };
 
   const MobileHeader = () => (
     <header className="fixed top-0 left-0 right-0 z-20 flex items-center justify-between h-16 px-4 bg-[#FFFFFF] border-b border-gray-300 lg:hidden">
-      <Link href="/">
+      <Link href="/home">
         <Image
           src="/img/logo.png"
           alt="Logo"

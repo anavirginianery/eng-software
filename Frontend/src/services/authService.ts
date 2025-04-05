@@ -34,9 +34,22 @@ export const login = async (email: string, password: string) => {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     return userCredential.user;
-  } catch (error: any) {
-    console.error("Erro no login:", error);
-    throw error;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      if (error.message.includes('auth/invalid-credential')) {
+        console.error("Email ou senha incorretos");
+        throw new Error("Email ou senha incorretos");
+      } else if (error.message.includes('auth/invalid-email')) {
+        console.error("Email inválido");
+        throw new Error("Email inválido");
+      } else {
+        console.error("Erro no login:", error.message);
+        throw error;
+      }
+    } else {
+      console.error("Erro desconhecido no login");
+      throw new Error("Erro desconhecido no login");
+    }
   }
 };
 
