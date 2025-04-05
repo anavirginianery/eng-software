@@ -1,5 +1,7 @@
 "use client";
 
+import logo from "../../../../public/img/logo.png";
+import html2canvas from "html2canvas";
 import React, { useState, useEffect } from "react";
 import {
   LineChart,
@@ -41,6 +43,15 @@ export default function Dashboard() {
   const [registros, setRegistros] = useState<RegistroMedicao[]>([]);
   const [horariosCadastrados, setHorariosCadastrados] = useState<HorarioCadastrado[]>([]);
   const [loading, setLoading] = useState(true);
+  const [dadosPaciente, setDadosPaciente] = useState({
+    nome: "",
+    idade: "",
+    sexo: "",
+    peso: "",
+    altura: "",
+    tipo_diabetes: "",
+    tipo_insulina: ""
+  });
 
   useEffect(() => {
     const buscarDados = async () => {
@@ -64,6 +75,16 @@ export default function Dashboard() {
             if (userDoc.exists()) {
               const userData = userDoc.data();
               const horarios = userData.horarios_afericao || [];
+              setDadosPaciente({
+                nome: userData.nome || "",
+                idade: userData.dataNasc || "",
+                sexo: userData.genero || "",
+                peso: userData.peso || "",
+                altura: userData.altura || "",
+                tipo_diabetes: userData.tipoDiabetes || "",
+                tipo_insulina: userData.tipoInsulina || ""
+              });
+              
               console.log("Horários encontrados:", horarios);
               setHorariosCadastrados(horarios.map((h: string) => ({ horario: h })));
             } else {
@@ -173,48 +194,125 @@ export default function Dashboard() {
     insulina: registro.insulina
   }));
 
-  const exportarParaPDF = () => {
+  const exportarParaPDF = async () => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
-    
-    // Título
-    doc.setFontSize(20);
-    doc.text("Relatório de Medições", pageWidth / 2, 20, { align: "center" });
-    
-    // Período selecionado
-    doc.setFontSize(12);
-    doc.text(`Período: ${selectedTime.charAt(0).toUpperCase() + selectedTime.slice(1)}`, 20, 30);
-    
-    // Horário selecionado
-    if (selectedHour) {
-      doc.text(`Horário: ${selectedHour}`, 20, 40);
-    }
-    
-    // Data de geração
     const dataAtual = new Date().toLocaleDateString('pt-BR');
-    doc.text(`Gerado em: ${dataAtual}`, 20, 50);
-    
-    // Dados
-    doc.setFontSize(10);
-    let yPos = 70;
-    
-    dadosGrafico.forEach((dado) => {
-      if (yPos > pageHeight - 20) {
-        doc.addPage();
-        yPos = 20;
-      }
-      
-      doc.text(`Data: ${dado.name}`, 20, yPos);
-      doc.text(`Glicemia: ${dado.glicemia} mg/dL`, 20, yPos + 7);
-      doc.text(`Insulina: ${dado.insulina} UI`, 20, yPos + 14);
-      
-      yPos += 30;
+  
+    doc.setFillColor(255, 255, 255);
+    doc.rect(0, 0, pageWidth, pageHeight, 'F');
+
+    const img = new Image();
+    img.src = logo.src;
+  
+    await new Promise((resolve) => {
+      img.onload = () => {
+        const logoWidth = 50;
+        const logoHeight = logoWidth * (img.height / img.width);
+        const xLogo = (pageWidth - logoWidth) / 2;
+        doc.addImage(img, 'PNG', xLogo, 10, logoWidth, logoHeight);
+        resolve(null);
+      };
     });
-    
-    // Salvar o PDF
+  
+    let yOffset = 10 + 30;
+  
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.setTextColor(40, 40, 40);
+    doc.text("Relatório de Medições", pageWidth / 2, yOffset, { align: "center" });
+  
+    yOffset += 10;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(13);
+    doc.text("Dados do Paciente", 20, yOffset);
+  
+    const boxStartY = yOffset + 4;
+    const boxPadding = 4;
+    const boxHeight = 60;
+    doc.setDrawColor(180);
+    doc.setLineWidth(0.2);
+    doc.rect(18, boxStartY, pageWidth - 36, boxHeight);
+  
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(11);
+    const dados = dadosPaciente;
+    const dadosPacienteFormatado = [
+      `Nome: ${dados.nome}`,
+      `Idade: ${dados.idade}`,
+      `Sexo: ${dados.sexo}`,
+      `Peso: ${dados.peso} kg`,
+      `Altura: ${dados.altura} cm`,
+      `Tipo de Diabetes: ${dados.tipo_diabetes}`,
+      `Tipo de Insulina: ${dados.tipo_insulina}`,
+      `Data de Geração: ${dataAtual}`,
+      `Período: ${selectedTime.charAt(0).toUpperCase() + selectedTime.slice(1)}`,
+      selectedHour ? `Horário: ${selectedHour}` : null
+    ].filter(Boolean);
+  
+    let currentY = boxStartY + boxPadding;
+    dadosPacienteFormatado.forEach((linha) => {
+      doc.text(linha!, 22, currentY);
+      currentY += 6;
+    });
+  
+    yOffset = boxStartY + boxHeight + 10;
+  
+    doc.setDrawColor(100);
+    doc.line(18, yOffset, pageWidth - 18, yOffset);
+    yOffset += 8;
+  
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(13);
+    doc.text("Gráfico de Medições", 20, yOffset);
+  
+    yOffset += 6;
+    const graficoElement = document.getElementById("graficoContainer");
+  
+    if (graficoElement) {
+      const canvas = await html2canvas(graficoElement, {
+        scale: 3,
+        useCORS: true
+      });
+  
+      const imgData = canvas.toDataURL("image/png");
+      const imgWidth = pageWidth - 30;
+      const aspectRatio = canvas.width / canvas.height;
+      const maxHeight = pageHeight - yOffset - 30;
+      const imgHeight = Math.min(imgWidth / aspectRatio, maxHeight);
+      const xOffset = (pageWidth - imgWidth) / 2;
+  
+      doc.addImage(imgData, "PNG", xOffset, yOffset, imgWidth, imgHeight);
+      yOffset += imgHeight + 20;
+    }
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(13);
+    doc.text("Histórico de Registros de Medições", 20, yOffset);
+    yOffset += 8;
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(11);
+
+    dadosGrafico.forEach((dado) => {
+      if (yOffset > pageHeight - 40) {
+        doc.addPage();
+        yOffset = 20;
+      }
+
+      const boxHeight = 18;
+      doc.setFillColor(245, 245, 245);
+      doc.roundedRect(18, yOffset, pageWidth - 36, boxHeight, 2, 2, 'F');
+
+      doc.setTextColor(30, 30, 30);
+      doc.text(`Data: ${dado.name}`, 22, yOffset + 6);
+      doc.text(`Glicemia: ${dado.glicemia} mg/dL`, 22, yOffset + 12);
+      doc.text(`Insulina: ${dado.insulina} UI`, 90, yOffset + 12);
+
+      yOffset += boxHeight + 6;
+    });
     doc.save(`relatorio-medicoes-${dataAtual}.pdf`);
-  };
+  };  
 
   if (loading) {
     return (
@@ -300,7 +398,7 @@ export default function Dashboard() {
               </div>
 
               {/* Chart Section */}
-              <div className="flex-1 min-h-0">
+              <div id="graficoContainer" className="flex-1 min-h-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart
                     data={dadosGrafico}
