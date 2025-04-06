@@ -19,13 +19,18 @@ export default function Form() {
       // Verifica se tem usuário logado
       const auth = getAuth();
       const user = auth.currentUser;
-      
+
       if (!user) {
         alert("Usuário não encontrado. Por favor, faça login novamente.");
         return;
       }
 
-      // Verifica se já existe medição para este horário hoje
+      const usuarioData = JSON.parse(usuarioLocal);
+      if (!usuarioData.uid) {
+        alert("ID do usuário não encontrado. Por favor, faça login novamente.");
+        return;
+      }
+
       const hoje = new Date();
       hoje.setHours(0, 0, 0, 0);
       
@@ -43,7 +48,6 @@ export default function Form() {
         return;
       }
 
-      // Prepara os dados para salvar
       const dadosMedicao = {
         userId: user.uid,
         insulina: Number(insulina),
