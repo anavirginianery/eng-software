@@ -66,12 +66,12 @@ export default function Dashboard() {
           }
 
           console.log("Dados do usuário:", user);
-          
+
           // Buscar horários cadastrados do usuário
           try {
             const userDoc = await getDoc(doc(db, "usuarios", user.uid));
             console.log("Documento do usuário:", userDoc.exists() ? userDoc.data() : "Não encontrado");
-            
+
             if (userDoc.exists()) {
               const userData = userDoc.data();
               const horarios = userData.horarios_afericao || [];
@@ -99,7 +99,7 @@ export default function Dashboard() {
           // Calcular data inicial baseado no período selecionado
           const hoje = new Date();
           let dataInicial = new Date();
-          
+
           switch (selectedTime) {
             case "dia":
               dataInicial.setHours(0, 0, 0, 0);
@@ -132,9 +132,9 @@ export default function Dashboard() {
 
           const querySnapshot = await getDocs(q);
           console.log("Número de documentos encontrados:", querySnapshot.size);
-          
+
           const medicoes: RegistroMedicao[] = [];
-          
+
           querySnapshot.forEach((doc) => {
             const data = doc.data();
             console.log("Dados do documento:", data);
